@@ -43,12 +43,12 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-        <dl className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <Fact kicker="Score" value="0–100" detail="Shown in full" />
           <Fact kicker="Badge" value="1–10" detail="Beside the score" />
           <Fact kicker={CHUD.name} value="Under 70" detail={CHUD.means} />
           <Fact kicker={CHAD.name} value="Top 30%" detail={CHAD.means} />
-        </dl>
+        </div>
       </section>
 
       <section aria-labelledby="board-title" className="panel overflow-hidden">
@@ -123,9 +123,9 @@ export default function HomePage() {
 function Fact({ kicker, value, detail }: { kicker: string; value: string; detail: string }) {
   return (
     <div className="panel p-4">
-      <dt className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">{kicker}</dt>
-      <dd className="mt-2 font-serif text-3xl text-ink">{value}</dd>
-      <dd className="mt-1 text-sm text-muted">{detail}</dd>
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">{kicker}</p>
+      <p className="mt-2 font-serif text-3xl text-ink">{value}</p>
+      <p className="mt-1 text-sm text-muted">{detail}</p>
     </div>
   );
 }
