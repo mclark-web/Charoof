@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-mono: var(--font-plex), ui-monospace, monospace;
+  --color-paper: #f4efe4;
+  --color-ink: #1c1914;
+  --color-field: #143028;
+  --color-field-deep: #0d221c;
+  --color-paint: #e4f07a;
+  --color-card: #fbf7ef;
+  --color-line: #e2d7c6;
+  --color-chad: #8a5a12;
+  --color-chad-wash: #f8efd4;
+  --color-chud: #8e2f2a;
+  --color-chud-wash: #f8e6e2;
+  --color-muted: #5e574c;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    background-image:
+      radial-gradient(ellipse at 0% -8%, rgba(228, 240, 122, 0.35), transparent 32%),
+      linear-gradient(180deg, rgba(20, 48, 40, 0.04), transparent 28%);
+  }
+
+  ::selection {
+    background: #e4f07a;
+    color: #1c1914;
+  }
+
+  :focus-visible {
+    outline: 2px solid #143028;
+    outline-offset: 3px;
+  }
+}
+
+@utility panel {
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-card) 94%, white);
+  box-shadow: 0 1px 0 rgba(28, 25, 20, 0.04);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 50;
+  border-radius: 999px;
+  background: #e4f07a;
+  color: #143028;
+  padding: 0.5rem 0.75rem;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
