@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Fictional prediction account on the Charoof demo ledger.
+model Capper {
+  id          String  @id
+  handle      String  @unique
+  displayName String
+  focus       String
+  bio         String
+  hue         Int
+  isDemo      Boolean @default(true)
+  picks       Pick[]
+}
+
+/// Sample fixture. Finals are invented demo results, never live scores.
+model Event {
+  id         String   @id
+  sport      String
+  season     String
+  weekLabel  String
+  name       String
+  startsAt   DateTime
+  status     String
+  homeName   String
+  awayName   String
+  homeScore  Int?
+  awayScore  Int?
+  source     String
+  sourceNote String
+  picks      Pick[]
+
+  @@index([sport, season])
+}
+
+/// A posted pick. Grade is derived from the event final and the posted number.
+model Pick {
+  id           String   @id
+  capperId     String
+  eventId      String
+  market       String
+  side         String
+  line         Float?
+  oddsAmerican Int
+  units        Float
+  selection    String
+  propPlayer   String?
+  propStat     String?
+  propActual   Float?
+  publishedAt  DateTime
+  clarity      String
+  grade        String
+  note         String?
+  isDemo       Boolean  @default(true)
+  capper       Capper   @relation(fields: [capperId], references: [id], onDelete: Cascade)
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([capperId])
+  @@index([eventId])
+}

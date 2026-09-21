@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f3efe6;
+  --paper-2: #e6e0d2;
+  --ink: #1c2420;
+  --ink-soft: #3e4a44;
+  --pine: #1a3c32;
+  --line: #d4cdbf;
+  --chad: #1d6b45;
+  --chad-soft: #e4f2ea;
+  --chud: #8d3b32;
+  --chud-soft: #f8e8e4;
+  --listed: #8a6232;
+  --listed-soft: #f6edd9;
+  --brass: #8d6b32;
+  --card: #faf7f1;
+  --background: var(--paper);
+  --foreground: var(--ink);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-pine: var(--pine);
+  --color-line: var(--line);
+  --color-chad: var(--chad);
+  --color-chad-soft: var(--chad-soft);
+  --color-chud: var(--chud);
+  --color-chud-soft: var(--chud-soft);
+  --color-listed: var(--listed);
+  --color-listed-soft: var(--listed-soft);
+  --color-brass: var(--brass);
+  --color-card: var(--card);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-source), "Source Sans 3", sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-score: var(--font-barlow), "Arial Narrow", sans-serif;
+}
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: #d7e7dc;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
