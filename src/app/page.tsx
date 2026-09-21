@@ -35,12 +35,12 @@ export default async function HomePage() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-5 py-10">
       <section className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-brass">Accountability ledger</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-brass">Charoof · Analysts · FinTwit · Sports</p>
           <h1 className="mt-2 max-w-xl font-serif text-5xl leading-tight text-pine sm:text-6xl">
             A public record for a posted pick.
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-ink-soft">
-            Charoof grades prediction accounts when the game is final. CH, the Charoof factor, runs from
+            Charoof Sports grades prediction accounts when the game is final. CH, the Charoof factor, runs from
             Chud — Uncertainty &amp; Doubt — to Chad — Accuracy &amp; Discipline. Under 70/100 is Chud
             territory. The top 30% of peers earns Chad.
           </p>

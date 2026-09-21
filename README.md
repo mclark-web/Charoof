@@ -1,6 +1,12 @@
-# Charoof
+# Charoof Sports
 
-Charoof is a public accountability ledger for sports prediction accounts. It grades posted picks when a game is final and publishes the result as **CH**, the Charoof factor.
+Charoof Sports is the sports vertical of **Charoof**. The umbrella nav is **Analysts · FinTwit · Sports**.
+
+- **Analysts** — [Charoof Analysts](https://bank-troof.vercel.app)
+- **FinTwit** — [Charoof FinTwit](https://fintwittruth.vercel.app)
+- **Sports** — this site
+
+Charoof Sports is a public accountability ledger for sports prediction accounts. It grades posted picks when a game is final and publishes the result as **CH**, the Charoof factor.
 
 This repository is a soft-launch demo. The cappers, clubs, and finals are fictional and labeled as such. Charoof does not invent a live score, does not scrape paid tip sites, and is not a sportsbook.
 

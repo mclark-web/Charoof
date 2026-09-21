@@ -28,12 +28,12 @@ const barlow = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: {
-    default: "Charoof — public ledger for sports prediction accounts",
-    template: "%s · Charoof",
+    default: "Charoof Sports — public ledger for sports prediction accounts",
+    template: "%s · Charoof Sports",
   },
   description:
-    "Charoof grades public sports picks against final scores. CH is the Charoof factor, read as a 1–10 Chad/Chud scale and as a score out of 100. Demo ledger. Not gambling advice.",
-  applicationName: "Charoof",
+    "Charoof Sports grades public sports picks against final scores. CH is the Charoof factor, read as a 1–10 Chad/Chud scale and as a score out of 100. Demo ledger. Not gambling advice.",
+  applicationName: "Charoof Sports",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
