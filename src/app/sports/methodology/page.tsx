@@ -88,9 +88,16 @@ export default function MethodologyPage() {
           full ledger keeps the prior sample year as well.
         </p>
         <p>
-          Charoof grades the number that was posted. This demo does not claim a closing line. A pick published
-          after the listed start still settles. The timestamp lowers Discipline. It does not erase the result.
-          A lean still settles when a number was recorded, and it lowers the clarity score.
+          Charoof grades the number that was posted. This demo does not claim a closing line, and it does not
+          call an odds feed. A pick published after the listed start still settles. The timestamp lowers
+          Discipline. It does not erase the result. A lean still settles when a number was recorded, and it
+          lowers the clarity score. A side with no posted number is void.
+        </p>
+        <p>
+          If the article posted an American price, that price is the unit math. If it posted a prediction-market
+          percent or a price in cents, that figure is converted to American odds and the original stays in the
+          note. If it posted no price, a win pays even money and a loss costs the stake. That even-money figure
+          is labeled, because it was not in the article. The win, loss, or push itself does not depend on it.
         </p>
       </Section>
 
@@ -160,6 +167,10 @@ export default function MethodologyPage() {
       <Section title="Where the results come from">
         <p>
           Active adapter: {adapter.label} ({adapter.id}, mode {adapter.mode}). {feedNotice(adapter)}
+        </p>
+        <p>
+          The Fri Sep 18 public pick archive is seeded from free articles and settled from public finals and
+          box scores. It is not an odds feed. A side without a posted number stays void. No tweet ID is stored.
         </p>
         <p>
           A future feed implements the same contract: return verified finals, or return nothing. An empty

@@ -46,8 +46,18 @@ export const STAKE_CV_PENALTY = 120;
 
 export const RESULT_SOURCE = "demo-seed";
 
+/** Public finals copied into the Fri Sep 18, 2026 pick archive. Not an odds feed. */
+export const PUBLIC_RESULT_SOURCE = "public-box-score";
+
+export const ARCHIVE_SEASON = "Fri Sep 18, 2026";
+
+export const ARCHIVE_WEEK = "Public pick archive (Fri Sep 18)";
+
 export const FINAL_NOTE =
   "Invented sample final for the Charoof demo. Not a live score and not a historical result.";
+
+export const PUBLIC_FINAL_NOTE =
+  "Settled from a public final or box score. No odds feed. Not a demo invention.";
 
 export const OPEN_NOTE =
   "Sample fixture left open. Charoof does not invent a final.";

@@ -17,7 +17,7 @@ Previous Sports URLs redirect into the branch: `/leaderboard`, `/cappers/:handle
 
 Charoof Sports is a public accountability ledger for sports prediction accounts. It grades posted picks when a game is final and publishes the result as **CH**, the Charoof factor.
 
-This repository is a soft-launch demo. The cappers, clubs, and finals are fictional and labeled as such. Charoof does not invent a live score, does not scrape paid tip sites, and is not a sportsbook.
+This repository is a soft-launch demo. The sample cappers, clubs, and finals are fictional and labeled as such. A separate **public pick archive (Fri Sep 18, 2026)** copies free published cards and grades them on public finals. Charoof does not invent a live score, does not call an odds feed, does not scrape paid tip sites, and is not a sportsbook.
 
 ### Lexicon
 
@@ -38,6 +38,15 @@ Eligible peers have at least 12 settled picks in the scope you are viewing. The 
 - Open fixtures with no score attached
 - `/sports/disclaimer`, `/sports/terms`, and `/sports/donate` (donation-only; the form does not charge anyone)
 - A results adapter in `src/lib/feeds.ts`. `RESULTS_FEED=live` returns no finals until a verified feed is configured
+- A Friday slate strip on `/sports` for the Sep 18, 2026 public pick archive
+
+### Settlement
+
+Sample fixtures settle on invented demo finals. The Fri Sep 18 archive settles on **public box scores and match reports**. The line is the number the article posted. There is no odds feed and no live-lines vendor.
+
+A prediction-market percent in the article is converted to American odds for the unit math, and the original percent stays on the pick. If the article posted no price, the grade is still win, loss, push, or void, and the units use even money. That even-money price is labeled because it was not in the source. Two ProCappers college leans named a side and did not post a number, so those rows are void.
+
+No NFL game is in the archive. The public cards used here did not post an NFL side for that Friday. Sources are cited on each pick. Tweet IDs are not invented.
 
 ## Run
 

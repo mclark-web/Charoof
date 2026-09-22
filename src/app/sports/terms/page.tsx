@@ -18,8 +18,9 @@ export default function TermsPage() {
       <div className="mt-8 space-y-8 text-base leading-7 text-ink-soft">
         <Section title="The service">
           Charoof publishes an accountability ledger for sports prediction accounts. The current release is a
-          labeled demo: fictional cappers, sample clubs, and invented finals. Using the site means you
-          understand that frame.
+          labeled demo: fictional sample cappers and invented sample finals, plus a Fri Sep 18 public pick
+          archive graded from public articles and public finals. Using the site means you understand that
+          frame.
         </Section>
         <Section title="Not advice">
           Nothing on Charoof is gambling, financial, or betting advice. Scores describe a past sample. They
@@ -32,10 +33,11 @@ export default function TermsPage() {
           demo donation form does not process payments.
         </Section>
         <Section title="Demo data and future feeds">
-          Demo scores stay labeled as demo scores. A live result may be shown only when it comes from a
-          verified feed. Charoof will not invent a final, and it will not scrape paid tip sites to fill the
-          board. If you later submit a public pick, it must be your own public record, posted with a market
-          and a number that can be graded at the final.
+          Demo scores stay labeled as demo scores. The Fri Sep 18 archive stays labeled as a public pick
+          archive and is settled from public finals, not from an odds feed. A live result may be shown only
+          when it comes from a verified feed. Charoof will not invent a final, and it will not scrape paid
+          tip sites to fill the board. If you later submit a public pick, it must be your own public record,
+          posted with a market and a number that can be graded at the final.
         </Section>
         <Section title="No affiliation">
           Charoof is not affiliated with, endorsed by, or sponsored by any league, team, conference, players
@@ -51,9 +53,10 @@ export default function TermsPage() {
           score on this ledger. They are not a personal judgment beyond that score.
         </Section>
         <Section title="Warranty">
-          The demo is provided as-is. Finals in the seed are invented on purpose and must not be reused as
-          real results. Scoring rules can change; the methodology page is the current description. To the
-          extent the law allows, Charoof disclaims warranties of accuracy, fitness, and uninterrupted access.
+          The demo is provided as-is. Invented sample finals must not be reused as real results. Archive
+          finals cite a public source and can still be wrong if that source was wrong. Scoring rules can
+          change; the methodology page is the current description. To the extent the law allows, Charoof
+          disclaims warranties of accuracy, fitness, and uninterrupted access.
         </Section>
         <Section title="Contact">
           Questions about this draft can be sent to ledger@charoof.example. That address is a placeholder.

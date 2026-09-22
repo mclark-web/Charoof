@@ -3,6 +3,7 @@ import { cache } from "react";
 import {
   CHAD_FRACTION,
   CHUD_LINE,
+  ARCHIVE_SEASON,
   DEMO_SEASON,
   MIN_GRADED,
   MIN_PEER_SET,
@@ -26,9 +27,11 @@ export type LedgerPick = {
   market: string;
   side: string;
   line: number | null;
-  oddsAmerican: number;
+  oddsAmerican: number | null;
   units: number;
   selection: string;
+  scoreScope: string;
+  participant: string | null;
   propPlayer: string | null;
   propStat: string | null;
   propActual: number | null;
@@ -49,6 +52,10 @@ export type LedgerPick = {
     awayName: string;
     homeScore: number | null;
     awayScore: number | null;
+    homeFirstQuarter: number | null;
+    awayFirstQuarter: number | null;
+    homeFirstHalf: number | null;
+    awayFirstHalf: number | null;
     source: string;
     sourceNote: string;
   };
@@ -119,6 +126,8 @@ export const loadLedger = cache(async (): Promise<LedgerCapper[]> => {
       oddsAmerican: pick.oddsAmerican,
       units: pick.units,
       selection: pick.selection,
+      scoreScope: pick.scoreScope,
+      participant: pick.participant,
       propPlayer: pick.propPlayer,
       propStat: pick.propStat,
       propActual: pick.propActual,
@@ -139,6 +148,10 @@ export const loadLedger = cache(async (): Promise<LedgerCapper[]> => {
         awayName: pick.event.awayName,
         homeScore: pick.event.homeScore,
         awayScore: pick.event.awayScore,
+        homeFirstQuarter: pick.event.homeFirstQuarter,
+        awayFirstQuarter: pick.event.awayFirstQuarter,
+        homeFirstHalf: pick.event.homeFirstHalf,
+        awayFirstHalf: pick.event.awayFirstHalf,
         source: pick.event.source,
         sourceNote: pick.event.sourceNote,
       },
@@ -236,6 +249,20 @@ export async function getPickById(id: string): Promise<{ pick: LedgerPick; cappe
     if (pick) return { pick, capper };
   }
   return null;
+}
+
+export function archivePicks(ledger: LedgerCapper[]): Array<{ capper: LedgerCapper; pick: LedgerPick }> {
+  return ledger
+    .flatMap((capper) =>
+      capper.picks
+        .filter((pick) => pick.event.season === ARCHIVE_SEASON)
+        .map((pick) => ({ capper, pick })),
+    )
+    .sort((a, b) => {
+      const start = a.pick.event.startsAt.getTime() - b.pick.event.startsAt.getTime();
+      if (start !== 0) return start;
+      return a.pick.selection.localeCompare(b.pick.selection);
+    });
 }
 
 export function sortPicks(picks: LedgerPick[]): LedgerPick[] {

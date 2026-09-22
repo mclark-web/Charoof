@@ -1,24 +1,13 @@
 import type { Badge } from "@/lib/scoring";
 
-const DATE = new Intl.DateTimeFormat("en-US", {
-  timeZone: "UTC",
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
-
-const DATE_TIME = new Intl.DateTimeFormat("en-US", {
-  timeZone: "UTC",
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-  timeZoneName: "short",
-});
-
-export function formatWhen(date: Date, withTime = false): string {
-  return (withTime ? DATE_TIME : DATE).format(date);
+export function formatWhen(date: Date, withTime = false, timeZone = "UTC"): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    ...(withTime ? { hour: "numeric", minute: "2-digit", timeZoneName: "short" } : {}),
+  }).format(date);
 }
 
 export function formatRecord(wins: number, losses: number, pushes: number): string {
@@ -41,7 +30,8 @@ export function formatRoi(roi: number | null): string {
   return `${absolute}%`;
 }
 
-export function formatOdds(odds: number): string {
+export function formatOdds(odds: number | null): string {
+  if (odds == null) return "Not posted";
   return odds > 0 ? `+${odds}` : String(odds);
 }
 
@@ -89,6 +79,10 @@ export function marketLabel(market: string): string {
       return "Moneyline";
     case "prop":
       return "Player prop";
+    case "team_total":
+      return "Team total";
+    case "dnb":
+      return "Draw no bet";
     default:
       return market;
   }
