@@ -8,7 +8,7 @@ const branch = getBranch("bot");
 export const metadata: Metadata = {
   title: "Charoof Bot",
   description:
-    "Charoof Bot is the conversational branch. The repository is public. A live demo is not deployed.",
+    "Charoof Bot scores clone speech and amplifiers by narrative volume. The live zero-cost demo is linked from this branch.",
 };
 
 export default function BotPage() {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { BRANCHES } from "@/lib/branches";
+import { BRANCHES, type Branch } from "@/lib/branches";
 
 export default function HomePage() {
   return (
@@ -23,15 +23,7 @@ export default function HomePage() {
 
       <section aria-label="Branches" className="grid gap-px border border-line bg-line md:grid-cols-2">
         {BRANCHES.map((branch) => (
-          <Link key={branch.id} href={branch.href} className="flex flex-col gap-3 bg-card px-5 py-6 hover:bg-paper">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="font-score text-sm tracking-[0.16em] text-brass">{branch.index}</span>
-              <span className="text-xs uppercase tracking-[0.14em] text-ink-soft">{branch.status}</span>
-            </div>
-            <h2 className="font-serif text-4xl text-pine">{branch.title}</h2>
-            <p className="text-sm leading-6 text-ink-soft">{branch.summary}</p>
-            <p className="mt-auto text-xs uppercase tracking-[0.14em] text-ink">Measures · {branch.measures}</p>
-          </Link>
+          <BranchCard key={branch.id} branch={branch} />
         ))}
       </section>
 
@@ -57,5 +49,35 @@ export default function HomePage() {
         </ol>
       </section>
     </div>
+  );
+}
+
+function BranchCard({ branch }: { branch: Branch }) {
+  const external = branch.cardHref.startsWith("http");
+  const className = "flex flex-col gap-3 bg-card px-5 py-6 hover:bg-paper";
+  const body = (
+    <>
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="font-score text-sm tracking-[0.16em] text-brass">{branch.index}</span>
+        <span className="text-xs uppercase tracking-[0.14em] text-ink-soft">{branch.status}</span>
+      </div>
+      <h2 className="font-serif text-4xl text-pine">{branch.title}</h2>
+      <p className="text-sm leading-6 text-ink-soft">{branch.summary}</p>
+      <p className="mt-auto text-xs uppercase tracking-[0.14em] text-ink">Measures · {branch.measures}</p>
+    </>
+  );
+
+  if (external) {
+    return (
+      <a href={branch.cardHref} className={className} rel="noopener noreferrer">
+        {body}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={branch.cardHref} className={className}>
+      {body}
+    </Link>
   );
 }

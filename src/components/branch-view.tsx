@@ -28,7 +28,7 @@ export function BranchView({ branch }: { branch: Branch }) {
         </div>
       </dl>
 
-      <p>
+      <p className="flex flex-wrap items-center gap-x-5 gap-y-3">
         <a
           href={destination}
           className="inline-flex bg-pine px-4 py-2 text-sm text-paper hover:bg-ink"
@@ -36,18 +36,18 @@ export function BranchView({ branch }: { branch: Branch }) {
         >
           {branch.externalLabel}
         </a>
+        {branch.secondaryHref && branch.secondaryLabel ? (
+          <a
+            href={branch.secondaryHref}
+            className="text-sm underline decoration-line underline-offset-4 hover:decoration-pine"
+            rel="noopener noreferrer"
+          >
+            {branch.secondaryLabel}
+          </a>
+        ) : null}
       </p>
 
-      {branch.id === "bot" ? (
-        <p className="border border-line bg-card px-4 py-4 text-sm leading-6 text-ink-soft">
-          The repository is public and still a placeholder. This page links to that source. A deployed bot
-          demo does not exist yet.
-        </p>
-      ) : (
-        <p className="text-sm leading-6 text-ink-soft">
-          The graded ledger is the live site linked above. This page is the branch inside the Charoof tree.
-        </p>
-      )}
+      <p className="text-sm leading-6 text-ink-soft">{branch.note}</p>
 
       <p>
         <Link href="/" className="text-sm underline decoration-line underline-offset-4 hover:decoration-pine">

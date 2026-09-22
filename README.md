@@ -7,7 +7,7 @@ Charoof is the parent record. Four branches sit in one header:
 | Analysts | `/analysts` | Live ledger at [bank-troof.vercel.app](https://bank-troof.vercel.app) |
 | FinTwit | `/fintwit` | Live ledger at [fintwittruth.vercel.app](https://fintwittruth.vercel.app) |
 | Sports | `/sports` | This repository |
-| Charoof Bot | `/bot` | Source at [mclark-web/charoofbot](https://github.com/mclark-web/charoofbot). No public demo is deployed. |
+| Charoof Bot | `/bot` | Live demo at [charoofbot.vercel.app](https://charoofbot.vercel.app). Source at [mclark-web/charoofbot](https://github.com/mclark-web/charoofbot). |
 
 `/` is the umbrella. Analysts, FinTwit, and Bot are doors in this chrome that link out to the real instance. Sports is the ledger in this app. The apps are not merged here.
 

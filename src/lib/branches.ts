@@ -11,9 +11,19 @@ export type Branch = {
   status: string;
   externalHref: string | null;
   externalLabel: string;
+  /** Second action on the branch page. Bot keeps the repository beside the live demo. */
+  secondaryHref: string | null;
+  secondaryLabel: string | null;
+  /** Home-grid destination. Bot opens the live demo; the other cards stay in the tree. */
+  cardHref: string;
+  note: string;
 };
 
+export const BOT_LIVE_URL = "https://charoofbot.vercel.app";
 export const BOT_REPOSITORY = "https://github.com/mclark-web/charoofbot";
+
+const LEDGER_NOTE =
+  "The graded ledger is the live site linked above. This page is the branch inside the Charoof tree.";
 
 export const BRANCHES: readonly Branch[] = [
   {
@@ -28,6 +38,10 @@ export const BRANCHES: readonly Branch[] = [
     status: "Live ledger",
     externalHref: "https://bank-troof.vercel.app",
     externalLabel: "Open the Analysts ledger",
+    secondaryHref: null,
+    secondaryLabel: null,
+    cardHref: "/analysts",
+    note: LEDGER_NOTE,
   },
   {
     id: "fintwit",
@@ -41,6 +55,10 @@ export const BRANCHES: readonly Branch[] = [
     status: "Live ledger",
     externalHref: "https://fintwittruth.vercel.app",
     externalLabel: "Open the FinTwit ledger",
+    secondaryHref: null,
+    secondaryLabel: null,
+    cardHref: "/fintwit",
+    note: LEDGER_NOTE,
   },
   {
     id: "sports",
@@ -54,6 +72,10 @@ export const BRANCHES: readonly Branch[] = [
     status: "Live · this site",
     externalHref: null,
     externalLabel: "Open the Sports ledger",
+    secondaryHref: null,
+    secondaryLabel: null,
+    cardHref: "/sports",
+    note: "Sports runs on this site. The board, profiles, and methodology are the ledger.",
   },
   {
     id: "bot",
@@ -61,12 +83,16 @@ export const BRANCHES: readonly Branch[] = [
     navLabel: "Bot",
     href: "/bot",
     title: "Charoof Bot",
-    measures: "The same record, asked in conversation",
+    measures: "Clone speech and amplifiers by narrative volume",
     summary:
-      "The fourth branch is being built in its own repository. A public demo is not deployed, so this page does not point at a live bot.",
-    status: "Not deployed",
-    externalHref: BOT_REPOSITORY,
-    externalLabel: "Charoof Bot repository",
+      "Clone speech is the same wording posted as an original. Amplifiers boost a narrative without being the source. Narrative volume, on a zero-cost demo, shows which stories are being sewn harder.",
+    status: "Live demo",
+    externalHref: BOT_LIVE_URL,
+    externalLabel: "Open Charoof Bot",
+    secondaryHref: BOT_REPOSITORY,
+    secondaryLabel: "Charoof Bot repository",
+    cardHref: BOT_LIVE_URL,
+    note: "This page is the Bot branch inside the Charoof tree. The live demo scores clone speech and amplifiers apart, on a synthetic corpus, at zero cost.",
   },
 ];
 
