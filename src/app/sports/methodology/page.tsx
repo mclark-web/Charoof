@@ -22,7 +22,7 @@ import { formatDial, formatNumber, formatRoi, formatUnits } from "@/lib/format";
 import { scorePicks } from "@/lib/scoring";
 
 export const metadata: Metadata = {
-  title: "Methodology",
+  title: "Sports methodology",
   description:
     "How Charoof scores CH, the Charoof factor, and when a ledger earns Chad or sits in Chud territory.",
 };

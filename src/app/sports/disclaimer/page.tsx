@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Disclaimer",
+  title: "Sports disclaimer",
   description: "Charoof is an accountability demo, not gambling advice and not a sportsbook.",
 };
 
@@ -35,12 +35,12 @@ export default function DisclaimerPage() {
         </p>
         <p>
           Charoof does not take wagers. Support, if any, is donation-only and does not purchase a pick, a
-          badge, or a place on the board. See the <Link href="/donate" className="underline underline-offset-4">donation page</Link>.
+          badge, or a place on the board. See the <Link href="/sports/donate" className="underline underline-offset-4">donation page</Link>.
         </p>
         <p>Charoof is for adults 18 and older. It is not directed at minors.</p>
         <p>
-          The scoring rules are published on the <Link href="/methodology" className="underline underline-offset-4">methodology</Link> page.
-          The <Link href="/terms" className="underline underline-offset-4">terms</Link> are also a draft for legal review.
+          The scoring rules are published on the <Link href="/sports/methodology" className="underline underline-offset-4">methodology</Link> page.
+          The <Link href="/sports/terms" className="underline underline-offset-4">terms</Link> are also a draft for legal review.
         </p>
       </div>
     </article>

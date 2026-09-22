@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Fraunces, Source_Sans_3 } from "next/font/google";
 
-import { DemoBanner } from "@/components/demo-banner";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
@@ -28,12 +27,12 @@ const barlow = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: {
-    default: "Charoof Sports — public ledger for sports prediction accounts",
-    template: "%s · Charoof Sports",
+    default: "Charoof — measure the claim after the outcome",
+    template: "%s · Charoof",
   },
   description:
-    "Charoof Sports grades public sports picks against final scores. CH is the Charoof factor, read as a 1–10 Chad/Chud scale and as a score out of 100. Demo ledger. Not gambling advice.",
-  applicationName: "Charoof Sports",
+    "Charoof is a public record with four branches: Analysts, FinTwit, Sports, and Charoof Bot. Claims are graded after the outcome. Accountability in an age of market FOMO, prediction craze, and loud anonymous voices.",
+  applicationName: "Charoof",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +45,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <DemoBanner />
         <SiteHeader />
         <main id="content" className="flex-1">
           {children}

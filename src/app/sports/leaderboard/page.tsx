@@ -7,7 +7,7 @@ import { getBoard } from "@/lib/ledger";
 import { boardHref, parseSport, parseWindow, windowLabel } from "@/lib/links";
 
 export const metadata: Metadata = {
-  title: "Board",
+  title: "Sports board",
   description: "Charoof leaderboard for the demo ledger, overall and by sport, with a season-to-date window.",
 };
 

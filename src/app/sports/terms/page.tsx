@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms",
+  title: "Sports terms",
   description: "Draft terms for Charoof, an accountability ledger. Not gambling advice.",
 };
 
@@ -57,7 +57,7 @@ export default function TermsPage() {
         </Section>
         <Section title="Contact">
           Questions about this draft can be sent to ledger@charoof.example. That address is a placeholder.
-          Also read the <Link href="/disclaimer" className="underline underline-offset-4">disclaimer</Link>.
+          Also read the <Link href="/sports/disclaimer" className="underline underline-offset-4">disclaimer</Link>.
         </Section>
       </div>
     </article>

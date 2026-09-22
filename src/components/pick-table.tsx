@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { formatOdds, formatUnits, formatWhen, gradeLabel, marketLabel } from "@/lib/format";
+import { pickHref } from "@/lib/links";
 import { unitProfit } from "@/lib/grade";
 import type { LedgerPick } from "@/lib/ledger";
 
@@ -56,7 +57,7 @@ export function PickTable({ picks, showSeason }: { picks: LedgerPick[]; showSeas
                 </td>
                 <td className="px-3 py-3">{marketLabel(pick.market)}</td>
                 <td className="px-3 py-3">
-                  <Link href={`/picks/${pick.id}`} className="font-medium underline-offset-2 hover:underline">
+                  <Link href={pickHref(pick.id)} className="font-medium underline-offset-2 hover:underline">
                     {pick.selection}
                   </Link>
                   <p className="text-xs text-ink-soft">{pick.units === 1 ? "1.00u" : `${pick.units.toFixed(2)}u`}</p>

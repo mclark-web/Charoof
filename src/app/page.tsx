@@ -1,104 +1,60 @@
 import Link from "next/link";
 
-import { LeaderboardTable } from "@/components/leaderboard-table";
-import { feedNotice, getResultsAdapter } from "@/lib/feeds";
-import { getBoard, loadLedger } from "@/lib/ledger";
+import { BRANCHES } from "@/lib/branches";
 
-const LEXICON = [
-  {
-    kicker: "CH",
-    title: "Charoof factor",
-    body: "The score out of 100. The dial reads the same number in tenths, so 74/100 is 7.4 on the 1–10 scale.",
-  },
-  {
-    kicker: "Chad",
-    title: "Accuracy & Discipline",
-    body: "The good end of the scale. Top 30% of eligible peers, and only when the factor is 70 or higher.",
-  },
-  {
-    kicker: "Chud",
-    title: "Uncertainty & Doubt",
-    body: "The bad end. Under 70/100 is Chud territory, even for someone sitting near the top of a weak board.",
-  },
-];
-
-export default async function HomePage() {
-  const [board, ledger] = await Promise.all([getBoard("all", null), loadLedger()]);
-  const openPicks = ledger.reduce(
-    (sum, capper) => sum + capper.picks.filter((pick) => pick.grade === "pending").length,
-    0,
-  );
-  const chadCount = board.rows.filter((row) => row.badge === "chad").length;
-  const notice = feedNotice(getResultsAdapter());
-
+export default function HomePage() {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-5 py-10">
-      <section className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-brass">Charoof · Analysts · FinTwit · Sports</p>
-          <h1 className="mt-2 max-w-xl font-serif text-5xl leading-tight text-pine sm:text-6xl">
-            A public record for a posted pick.
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-ink-soft">
-            Charoof Sports grades prediction accounts when the game is final. CH, the Charoof factor, runs from
-            Chud — Uncertainty &amp; Doubt — to Chad — Accuracy &amp; Discipline. Under 70/100 is Chud
-            territory. The top 30% of peers earns Chad.
-          </p>
-        </div>
-        <dl className="grid grid-cols-2 gap-px border border-line bg-line">
-          {[
-            ["Cappers", String(board.rows.length)],
-            ["Settled picks", String(board.settledPicks)],
-            ["Chad marks", String(chadCount)],
-            ["Chud line", "70/100"],
-          ].map(([term, value]) => (
-            <div key={term} className="bg-card px-4 py-3">
-              <dt className="text-xs uppercase tracking-[0.14em] text-ink-soft">{term}</dt>
-              <dd className="font-score text-4xl text-ink">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="font-serif text-3xl text-pine">The board</h2>
-            <p className="mt-1 text-sm text-ink-soft">Full demo ledger, all sports. Season-to-date is on the board page.</p>
-          </div>
-          <Link href="/leaderboard" className="text-sm underline decoration-line underline-offset-4 hover:decoration-pine">
-            Open filters
-          </Link>
-        </div>
-        <LeaderboardTable rows={board.rows} window="all" caption="Full demo ledger, all sports" />
-        <p className="text-sm leading-6 text-ink-soft">{board.note}</p>
-        <p className="text-sm leading-6 text-ink-soft">
-          {openPicks} sample {openPicks === 1 ? "fixture is" : "fixtures are"} still open, with no score attached.{" "}
-          {notice}
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-14 px-5 py-12">
+      <section className="max-w-3xl">
+        <p className="text-xs uppercase tracking-[0.18em] text-brass">Charoof</p>
+        <h1 className="mt-3 font-serif text-5xl leading-tight text-pine sm:text-6xl">
+          Measure the claim after the outcome.
+        </h1>
+        <p className="mt-5 font-serif text-2xl italic leading-snug text-ink">
+          Accountability in an age of market FOMO, prediction craze, and loud anonymous voices.
+        </p>
+        <p className="mt-5 max-w-2xl text-lg leading-8 text-ink-soft">
+          Charoof is a public record with four branches. A claim is scored when a result exists: a price, a
+          print, or a final. CH, the Charoof factor, runs from Chud — uncertainty and doubt — to Chad —
+          accuracy and discipline. Under 70/100 stays Chud. The top of an eligible peer set, and only at 70
+          or better, is Chad.
         </p>
       </section>
 
-      <section className="grid gap-px border border-line bg-line md:grid-cols-3">
-        {LEXICON.map((card) => (
-          <article key={card.kicker} className="bg-card px-5 py-5">
-            <p className="font-score text-3xl text-pine">{card.kicker}</p>
-            <h2 className="mt-1 font-serif text-2xl text-ink">{card.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">{card.body}</p>
-          </article>
+      <section aria-label="Branches" className="grid gap-px border border-line bg-line md:grid-cols-2">
+        {BRANCHES.map((branch) => (
+          <Link key={branch.id} href={branch.href} className="flex flex-col gap-3 bg-card px-5 py-6 hover:bg-paper">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="font-score text-sm tracking-[0.16em] text-brass">{branch.index}</span>
+              <span className="text-xs uppercase tracking-[0.14em] text-ink-soft">{branch.status}</span>
+            </div>
+            <h2 className="font-serif text-4xl text-pine">{branch.title}</h2>
+            <p className="text-sm leading-6 text-ink-soft">{branch.summary}</p>
+            <p className="mt-auto text-xs uppercase tracking-[0.14em] text-ink">Measures · {branch.measures}</p>
+          </Link>
         ))}
       </section>
 
-      <section className="grid gap-6 border border-line bg-card px-5 py-6 md:grid-cols-3">
-        {[
-          ["1. Post", "A pick names a sport, an event, a market, and a number or a price when one was posted."],
-          ["2. Final", "The grade waits for a recorded final. An open fixture stays blank. Charoof does not invent the score."],
-          ["3. Ledger", "Wins, losses, and pushes move units. Discipline scores the stake, the timestamp, and whether the number was explicit."],
-        ].map(([title, body]) => (
-          <div key={title}>
-            <h2 className="font-serif text-2xl text-pine">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">{body}</p>
-          </div>
-        ))}
+      <section className="grid gap-8 border border-line bg-card px-5 py-6 md:grid-cols-[0.8fr_1.2fr] md:items-start">
+        <div>
+          <h2 className="font-serif text-3xl text-pine">One scale, four instruments</h2>
+          <p className="mt-3 text-sm leading-6 text-ink-soft">
+            The parent is Charoof. Each branch grades a different kind of public claim with the same factor.
+          </p>
+        </div>
+        <ol className="divide-y divide-line">
+          {BRANCHES.map((branch) => (
+            <li key={branch.id} className="flex gap-4 py-3 first:pt-0 last:pb-0">
+              <span className="font-score text-lg text-pine">{branch.index}</span>
+              <p className="text-sm leading-6">
+                <Link href={branch.href} className="text-ink underline decoration-line underline-offset-4 hover:decoration-pine">
+                  {branch.title}
+                </Link>
+                <span className="mt-1 block text-ink-soft">{branch.measures}</span>
+              </p>
+            </li>
+          ))}
+        </ol>
       </section>
     </div>
   );

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { DonateForm } from "@/components/donate-form";
 
 export const metadata: Metadata = {
-  title: "Donate",
+  title: "Sports donate",
   description: "Charoof is donation-only. The demo form does not process payments and does not sell picks.",
 };
 
@@ -27,8 +27,8 @@ export default function DonatePage() {
           processor, or move money. 18+.
         </p>
         <p>
-          Read the <Link href="/disclaimer" className="underline underline-offset-4">disclaimer</Link> and the{" "}
-          <Link href="/terms" className="underline underline-offset-4">terms</Link> before treating any future
+          Read the <Link href="/sports/disclaimer" className="underline underline-offset-4">disclaimer</Link> and the{" "}
+          <Link href="/sports/terms" className="underline underline-offset-4">terms</Link> before treating any future
           campaign as live.
         </p>
       </div>

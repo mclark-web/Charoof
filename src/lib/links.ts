@@ -23,12 +23,21 @@ export function windowLabel(window: LedgerWindow): string {
   return window === "season" ? `${DEMO_SEASON} season to date` : "Full demo ledger";
 }
 
+export const sportsPath = {
+  home: "/sports",
+  board: "/sports/leaderboard",
+  methodology: "/sports/methodology",
+  disclaimer: "/sports/disclaimer",
+  terms: "/sports/terms",
+  donate: "/sports/donate",
+} as const;
+
 export function boardHref(sport: Sport | null, window: LedgerWindow): string {
   const params = new URLSearchParams();
   if (sport) params.set("sport", sport);
   if (window === "season") params.set("window", "season");
   const query = params.toString();
-  return query ? `/leaderboard?${query}` : "/leaderboard";
+  return query ? `${sportsPath.board}?${query}` : sportsPath.board;
 }
 
 export function capperHref(handle: string, window: LedgerWindow, sport: Sport | null = null): string {
@@ -36,5 +45,9 @@ export function capperHref(handle: string, window: LedgerWindow, sport: Sport | 
   if (window === "season") params.set("window", "season");
   if (sport) params.set("sport", sport);
   const query = params.toString();
-  return query ? `/cappers/${handle}?${query}` : `/cappers/${handle}`;
+  return query ? `/sports/cappers/${handle}?${query}` : `/sports/cappers/${handle}`;
+}
+
+export function pickHref(id: string): string {
+  return `/sports/picks/${id}`;
 }
