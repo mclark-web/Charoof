@@ -1,5 +1,7 @@
 export type Grade = "win" | "loss" | "push" | "void" | "pending";
 
+export type ScoreScope = "final" | "1q" | "1h";
+
 export type GradeInput = {
   market: string;
   side: string;
@@ -8,6 +10,12 @@ export type GradeInput = {
   awayScore: number | null;
   propActual: number | null;
   status: string;
+  scoreScope?: ScoreScope | string;
+  participant?: "home" | "away" | string | null;
+  homeFirstQuarter?: number | null;
+  awayFirstQuarter?: number | null;
+  homeFirstHalf?: number | null;
+  awayFirstHalf?: number | null;
 };
 
 const EPSILON = 1e-9;
@@ -17,16 +25,39 @@ function signGrade(value: number): Grade {
   return value > 0 ? "win" : "loss";
 }
 
+function pair(
+  home: number | null | undefined,
+  away: number | null | undefined,
+): { home: number; away: number } | null {
+  if (home == null || away == null) return null;
+  return { home, away };
+}
+
+function scoresForScope(input: GradeInput): { home: number; away: number } | null {
+  const scope = input.scoreScope ?? "final";
+  if (scope === "1q") return pair(input.homeFirstQuarter, input.awayFirstQuarter);
+  if (scope === "1h") return pair(input.homeFirstHalf, input.awayFirstHalf);
+  if (scope === "final") return pair(input.homeScore, input.awayScore);
+  return null;
+}
+
 export function gradeMarket(input: GradeInput): Grade {
   if (input.status === "cancelled") return "void";
-  if (input.status !== "final" || input.homeScore == null || input.awayScore == null) {
-    return "pending";
+  if (input.status !== "final") return "pending";
+
+  if (input.market === "prop") {
+    if (input.homeScore == null || input.awayScore == null) return "pending";
+    if (input.line == null || input.propActual == null) return "void";
+    if (input.side === "over") return signGrade(input.propActual - input.line);
+    if (input.side === "under") return signGrade(input.line - input.propActual);
+    return "void";
   }
 
-  const home = input.homeScore;
-  const away = input.awayScore;
+  const scores = scoresForScope(input);
+  if (!scores) return "pending";
+  const { home, away } = scores;
 
-  if (input.market === "moneyline") {
+  if (input.market === "moneyline" || input.market === "dnb") {
     if (home === away) return "push";
     const winner = home > away ? "home" : "away";
     return input.side === winner ? "win" : "loss";
@@ -46,10 +77,11 @@ export function gradeMarket(input: GradeInput): Grade {
     return "void";
   }
 
-  if (input.market === "prop") {
-    if (input.propActual == null) return "void";
-    if (input.side === "over") return signGrade(input.propActual - input.line);
-    if (input.side === "under") return signGrade(input.line - input.propActual);
+  if (input.market === "team_total") {
+    const points = input.participant === "home" ? home : input.participant === "away" ? away : null;
+    if (points == null) return "void";
+    if (input.side === "over") return signGrade(points - input.line);
+    if (input.side === "under") return signGrade(input.line - points);
     return "void";
   }
 
@@ -90,8 +122,9 @@ export function propActualFor(
   return side === "over" ? line - 3 : line + 3;
 }
 
-export function unitProfit(grade: Grade, units: number, oddsAmerican: number): number {
+export function unitProfit(grade: Grade, units: number, oddsAmerican: number | null): number {
   if (grade === "win") {
+    if (oddsAmerican == null) return units;
     const perUnit = oddsAmerican > 0 ? oddsAmerican / 100 : 100 / Math.abs(oddsAmerican);
     return units * perUnit;
   }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { FactorBadge } from "@/components/factor-badge";
+import { PUBLIC_RESULT_SOURCE } from "@/lib/constants";
 import { explainSettlement } from "@/lib/explain";
 import {
   clarityLabel,
@@ -51,6 +52,7 @@ export default async function PickPage({ params }: PageProps) {
     pick.event.status === "final" && pick.event.homeScore != null && pick.event.awayScore != null;
   const locked = pick.publishedAt.getTime() < pick.event.startsAt.getTime();
   const profit = unitProfit(pick.grade, pick.units, pick.oddsAmerican);
+  const publicFinal = pick.event.source === PUBLIC_RESULT_SOURCE;
   const explanation = explainSettlement({
     market: pick.market,
     side: pick.side,
@@ -61,9 +63,16 @@ export default async function PickPage({ params }: PageProps) {
     awayName: pick.event.awayName,
     homeScore: pick.event.homeScore,
     awayScore: pick.event.awayScore,
+    homeFirstQuarter: pick.event.homeFirstQuarter,
+    awayFirstQuarter: pick.event.awayFirstQuarter,
+    homeFirstHalf: pick.event.homeFirstHalf,
+    awayFirstHalf: pick.event.awayFirstHalf,
+    scoreScope: pick.scoreScope,
+    participant: pick.participant,
     status: pick.event.status,
     propActual: pick.propActual,
     propStat: pick.propStat,
+    source: pick.event.source,
     sourceNote: pick.event.sourceNote,
   });
 
@@ -88,7 +97,9 @@ export default async function PickPage({ params }: PageProps) {
       <section className="border border-line bg-card px-5 py-5">
         {final ? (
           <>
-            <p className="text-xs uppercase tracking-[0.16em] text-brass">Demo seed final</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-brass">
+              {publicFinal ? "Public final" : "Demo seed final"}
+            </p>
             <p className="mt-2 font-score text-5xl text-ink">
               {pick.event.awayScore}
               <span className="text-ink-soft">–</span>
@@ -119,8 +130,8 @@ export default async function PickPage({ params }: PageProps) {
         <Fact term="Line" value={formatLine(pick.line, pick.market === "spread")} />
         <Fact term="Odds" value={formatOdds(pick.oddsAmerican)} />
         <Fact term="Units" value={pick.units.toFixed(2)} />
-        <Fact term="Published" value={formatWhen(pick.publishedAt, true)} />
-        <Fact term="Listed start" value={formatWhen(pick.event.startsAt, true)} />
+        <Fact term="Published" value={formatWhen(pick.publishedAt, true, publicFinal ? "America/New_York" : "UTC")} />
+        <Fact term="Listed start" value={formatWhen(pick.event.startsAt, true, publicFinal ? "America/New_York" : "UTC")} />
         <Fact term="Timing" value={locked ? "Before the listed start" : "After the listed start"} />
         <Fact term="Clarity" value={clarityLabel(pick.clarity)} />
         <Fact term="Result source" value={`${pick.event.source} · ${pick.event.status}`} />

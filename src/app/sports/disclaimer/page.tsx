@@ -25,9 +25,10 @@ export default function DisclaimerPage() {
           sample. It is not an instruction to tail the next pick.
         </p>
         <p>
-          The cappers, clubs, lines, and finals on this demo are fictional. They are labeled as demo seed
-          data. They are not live scores and they are not historical results. If a live feed is not
-          configured, Charoof will not invent one.
+          The sample cappers, clubs, lines, and finals are fictional and labeled as demo seed. They are not
+          live scores. The Fri Sep 18 public pick archive is separate: those sides come from free published
+          articles, and those finals come from public box scores. Charoof does not call an odds feed for
+          either set. If a live feed is not configured, Charoof will not invent one.
         </p>
         <p>
           Charoof is not a sportsbook and is not affiliated with any league, team, conference, or sportsbook.

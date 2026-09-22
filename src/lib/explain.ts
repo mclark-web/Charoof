@@ -1,3 +1,4 @@
+import { PUBLIC_RESULT_SOURCE } from "@/lib/constants";
 import { formatLine, marketLabel } from "@/lib/format";
 
 export function explainSettlement(input: {
@@ -10,9 +11,16 @@ export function explainSettlement(input: {
   awayName: string;
   homeScore: number | null;
   awayScore: number | null;
+  homeFirstQuarter?: number | null;
+  awayFirstQuarter?: number | null;
+  homeFirstHalf?: number | null;
+  awayFirstHalf?: number | null;
+  scoreScope?: string;
+  participant?: string | null;
   status: string;
   propActual: number | null;
   propStat: string | null;
+  source: string;
   sourceNote: string;
 }): string {
   if (input.status === "cancelled" || input.grade === "void") {
@@ -22,8 +30,19 @@ export function explainSettlement(input: {
     return input.sourceNote;
   }
 
-  const score = `${input.awayName} ${input.awayScore}, ${input.homeName} ${input.homeScore}`;
-  const prefix = `Demo seed final: ${score}.`;
+  const scope = input.scoreScope ?? "final";
+  const home =
+    scope === "1q" ? input.homeFirstQuarter : scope === "1h" ? input.homeFirstHalf : input.homeScore;
+  const away =
+    scope === "1q" ? input.awayFirstQuarter : scope === "1h" ? input.awayFirstHalf : input.awayScore;
+  if (home == null || away == null) return input.sourceNote;
+
+  const slice = scope === "1q" ? "First quarter" : scope === "1h" ? "First half" : "Final";
+  const score = `${input.awayName} ${away}, ${input.homeName} ${home}`;
+  const prefix =
+    input.source === PUBLIC_RESULT_SOURCE
+      ? `Public final, ${slice.toLowerCase()}: ${score}.`
+      : `Demo seed final: ${score}.`;
 
   if (input.market === "spread") {
     const verb =
@@ -32,18 +51,27 @@ export function explainSettlement(input: {
   }
 
   if (input.market === "total") {
-    const total = input.homeScore + input.awayScore;
+    const total = home + away;
     return `${prefix} Combined points were ${total} against ${formatLine(input.line)}. ${input.sourceNote}`;
   }
 
-  if (input.market === "moneyline") {
-    const verb =
-      input.grade === "win" ? "won" : input.grade === "push" ? "tied" : "lost";
+  if (input.market === "team_total") {
+    const points = input.participant === "away" ? away : home;
+    const name = input.participant === "away" ? input.awayName : input.homeName;
+    return `${prefix} ${name} scored ${points} against ${formatLine(input.line)}. ${input.sourceNote}`;
+  }
+
+  if (input.market === "moneyline" || input.market === "dnb") {
+    const verb = input.grade === "win" ? "won" : input.grade === "push" ? "tied" : "lost";
     return `${prefix} The selected side ${verb}. ${input.sourceNote}`;
   }
 
   if (input.market === "prop") {
-    return `${prefix} Sample ${input.propStat ?? "stat"} was ${input.propActual ?? "—"} against ${formatLine(input.line)} (${input.side}). This prop stat is demo seed data, not a live box score. ${input.sourceNote}`;
+    const origin =
+      input.source === PUBLIC_RESULT_SOURCE
+        ? "Recorded stat from the public box score."
+        : "This prop stat is demo seed data, not a live box score.";
+    return `${prefix} ${input.propStat ?? "Stat"} was ${input.propActual ?? "—"} against ${formatLine(input.line)} (${input.side}). ${origin} ${input.sourceNote}`;
   }
 
   return `${prefix} ${marketLabel(input.market)} graded ${input.grade}. ${input.sourceNote}`;

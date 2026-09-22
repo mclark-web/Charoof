@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
+import { fridayArchive } from "./friday-archive";
 import {
   DEMO_SEASONS,
   FINAL_NOTE,
@@ -24,7 +25,7 @@ const prisma = new PrismaClient({
   datasources: { db: { url: sqliteUrl() } },
 });
 
-type Market = "spread" | "total" | "moneyline" | "prop";
+type Market = "spread" | "total" | "moneyline" | "prop" | "team_total" | "dnb";
 
 type Slice = {
   season: DemoSeason;
@@ -50,8 +51,8 @@ type CapperSeed = {
 
 type EventDraft = {
   id: string;
-  sport: Sport;
-  season: DemoSeason;
+  sport: Sport | "Soccer";
+  season: string;
   weekLabel: string;
   name: string;
   startsAt: Date;
@@ -60,6 +61,10 @@ type EventDraft = {
   awayName: string;
   homeScore: number | null;
   awayScore: number | null;
+  homeFirstQuarter?: number | null;
+  awayFirstQuarter?: number | null;
+  homeFirstHalf?: number | null;
+  awayFirstHalf?: number | null;
   source: string;
   sourceNote: string;
 };
@@ -71,9 +76,11 @@ type PickDraft = {
   market: Market;
   side: string;
   line: number | null;
-  oddsAmerican: number;
+  oddsAmerican: number | null;
   units: number;
   selection: string;
+  scoreScope: "final" | "1q" | "1h";
+  participant: "home" | "away" | null;
   propPlayer: string | null;
   propStat: string | null;
   propActual: number | null;
@@ -557,6 +564,8 @@ function buildGradedPick(
     oddsAmerican: capper.oddsAmerican,
     units,
     selection,
+    scoreScope: "final",
+    participant: null,
     propPlayer,
     propStat,
     propActual,
@@ -682,6 +691,10 @@ async function main() {
   events.set(openNba.id, openNba);
   events.set(voidNhl.id, voidNhl);
 
+  const archive = fridayArchive();
+  for (const event of archive.events) events.set(event.id, event);
+  picks.push(...archive.picks);
+
   const pendingLine = -3.5;
   const pendingGrade = gradeMarket({
     market: "spread",
@@ -704,6 +717,8 @@ async function main() {
     oddsAmerican: -110,
     units: 1,
     selection: `Harbor Kings ${formatLine(pendingLine, true)}`,
+    scoreScope: "final",
+    participant: null,
     propPlayer: null,
     propStat: null,
     propActual: null,
@@ -723,6 +738,8 @@ async function main() {
     oddsAmerican: -110,
     units: 1,
     selection: `River Index ${formatLine(4.5, true)}`,
+    scoreScope: "final",
+    participant: null,
     propPlayer: null,
     propStat: null,
     propActual: null,
@@ -754,6 +771,8 @@ async function main() {
     oddsAmerican: -120,
     units: 1,
     selection: "Frost Ledger",
+    scoreScope: "final",
+    participant: null,
     propPlayer: null,
     propStat: null,
     propActual: null,
@@ -769,7 +788,7 @@ async function main() {
   await prisma.capper.deleteMany();
 
   await prisma.capper.createMany({
-    data: CAPPERS.map((capper) => ({
+    data: [...CAPPERS, ...archive.cappers].map((capper) => ({
       id: capper.handle,
       handle: capper.handle,
       displayName: capper.displayName,
@@ -790,7 +809,7 @@ async function main() {
 
   const graded = picks.filter((pick) => pick.grade === "win" || pick.grade === "loss" || pick.grade === "push");
   console.log(
-    `Charoof demo seed: ${CAPPERS.length} cappers, ${events.size} fixtures, ${picks.length} picks (${graded.length} settled).`,
+    `Charoof demo seed: ${CAPPERS.length + archive.cappers.length} cappers, ${events.size} fixtures, ${picks.length} picks (${graded.length} settled, ${archive.picks.length} in the Fri Sep 18 archive).`,
   );
 }
 

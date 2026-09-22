@@ -19,22 +19,26 @@ model Capper {
   picks       Pick[]
 }
 
-/// Sample fixture. Finals are invented demo results, never live scores.
+/// Fixture. Sample rows use invented scores. The Fri Sep 18 archive uses public finals.
 model Event {
-  id         String   @id
-  sport      String
-  season     String
-  weekLabel  String
-  name       String
-  startsAt   DateTime
-  status     String
-  homeName   String
-  awayName   String
-  homeScore  Int?
-  awayScore  Int?
-  source     String
-  sourceNote String
-  picks      Pick[]
+  id               String   @id
+  sport            String
+  season           String
+  weekLabel        String
+  name             String
+  startsAt         DateTime
+  status           String
+  homeName         String
+  awayName         String
+  homeScore        Int?
+  awayScore        Int?
+  homeFirstQuarter Int?
+  awayFirstQuarter Int?
+  homeFirstHalf    Int?
+  awayFirstHalf    Int?
+  source           String
+  sourceNote       String
+  picks            Pick[]
 
   @@index([sport, season])
 }
@@ -47,9 +51,14 @@ model Pick {
   market       String
   side         String
   line         Float?
-  oddsAmerican Int
+  /// Null when the article did not post a price. Unit math then uses even money.
+  oddsAmerican Int?
   units        Float
   selection    String
+  /// final, 1q, or 1h. Team totals also set participant.
+  scoreScope   String  @default("final")
+  /// home or away when the market is that team's points. Null for game markets.
+  participant  String?
   propPlayer   String?
   propStat     String?
   propActual   Float?

@@ -7,6 +7,7 @@ import { sportsPath } from "@/lib/links";
 
 const LINKS = [
   { href: sportsPath.home, label: "Overview", exact: true },
+  { href: `${sportsPath.home}#friday-slate`, label: "Fri Sep 18", exact: true },
   { href: sportsPath.board, label: "Board", exact: false },
   { href: sportsPath.methodology, label: "Methodology", exact: false },
   { href: sportsPath.disclaimer, label: "Disclaimer", exact: false },

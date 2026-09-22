@@ -18,8 +18,8 @@ export function SiteFooter() {
         <p>
           Charoof is the parent record. Analysts, FinTwit, Sports, and Charoof Bot are the branches. Sports
           on this site grades posted picks when a game is final. It is not a sportsbook, not gambling advice,
-          and not affiliated with any league or sportsbook. The numbers on this Sports demo are invented
-          sample results. 18+.
+          and not affiliated with any league or sportsbook. Sample clubs on this Sports demo are invented.
+          The Fri Sep 18 archive uses public finals, not an odds feed. 18+.
         </p>
         <CharoofNav />
         <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2">

@@ -1,4 +1,13 @@
-import { FINAL_NOTE, MIN_GRADED, OPEN_NOTE, RESULT_SOURCE, VOID_NOTE } from "../src/lib/constants";
+import {
+  ARCHIVE_SEASON,
+  FINAL_NOTE,
+  MIN_GRADED,
+  OPEN_NOTE,
+  PUBLIC_FINAL_NOTE,
+  PUBLIC_RESULT_SOURCE,
+  RESULT_SOURCE,
+  VOID_NOTE,
+} from "../src/lib/constants";
 import { gradeMarket, propActualFor, spreadLine, totalLine, unitProfit } from "../src/lib/grade";
 import { loadLedger, buildBoard } from "../src/lib/ledger";
 import { getResultsAdapter } from "../src/lib/feeds";
@@ -149,7 +158,15 @@ async function checkLedger() {
     check(capper.isDemo, `${capper.handle} is not flagged demo`);
     for (const pick of capper.picks) {
       check(pick.isDemo, `${pick.id} is not flagged demo`);
-      check(pick.event.source === RESULT_SOURCE, `${pick.event.id} source is ${pick.event.source}`);
+      const archive = pick.event.season === ARCHIVE_SEASON;
+      if (archive) {
+        check(pick.event.source === PUBLIC_RESULT_SOURCE, `${pick.event.id} archive source is ${pick.event.source}`);
+        check(pick.event.sourceNote.startsWith(PUBLIC_FINAL_NOTE), `${pick.event.id} archive note drifted`);
+        check(pick.event.sport !== "NFL", `${pick.event.id} is an NFL row on a Friday with no NFL card`);
+        check(!/status\/\d{5,}/.test(pick.note ?? ""), `${pick.id} has a tweet-style id`);
+      } else {
+        check(pick.event.source === RESULT_SOURCE, `${pick.event.id} source is ${pick.event.source}`);
+      }
       const recomputed = gradeMarket({
         market: pick.market,
         side: pick.side,
@@ -158,11 +175,17 @@ async function checkLedger() {
         awayScore: pick.event.awayScore,
         propActual: pick.propActual,
         status: pick.event.status,
+        scoreScope: pick.scoreScope,
+        participant: pick.participant,
+        homeFirstQuarter: pick.event.homeFirstQuarter,
+        awayFirstQuarter: pick.event.awayFirstQuarter,
+        homeFirstHalf: pick.event.homeFirstHalf,
+        awayFirstHalf: pick.event.awayFirstHalf,
       });
       check(recomputed === pick.grade, `${pick.id} stored ${pick.grade} but grades ${recomputed}`);
       if (pick.event.status === "final") {
         check(pick.event.homeScore != null && pick.event.awayScore != null, `${pick.event.id} final missing score`);
-        check(pick.event.sourceNote === FINAL_NOTE, `${pick.event.id} final note drifted`);
+        if (!archive) check(pick.event.sourceNote === FINAL_NOTE, `${pick.event.id} final note drifted`);
       }
       if (pick.event.status === "scheduled") {
         check(pick.event.homeScore == null && pick.event.awayScore == null, `${pick.event.id} invented a score`);
@@ -233,8 +256,36 @@ async function checkLedger() {
     }
   }
 
+  const archiveRows = ledger.flatMap((capper) => capper.picks.filter((pick) => pick.event.season === ARCHIVE_SEASON));
+  check(archiveRows.length >= 8 && archiveRows.length <= 20, `archive has ${archiveRows.length} picks`);
+  const gradeOf = (id: string) => archiveRows.find((pick) => pick.id === id)?.grade;
+  check(gradeOf("robpaul-cfb-2026-09-18-wake-miami-total") === "loss", "Miami/Wake 53 did not clear 56.5");
+  check(gradeOf("robpaul-cfb-2026-09-18-tech-houston-spread") === "loss", "Texas Tech 28-26 did not cover -7.5");
+  check(gradeOf("robpaul-cfb-2026-09-18-oregon-psu-spread") === "win", "Oregon 84-0 covered -57.5");
+  check(gradeOf("ryanminion-cfb-2026-09-18-wake-miami-1q") === "loss", "Miami 1Q 7-7 did not cover -6.5");
+  check(gradeOf("ryanminion-cfb-2026-09-18-wake-miami-toney") === "win", "Toney 114 cleared 95.5");
+  check(gradeOf("roadtocfb-cfb-2026-09-18-tech-houston-1h") === "win", "Texas Tech 1H 14 stayed under 15.5");
+  check(gradeOf("joshuanunn-cfb-2026-09-18-oregon-psu-tt") === "win", "Oregon 84 cleared a 64.5 team total");
+  check(gradeOf("joshinglis-mlb-2026-09-18-reds-cubs-ml") === "loss", "Cubs lost 4-6");
+  check(gradeOf("jonmetler-mlb-2026-09-18-rays-redsox-ml") === "win", "Red Sox won 4-2");
+  check(gradeOf("joeosborne-mlb-2026-09-18-rangers-jays-rl") === "loss", "Blue Jays lost 1-7 and did not cover -1.5");
+  check(gradeOf("dustinsaracini-mlb-2026-09-18-whitesox-tigers-total") === "win", "Tigers/White Sox 19 cleared 8.5");
+  check(gradeOf("quinnallen-mlb-2026-09-18-astros-braves-ml") === "win", "Braves won 6-2");
+  check(gradeOf("quinnallen-mlb-2026-09-18-astros-braves-total") === "loss", "Braves/Astros 8 did not clear 8.5");
+  check(gradeOf("quinnallen-mlb-2026-09-18-astros-braves-olson") === "win", "Olson homered");
+  check(gradeOf("thecommish-mlb-2026-09-18-dodgers-giants-ml") === "win", "Dodgers won 8-2");
+  check(gradeOf("thecommish-mlb-2026-09-18-dbacks-yankees-ml") === "win", "Yankees won 9-2");
+  check(gradeOf("thecommish-cfb-2026-09-18-wake-miami-ats") === "void", "Miami ATS had no posted number");
+  check(gradeOf("thecommish-cfb-2026-09-18-tech-houston-lean") === "void", "Texas Tech lean had no posted number");
+  check(gradeOf("thecommish-soc-2026-09-18-bayern-union-ml") === "win", "Bayern won 7-0");
+  check(gradeOf("thecommish-soc-2026-09-18-brentford-chelsea-dnb") === "loss", "Chelsea lost 0-3 on draw no bet");
+  const wake = archiveRows.find((pick) => pick.event.id === "cfb-2026-09-18-wake-miami")?.event;
+  check(wake?.awayScore === 33 && wake.homeScore === 20, "Wake Forest final drifted");
+
   const demo = getResultsAdapter();
-  const finalId = ledger.flatMap((capper) => capper.picks).find((pick) => pick.event.status === "final")?.event.id;
+  const finalId = ledger
+    .flatMap((capper) => capper.picks)
+    .find((pick) => pick.event.status === "final" && pick.event.source === RESULT_SOURCE)?.event.id;
   check(demo.mode === "demo", "default adapter should be the demo seed");
   if (finalId) {
     const verified = await demo.fetchFinals([finalId]);

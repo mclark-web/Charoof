@@ -21,7 +21,7 @@ export type Badge = "chad" | "chud" | "listed" | "provisional" | "unrated";
 export type ScoredPick = {
   grade: Grade;
   units: number;
-  oddsAmerican: number;
+  oddsAmerican: number | null;
   locked: boolean;
   explicit: boolean;
 };

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { FridaySlate } from "@/components/friday-slate";
 import { LeaderboardTable } from "@/components/leaderboard-table";
 import { feedNotice, getResultsAdapter } from "@/lib/feeds";
-import { getBoard, loadLedger } from "@/lib/ledger";
+import { archivePicks, getBoard, loadLedger } from "@/lib/ledger";
 import { sportsPath } from "@/lib/links";
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default async function HomePage() {
   );
   const chadCount = board.rows.filter((row) => row.badge === "chad").length;
   const notice = feedNotice(getResultsAdapter());
+  const archive = archivePicks(ledger);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-5 py-10">
@@ -67,6 +69,8 @@ export default async function HomePage() {
           ))}
         </dl>
       </section>
+
+      <FridaySlate rows={archive} standings={board.rows} />
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">

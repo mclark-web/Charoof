@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PUBLIC_RESULT_SOURCE } from "@/lib/constants";
 import { formatOdds, formatUnits, formatWhen, gradeLabel, marketLabel } from "@/lib/format";
 import { pickHref } from "@/lib/links";
 import { unitProfit } from "@/lib/grade";
@@ -65,7 +66,13 @@ export function PickTable({ picks, showSeason }: { picks: LedgerPick[]; showSeas
                 <td className="px-3 py-3 tabular-nums">{formatOdds(pick.oddsAmerican)}</td>
                 <td className="px-3 py-3">
                   <p className="tabular-nums">{resultText(pick)}</p>
-                  <p className="text-xs text-ink-soft">{pick.event.status === "final" ? "Demo seed" : "Not settled"}</p>
+                  <p className="text-xs text-ink-soft">
+                    {pick.event.status !== "final"
+                      ? "Not settled"
+                      : pick.event.source === PUBLIC_RESULT_SOURCE
+                        ? "Public final"
+                        : "Demo seed"}
+                  </p>
                 </td>
                 <td className={`px-3 py-3 font-medium ${gradeClass(pick.grade)}`}>
                   <p>{gradeLabel(pick.grade)}</p>
