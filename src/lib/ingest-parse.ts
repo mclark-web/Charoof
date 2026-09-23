@@ -1,4 +1,4 @@
-export type IngestMarket = "spread" | "total" | "moneyline" | "prop" | "team_total" | "dnb";
+export type IngestMarket = "spread" | "total" | "moneyline" | "prop" | "team_total" | "dnb" | "run_line" | "total_goals";
 
 export type IngestPick = {
   sourceUrl: string;
@@ -22,7 +22,16 @@ export type IngestResult =
   | { ok: true; pick: IngestPick }
   | { ok: false; missing: string[]; errors: string[] };
 
-const MARKETS = new Set<IngestMarket>(["spread", "total", "moneyline", "prop", "team_total", "dnb"]);
+const MARKETS = new Set<IngestMarket>([
+  "spread",
+  "total",
+  "moneyline",
+  "prop",
+  "team_total",
+  "dnb",
+  "run_line",
+  "total_goals",
+]);
 
 const FIELD_NAMES: Record<string, string> = {
   source: "source",
@@ -133,12 +142,14 @@ function buildSelection(input: {
   home: string;
   away: string;
 }): string {
-  if (input.market === "total" || input.market === "team_total") {
+  if (input.market === "total" || input.market === "team_total" || input.market === "total_goals") {
     const word = input.side === "over" ? "Over" : "Under";
     return input.line == null ? word : `${word} ${input.line}`;
   }
   const team = input.side === "home" ? input.home : input.away;
-  if (input.market === "spread") return input.line == null ? team : `${team} ${signed(input.line)}`;
+  if (input.market === "spread" || input.market === "run_line") {
+    return input.line == null ? team : `${team} ${signed(input.line)}`;
+  }
   if (input.market === "dnb") return `${team} draw no bet`;
   return `${team} moneyline`;
 }
@@ -217,11 +228,18 @@ function fromFields(fields: Record<string, string>): IngestResult {
     else market = "spread";
   }
   if (!MARKETS.has(market as IngestMarket)) {
-    errors.push("Market must be spread, total, moneyline, prop, team_total, or dnb.");
+    errors.push("Market must be spread, run_line, total, total_goals, moneyline, prop, team_total, or dnb.");
     return fail(missing, errors);
   }
   const resolvedMarket = market as IngestMarket;
-  if ((resolvedMarket === "spread" || resolvedMarket === "total" || resolvedMarket === "team_total") && line == null) {
+  if (
+    (resolvedMarket === "spread" ||
+      resolvedMarket === "run_line" ||
+      resolvedMarket === "total" ||
+      resolvedMarket === "total_goals" ||
+      resolvedMarket === "team_total") &&
+    line == null
+  ) {
     errors.push("That market needs a posted number. Leave it out only for a moneyline, draw no bet, or lean you will void.");
     return fail(missing, errors);
   }

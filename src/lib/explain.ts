@@ -44,15 +44,16 @@ export function explainSettlement(input: {
       ? `Public final, ${slice.toLowerCase()}: ${score}.`
       : `Demo seed final: ${score}.`;
 
-  if (input.market === "spread") {
+  if (input.market === "spread" || input.market === "run_line") {
     const verb =
       input.grade === "win" ? "covered" : input.grade === "push" ? "pushed" : "did not cover";
     return `${prefix} ${input.selection} ${verb}. ${input.sourceNote}`;
   }
 
-  if (input.market === "total") {
+  if (input.market === "total" || input.market === "total_goals") {
     const total = home + away;
-    return `${prefix} Combined points were ${total} against ${formatLine(input.line)}. ${input.sourceNote}`;
+    const noun = input.market === "total_goals" ? "goals" : "points";
+    return `${prefix} Combined ${noun} were ${total} against ${formatLine(input.line)}. ${input.sourceNote}`;
   }
 
   if (input.market === "team_total") {

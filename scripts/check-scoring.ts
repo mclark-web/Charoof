@@ -8,6 +8,7 @@ import {
   RESULT_SOURCE,
   VERIFIED_OPEN_NOTE,
   VERIFIED_OPEN_SOURCE,
+  VERIFIED_SEASON,
   VOID_NOTE,
 } from "../src/lib/constants";
 import { gradeMarket, propActualFor, spreadLine, totalLine, unitProfit } from "../src/lib/grade";
@@ -77,6 +78,42 @@ function roundTripProp() {
 }
 
 roundTripSpread();
+check(
+  gradeMarket({
+    market: "run_line",
+    side: "away",
+    line: -1.5,
+    homeScore: 0,
+    awayScore: 3,
+    propActual: null,
+    status: "final",
+  }) === "win",
+  "run line away -1.5 did not cover a 3-run win",
+);
+check(
+  gradeMarket({
+    market: "total_goals",
+    side: "over",
+    line: 2.5,
+    homeScore: 2,
+    awayScore: 1,
+    propActual: null,
+    status: "final",
+  }) === "win",
+  "over 2.5 goals missed a 3-goal final",
+);
+check(
+  gradeMarket({
+    market: "spread",
+    side: "home",
+    line: null,
+    homeScore: 20,
+    awayScore: 3,
+    propActual: null,
+    status: "final",
+  }) === "void",
+  "a number market with no number must void",
+);
 roundTripTotal();
 roundTripProp();
 
@@ -216,14 +253,30 @@ async function checkLedger() {
   const demoLedger = filterLedger(ledger, "demo");
   const verifiedLedger = filterLedger(ledger, "verified");
   check(!verifiedLedger.some((capper) => capper.handle === "linelock"), "demo capper is on the live board");
-  check(verifiedLedger.some((capper) => capper.handle === "neilparker"), "live board is missing Neil Parker");
+  check(!verifiedLedger.some((capper) => capper.handle === "neilparker"), "retired Neil Parker card is still on the live board");
   check(!demoLedger.some((capper) => capper.picks.some((pick) => !pick.isDemo)), "demo ledger contains a verified pick");
-  const steelers = verifiedLedger
+  const verifiedCards = verifiedLedger
     .flatMap((capper) => capper.picks)
-    .find((pick) => pick.id === "neilparker-nfl-2026-09-20-steelers-total");
-  check(steelers?.grade === "win", `Steelers/Patriots under graded ${steelers?.grade}`);
-  check(steelers?.event.awayScore === 3 && steelers.event.homeScore === 20, "Steelers/Patriots final drifted");
-  check(steelers?.sourceUrl.includes("covers.com/nfl/steelers-vs-patriots"), "Steelers pick lost its source");
+    .filter((pick) => pick.event.season === VERIFIED_SEASON);
+  check(verifiedCards.length === 14, `verified seed has ${verifiedCards.length} cards; expected 14`);
+  check(
+    verifiedCards.every((pick) => pick.grade === "win" || pick.grade === "loss"),
+    "verified seed left a pick pending or void",
+  );
+  const saints = verifiedCards.find((pick) => pick.id === "jasonlogan-nfl-2026-09-20-ravens-saints-spread");
+  check(saints?.grade === "win", `Saints +8.5 graded ${saints?.grade}`);
+  check(saints?.event.awayScore === 24 && saints.event.homeScore === 17, "Saints/Ravens final drifted");
+  check(saints?.sourceUrl === "https://www.covers.com/nfl/picks-and-predictions-week-2-2026", "Saints pick lost its source");
+  const georgiaOwners = verifiedLedger.filter((capper) =>
+    capper.picks.some((pick) => pick.event.awayName === "Georgia Bulldogs" && pick.event.season === VERIFIED_SEASON),
+  );
+  const georgiaPicks = georgiaOwners.flatMap((capper) =>
+    capper.picks.filter((pick) => pick.event.awayName === "Georgia Bulldogs" && pick.event.season === VERIFIED_SEASON),
+  );
+  check(
+    georgiaOwners.length === 1 && georgiaOwners[0]?.handle === "bennettpaul" && georgiaPicks.length === 1 && georgiaPicks[0]?.grade === "win",
+    "joint Georgia card was split or reassigned",
+  );
 
   const overall = buildBoard(demoLedger, "all", null);
   const season = buildBoard(demoLedger, "season", null);

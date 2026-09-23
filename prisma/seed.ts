@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { fridayArchive } from "./friday-archive";
-import { verifiedRecent } from "./verified-recent";
+import { verifiedPublic } from "./verified-picks";
 import {
   DEMO_SEASONS,
   FINAL_NOTE,
@@ -33,7 +33,7 @@ const prisma = new PrismaClient({
   datasources: { db: { url: sqliteUrl() } },
 });
 
-type Market = "spread" | "total" | "moneyline" | "prop" | "team_total" | "dnb";
+type Market = "spread" | "total" | "moneyline" | "prop" | "team_total" | "dnb" | "run_line" | "total_goals";
 
 type Slice = {
   season: DemoSeason;
@@ -719,7 +719,7 @@ async function main() {
   for (const event of archive.events) events.set(event.id, event);
   picks.push(...archive.picks);
 
-  const recent = verifiedRecent();
+  const recent = verifiedPublic();
   for (const event of recent.events) events.set(event.id, event);
   picks.push(...recent.picks);
 
@@ -907,7 +907,7 @@ async function main() {
 
   const graded = picks.filter((pick) => pick.grade === "win" || pick.grade === "loss" || pick.grade === "push");
   console.log(
-    `Charoof seed: ${capperRows.size} cappers, ${events.size} fixtures, ${picks.length} picks (${graded.length} settled, ${archive.picks.length} in the Fri Sep 18 archive, ${recent.picks.length} recent verified).`,
+    `Charoof seed: ${capperRows.size} cappers, ${events.size} fixtures, ${picks.length} picks (${graded.length} settled, ${archive.picks.length} in the Fri Sep 18 archive, ${recent.picks.length} verified public cards).`,
   );
 }
 

@@ -83,6 +83,10 @@ export function marketLabel(market: string): string {
       return "Team total";
     case "dnb":
       return "Draw no bet";
+    case "run_line":
+      return "Run line";
+    case "total_goals":
+      return "Total goals";
     default:
       return market;
   }

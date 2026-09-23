@@ -19,7 +19,7 @@ Charoof Sports is a public accountability ledger for posted sports picks. It gra
 
 The live board (`/sports`) is verified cards only: a source URL, a timestamp, an event, and a side, settled win / loss / push / void from a public final. Fiction is labeled **DEMO** and lives at `/sports/demo` (also `/demo`). It does not move the live rankings.
 
-A **public pick archive (Fri Sep 18, 2026)** stays on the live board as a labeled historical strip. Those rows are copied from free Covers, Action Network, and ProCappers articles and graded on public finals. Recent verified cards (Sep 19–21, 2026) sit above that strip.
+A **public pick archive (Fri Sep 18, 2026)** stays on the live board as a labeled historical strip. Those rows are copied from free Covers, Action Network, and ProCappers articles and graded on public finals. Fourteen later verified cards from `data/verified-picks.json` sit above that strip.
 
 Charoof does not invent a score, a handle, a line, or a tweet ID. It does not call a paid odds API or the paid X API. There is no CLV.
 
@@ -38,7 +38,7 @@ Eligible peers have at least 12 settled picks in the scope you are viewing. The 
 Real, on the live board:
 
 - Fri Sep 18 archive from the free articles cited on each pick
-- Sep 19–21 verified cards in `prisma/verified-recent.ts` (Covers and Action Network), graded from ESPN scoreboard finals that were also checked against a league or baseball-reference page
+- The 14 settled cards in `data/verified-picks.json` (Covers, ProCappers, and one RotoWire/Covers joint card). No other live cards are added. Grades come from the public final cited on the row, and `npm run verify-finals` checks that final against the ESPN scoreboard.
 
 Demo, only at `/sports/demo`:
 
@@ -59,7 +59,7 @@ npm run verify-finals
 
 `npm run grade` looks up verified events on the public ESPN scoreboard (`site.web.api.espn.com`, no key). A final overwrites the stored score and recomputes the grade from that final. A game that is not final has its score cleared and stays pending. A lookup failure writes nothing.
 
-`npm run verify-finals` re-checks every settled verified final against that same scoreboard and exits non-zero on a mismatch or a missing game. Run it before you trust a grade. Player props are not re-fetched; the game score is. One graded example: Neil Parker's Covers under 42.5 on Pittsburgh at New England (Sep 20, 2026) is a win because the public final was Steelers 3, Patriots 20. Source: the Covers article. Final: the ESPN recap for game 401872946.
+`npm run verify-finals` re-checks every settled verified final against that same scoreboard and exits non-zero on a mismatch or a missing game. Run it before you trust a grade. Player props are not re-fetched; the game score is. One graded example: Jason Logan, Covers, Saints +8.5 at the Ravens (card updated 7:29 a.m. ET on Sep 20, 2026; no American price posted). Source: https://www.covers.com/nfl/picks-and-predictions-week-2-2026. Final: Saints 24, Ravens 17, a win. Box score: https://www.espn.com/nfl/game/_/gameId/401872938.
 
 Labeled paste:
 

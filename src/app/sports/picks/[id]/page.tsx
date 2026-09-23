@@ -130,7 +130,7 @@ export default async function PickPage({ params }: PageProps) {
         <Fact term="Event" value={pick.event.name} />
         <Fact term="Market" value={marketLabel(pick.market)} />
         <Fact term="Selection" value={pick.selection} />
-        <Fact term="Line" value={formatLine(pick.line, pick.market === "spread")} />
+        <Fact term="Line" value={formatLine(pick.line, pick.market === "spread" || pick.market === "run_line")} />
         <Fact term="Odds" value={formatOdds(pick.oddsAmerican)} />
         <Fact term="Units" value={pick.units.toFixed(2)} />
         <Fact term="Published" value={formatWhen(pick.publishedAt, true, publicFinal ? "America/New_York" : "UTC")} />
