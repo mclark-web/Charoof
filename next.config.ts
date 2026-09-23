@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       { source: "/donate", destination: "/sports/donate", permanent: true },
       { source: "/cappers/:handle", destination: "/sports/cappers/:handle", permanent: true },
       { source: "/picks/:id", destination: "/sports/picks/:id", permanent: true },
+      { source: "/demo", destination: "/sports/demo", permanent: false },
     ];
   },
 };

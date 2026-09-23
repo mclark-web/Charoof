@@ -41,11 +41,19 @@ function scoresForScope(input: GradeInput): { home: number; away: number } | nul
   return null;
 }
 
+function canonicalMarket(market: string): string {
+  if (market === "run_line") return "spread";
+  if (market === "total_goals") return "total";
+  return market;
+}
+
 export function gradeMarket(input: GradeInput): Grade {
   if (input.status === "cancelled") return "void";
   if (input.status !== "final") return "pending";
 
-  if (input.market === "prop") {
+  const market = canonicalMarket(input.market);
+
+  if (market === "prop") {
     if (input.homeScore == null || input.awayScore == null) return "pending";
     if (input.line == null || input.propActual == null) return "void";
     if (input.side === "over") return signGrade(input.propActual - input.line);
@@ -57,7 +65,7 @@ export function gradeMarket(input: GradeInput): Grade {
   if (!scores) return "pending";
   const { home, away } = scores;
 
-  if (input.market === "moneyline" || input.market === "dnb") {
+  if (market === "moneyline" || market === "dnb") {
     if (home === away) return "push";
     const winner = home > away ? "home" : "away";
     return input.side === winner ? "win" : "loss";
@@ -65,19 +73,19 @@ export function gradeMarket(input: GradeInput): Grade {
 
   if (input.line == null) return "void";
 
-  if (input.market === "spread") {
+  if (market === "spread") {
     const margin = input.side === "home" ? home - away : away - home;
     return signGrade(margin + input.line);
   }
 
-  if (input.market === "total") {
+  if (market === "total") {
     const total = home + away;
     if (input.side === "over") return signGrade(total - input.line);
     if (input.side === "under") return signGrade(input.line - total);
     return "void";
   }
 
-  if (input.market === "team_total") {
+  if (market === "team_total") {
     const points = input.participant === "home" ? home : input.participant === "away" ? away : null;
     if (points == null) return "void";
     if (input.side === "over") return signGrade(points - input.line);

@@ -1,5 +1,7 @@
 import { DEMO_SEASON, type Sport } from "@/lib/constants";
 
+export type BoardSport = Sport | "Soccer";
+
 export type LedgerWindow = "all" | "season";
 
 export function parseWindow(value: string | string[] | undefined): LedgerWindow {
@@ -8,31 +10,33 @@ export function parseWindow(value: string | string[] | undefined): LedgerWindow 
 }
 
 export function parseSport(value: string | string[] | undefined): {
-  sport: Sport | null;
+  sport: BoardSport | null;
   invalid: boolean;
 } {
   const raw = Array.isArray(value) ? value[0] : value;
   if (!raw) return { sport: null, invalid: false };
-  const sports = ["NFL", "NBA", "MLB", "NHL", "NCAAF"] as const;
+  const sports = ["NFL", "NBA", "MLB", "NHL", "NCAAF", "Soccer"] as const;
   const hit = sports.find((sport) => sport.toLowerCase() === raw.toLowerCase());
   if (!hit) return { sport: null, invalid: true };
   return { sport: hit, invalid: false };
 }
 
-export function windowLabel(window: LedgerWindow): string {
+export function windowLabel(window: LedgerWindow, mode: "verified" | "demo" = "demo"): string {
+  if (mode === "verified") return "Verified ledger";
   return window === "season" ? `${DEMO_SEASON} season to date` : "Full demo ledger";
 }
 
 export const sportsPath = {
   home: "/sports",
   board: "/sports/leaderboard",
+  demo: "/sports/demo",
   methodology: "/sports/methodology",
   disclaimer: "/sports/disclaimer",
   terms: "/sports/terms",
   donate: "/sports/donate",
 } as const;
 
-export function boardHref(sport: Sport | null, window: LedgerWindow): string {
+export function boardHref(sport: BoardSport | null, window: LedgerWindow): string {
   const params = new URLSearchParams();
   if (sport) params.set("sport", sport);
   if (window === "season") params.set("window", "season");
@@ -40,7 +44,7 @@ export function boardHref(sport: Sport | null, window: LedgerWindow): string {
   return query ? `${sportsPath.board}?${query}` : sportsPath.board;
 }
 
-export function capperHref(handle: string, window: LedgerWindow, sport: Sport | null = null): string {
+export function capperHref(handle: string, window: LedgerWindow, sport: BoardSport | null = null): string {
   const params = new URLSearchParams();
   if (window === "season") params.set("window", "season");
   if (sport) params.set("sport", sport);

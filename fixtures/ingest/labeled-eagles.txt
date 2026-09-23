@@ -1,0 +1,10 @@
+# Operator paste. This is the same Covers card already on the verified ledger.
+# Dry-run it with: npm run ingest -- --dry-run --file fixtures/ingest/labeled-eagles.txt
+source: https://www.covers.com/nfl/eagles-vs-titans-prediction-picks-best-bets-today-sept-20-2026
+timestamp: 2026-09-20T14:10:00-04:00
+who: Neil Parker
+sport: NFL
+event: Philadelphia Eagles at Tennessee Titans
+market: spread
+side: Philadelphia Eagles
+line: -7.5

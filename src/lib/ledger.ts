@@ -8,8 +8,8 @@ import {
   MIN_GRADED,
   MIN_PEER_SET,
   SPORTS,
-  type Sport,
 } from "@/lib/constants";
+import type { BoardSport } from "@/lib/links";
 import { prisma } from "@/lib/db";
 import type { Grade } from "@/lib/grade";
 import type { LedgerWindow } from "@/lib/links";
@@ -39,6 +39,7 @@ export type LedgerPick = {
   clarity: string;
   grade: Grade;
   note: string | null;
+  sourceUrl: string;
   isDemo: boolean;
   event: {
     id: string;
@@ -85,7 +86,7 @@ export type Standing = ScoreParts & {
 
 export type Board = {
   window: LedgerWindow;
-  sport: Sport | null;
+  sport: BoardSport | null;
   rows: Standing[];
   eligibleCount: number;
   chadWindow: number;
@@ -135,6 +136,7 @@ export const loadLedger = cache(async (): Promise<LedgerCapper[]> => {
       clarity: pick.clarity,
       grade: asGrade(pick.grade),
       note: pick.note,
+      sourceUrl: pick.sourceUrl,
       isDemo: pick.isDemo,
       event: {
         id: pick.event.id,
@@ -162,7 +164,7 @@ export const loadLedger = cache(async (): Promise<LedgerCapper[]> => {
 export function picksInScope(
   picks: LedgerPick[],
   window: LedgerWindow,
-  sport: Sport | null,
+  sport: BoardSport | null,
 ): LedgerPick[] {
   return picks.filter((pick) => {
     if (sport && pick.event.sport !== sport) return false;
@@ -184,7 +186,7 @@ function toScored(pick: LedgerPick) {
 export function buildBoard(
   ledger: LedgerCapper[],
   window: LedgerWindow,
-  sport: Sport | null,
+  sport: BoardSport | null,
 ): Board {
   const unmarked = ledger.flatMap((capper) => {
     const picks = picksInScope(capper.picks, window, sport);
@@ -223,15 +225,15 @@ export function buildBoard(
   };
 }
 
-export async function getBoard(window: LedgerWindow, sport: Sport | null): Promise<Board> {
+export async function getBoard(window: LedgerWindow, sport: BoardSport | null): Promise<Board> {
   const ledger = await loadLedger();
   return buildBoard(ledger, window, sport);
 }
 
 export function scopeBoards(ledger: LedgerCapper[], window: LedgerWindow, handle: string) {
-  const scopes: Array<{ sport: Sport | null; label: string; standing: Standing | null }> = [
+  const scopes: Array<{ sport: BoardSport | null; label: string; standing: Standing | null }> = [
     { sport: null, label: "All sports", standing: null },
-    ...SPORTS.map((sport) => ({ sport, label: sport, standing: null as Standing | null })),
+    ...[...SPORTS, "Soccer" as const].map((sport) => ({ sport, label: sport, standing: null as Standing | null })),
   ];
 
   return scopes.flatMap((scope) => {
@@ -249,6 +251,16 @@ export async function getPickById(id: string): Promise<{ pick: LedgerPick; cappe
     if (pick) return { pick, capper };
   }
   return null;
+}
+
+export type LedgerMode = "verified" | "demo";
+
+export function filterLedger(ledger: LedgerCapper[], mode: LedgerMode): LedgerCapper[] {
+  return ledger.flatMap((capper) => {
+    const picks = capper.picks.filter((pick) => (mode === "demo" ? pick.isDemo : !pick.isDemo));
+    if (picks.length === 0) return [];
+    return [{ ...capper, picks, isDemo: mode === "demo" }];
+  });
 }
 
 export function archivePicks(ledger: LedgerCapper[]): Array<{ capper: LedgerCapper; pick: LedgerPick }> {

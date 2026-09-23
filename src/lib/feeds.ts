@@ -69,5 +69,5 @@ export function feedNotice(adapter: ResultsAdapter): string {
   if (adapter.mode === "live") {
     return "A live results feed was requested, but no verified adapter is configured. Charoof will not invent finals. Any score still on the ledger is demo seed data and stays labeled that way.";
   }
-  return "Sample clubs and their finals are invented demo seed. The Fri Sep 18 public pick archive is graded from public finals and box scores. Neither path is an odds feed. Charoof does not invent a score the source did not record.";
+  return "The live board grades verified public cards on free finals. Demo fiction is only on /sports/demo. Charoof does not invent a score the source did not record, and it does not call a paid odds API.";
 }
