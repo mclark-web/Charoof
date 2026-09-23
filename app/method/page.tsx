@@ -1,0 +1,85 @@
+import type { Metadata } from "next";
+import { Ambient } from "@/components/ambient";
+import { GcTube } from "@/components/gc-tube";
+import { GRADE_BANDS } from "@/lib/grade";
+
+export const metadata: Metadata = {
+  title: "Method",
+  description: "How GradedCalls freezes a public claim and scores Grade Calibration.",
+};
+
+export default function MethodPage() {
+  return (
+    <>
+      <Ambient />
+      <section className="gc-hero">
+        <div>
+          <div className="chip">Method</div>
+          <h1>
+            Same rules.
+            <br />
+            <em>No silent edits.</em>
+          </h1>
+          <p className="lead">
+            A grade is a public claim, a locked entry, and an outcome you can check. GC is Grade Calibration: the tube
+            fill is how much of the stated direction held.
+          </p>
+        </div>
+        <div className="hero-stage hero-dual">
+          <div className="orient-pair">
+            <div className="orient-col">
+              <div className="orient-label">Vertical vial</div>
+              <GcTube fill={72} orientation="vertical" variant="hero" rich label="GC · Method" />
+            </div>
+            <div className="orient-col">
+              <div className="orient-label">Horizontal tube</div>
+              <GcTube fill={0} variant="hero" label="GC · Empty" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="panel method">
+        <div>
+          <h2>How a call becomes a grade</h2>
+          <p>Boards use the horizontal tube. The vertical vial is the lab view on this page and on GC Scale.</p>
+        </div>
+        <div className="step">
+          <div className="n">01</div>
+          <h4>Capture</h4>
+          <p>Public claim, timestamp, source link, and the exact words.</p>
+        </div>
+        <div className="step">
+          <div className="n">02</div>
+          <h4>Freeze</h4>
+          <p>Entry locks before the outcome window. No rewrite after the print.</p>
+        </div>
+        <div className="step">
+          <div className="n">03</div>
+          <h4>Grade</h4>
+          <p>Compared to real closes, Monday opens, or final scores.</p>
+        </div>
+      </div>
+
+      <div className="section-label">Labels</div>
+      <div className="scale-row">
+        <div className="panel scale-card">
+          <GcTube fill={GRADE_BANDS.strongAt} label="GC" />
+          <p className="hint">STRONG at {GRADE_BANDS.strongAt}% and above</p>
+        </div>
+        <div className="panel scale-card">
+          <GcTube fill={54} label="GC" />
+          <p className="hint">PROVISIONAL in the open mid-band</p>
+        </div>
+        <div className="panel scale-card">
+          <GcTube fill={GRADE_BANDS.weakAt} label="GC" />
+          <p className="hint">WEAK at {GRADE_BANDS.weakAt}% and below</p>
+        </div>
+        <div className="panel scale-card">
+          <GcTube fill={0} label="GC" />
+          <p className="hint">0% fill is empty glass · EXIT LIQUIDITY</p>
+        </div>
+      </div>
+    </>
+  );
+}
