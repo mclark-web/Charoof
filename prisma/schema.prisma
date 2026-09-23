@@ -66,6 +66,8 @@ model Pick {
   clarity      String
   grade        String
   note         String?
+  /// Article or post this pick was copied from. Empty on demo fiction.
+  sourceUrl    String   @default("")
   isDemo       Boolean  @default(true)
   capper       Capper   @relation(fields: [capperId], references: [id], onDelete: Cascade)
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)

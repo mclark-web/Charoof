@@ -62,6 +62,14 @@ export const PUBLIC_FINAL_NOTE =
 export const OPEN_NOTE =
   "Sample fixture left open. Charoof does not invent a final.";
 
+/** Verified pick waiting on a public final. The score stays blank. */
+export const VERIFIED_OPEN_SOURCE = "verified-open";
+
+export const VERIFIED_OPEN_NOTE =
+  "Verified pick. No public final is recorded yet, so the score stays blank.";
+
+export const VERIFIED_SEASON = "Verified Sep 2026";
+
 export const VOID_NOTE = "Sample fixture voided. The pick is not graded.";
 
 export function isSport(value: string): value is Sport {

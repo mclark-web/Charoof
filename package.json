@@ -9,7 +9,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx scripts/check-scoring.ts",
+    "test": "tsx scripts/check-settle.ts && tsx scripts/check-scoring.ts && tsx scripts/verify-finals.ts",
+    "ingest": "tsx scripts/ingest.ts",
+    "grade": "tsx scripts/grade.ts",
+    "verify-finals": "tsx scripts/verify-finals.ts",
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },

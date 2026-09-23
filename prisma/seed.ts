@@ -1,16 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { fridayArchive } from "./friday-archive";
+import { verifiedRecent } from "./verified-recent";
 import {
   DEMO_SEASONS,
   FINAL_NOTE,
   OPEN_NOTE,
   RESULT_SOURCE,
   SPORTS,
+  VERIFIED_OPEN_NOTE,
+  VERIFIED_OPEN_SOURCE,
+  VERIFIED_SEASON,
   VOID_NOTE,
   type DemoSeason,
   type Sport,
 } from "../src/lib/constants";
+import type { IngestPick } from "../src/lib/ingest-parse";
 import { sqliteUrl } from "../src/lib/database-url";
 import { formatLine } from "../src/lib/format";
 import {
@@ -88,6 +96,7 @@ type PickDraft = {
   clarity: "explicit" | "lean";
   grade: Grade;
   note: string | null;
+  sourceUrl: string;
   isDemo: boolean;
 };
 
@@ -578,6 +587,7 @@ function buildGradedPick(
         : index % 9 === 0
           ? "Graded at the demo final against the posted number."
           : null,
+    sourceUrl: "",
     isDemo: true,
   };
 }
@@ -609,6 +619,20 @@ function applyTiming(picks: PickDraft[], lateRate: number, leanRate: number, rng
       pick.note = "Posted as a lean. The demo still records a number so the final can grade it.";
     }
   });
+}
+
+type StoredIngest = IngestPick & { id: string };
+
+function loadIngested(): StoredIngest[] {
+  const file = path.join(process.cwd(), "data", "verified-ingested.json");
+  const rows = JSON.parse(readFileSync(file, "utf8")) as StoredIngest[];
+  if (!Array.isArray(rows)) throw new Error("data/verified-ingested.json must be an array");
+  for (const row of rows) {
+    if (!row.sourceUrl || !row.publishedAt || !row.eventName || !row.side) {
+      throw new Error(`Ingested pick ${row.id ?? "(no id)"} is missing source, timestamp, event, or side`);
+    }
+  }
+  return rows;
 }
 
 async function main() {
@@ -695,6 +719,56 @@ async function main() {
   for (const event of archive.events) events.set(event.id, event);
   picks.push(...archive.picks);
 
+  const recent = verifiedRecent();
+  for (const event of recent.events) events.set(event.id, event);
+  picks.push(...recent.picks);
+
+  const ingested = loadIngested();
+  for (const row of ingested) {
+    const eventId = `ingested-${row.id}`;
+    events.set(eventId, {
+      id: eventId,
+      sport: row.sport as Sport | "Soccer",
+      season: VERIFIED_SEASON,
+      weekLabel: "Operator paste",
+      name: row.eventName,
+      startsAt: new Date(row.startsAt ?? row.publishedAt),
+      status: "scheduled",
+      homeName: row.homeName,
+      awayName: row.awayName,
+      homeScore: null,
+      awayScore: null,
+      homeFirstQuarter: null,
+      awayFirstQuarter: null,
+      homeFirstHalf: null,
+      awayFirstHalf: null,
+      source: VERIFIED_OPEN_SOURCE,
+      sourceNote: VERIFIED_OPEN_NOTE,
+    });
+    picks.push({
+      id: row.id,
+      capperId: row.handle,
+      eventId,
+      market: row.market,
+      side: row.side,
+      line: row.line,
+      oddsAmerican: row.oddsAmerican,
+      units: 1,
+      selection: row.selection,
+      scoreScope: "final",
+      participant: null,
+      propPlayer: null,
+      propStat: null,
+      propActual: null,
+      publishedAt: new Date(row.publishedAt),
+      clarity: "explicit",
+      grade: "pending",
+      note: "Operator paste. No public final recorded yet.",
+      sourceUrl: row.sourceUrl,
+      isDemo: false,
+    });
+  }
+
   const pendingLine = -3.5;
   const pendingGrade = gradeMarket({
     market: "spread",
@@ -726,6 +800,7 @@ async function main() {
     clarity: "explicit",
     grade: "pending",
     note: "Still open. No final is recorded.",
+    sourceUrl: "",
     isDemo: true,
   });
   picks.push({
@@ -747,6 +822,7 @@ async function main() {
     clarity: "explicit",
     grade: "pending",
     note: "Still open. No final is recorded.",
+    sourceUrl: "",
     isDemo: true,
   });
 
@@ -780,6 +856,7 @@ async function main() {
     clarity: "explicit",
     grade: "void",
     note: "Fixture voided in the demo. Excluded from the factor.",
+    sourceUrl: "",
     isDemo: true,
   });
 
@@ -787,15 +864,36 @@ async function main() {
   await prisma.event.deleteMany();
   await prisma.capper.deleteMany();
 
+  const capperRows = new Map<string, { handle: string; displayName: string; focus: string; bio: string; hue: number }>();
+  for (const capper of [...CAPPERS, ...archive.cappers, ...recent.cappers]) {
+    capperRows.set(capper.handle, capper);
+  }
+  for (const row of ingested) {
+    if (!capperRows.has(row.handle)) {
+      capperRows.set(row.handle, {
+        handle: row.handle,
+        displayName: row.who,
+        focus: `${row.sport} · pasted card`,
+        bio: `Pasted by the operator from ${row.sourceUrl}. Not a connected account.`,
+        hue: 210,
+      });
+    }
+  }
+  const verifiedHandles = new Set<string>([
+    ...archive.cappers.map((capper) => capper.handle),
+    ...recent.cappers.map((capper) => capper.handle),
+    ...ingested.map((row) => row.handle),
+  ]);
+
   await prisma.capper.createMany({
-    data: [...CAPPERS, ...archive.cappers].map((capper) => ({
+    data: [...capperRows.values()].map((capper) => ({
       id: capper.handle,
       handle: capper.handle,
       displayName: capper.displayName,
       focus: capper.focus,
       bio: capper.bio,
       hue: capper.hue,
-      isDemo: true,
+      isDemo: !verifiedHandles.has(capper.handle),
     })),
   });
 
@@ -809,7 +907,7 @@ async function main() {
 
   const graded = picks.filter((pick) => pick.grade === "win" || pick.grade === "loss" || pick.grade === "push");
   console.log(
-    `Charoof demo seed: ${CAPPERS.length + archive.cappers.length} cappers, ${events.size} fixtures, ${picks.length} picks (${graded.length} settled, ${archive.picks.length} in the Fri Sep 18 archive).`,
+    `Charoof seed: ${capperRows.size} cappers, ${events.size} fixtures, ${picks.length} picks (${graded.length} settled, ${archive.picks.length} in the Fri Sep 18 archive, ${recent.picks.length} recent verified).`,
   );
 }
 

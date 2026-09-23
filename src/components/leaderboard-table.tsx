@@ -3,8 +3,7 @@ import Link from "next/link";
 import { FactorBadge } from "@/components/factor-badge";
 import { ScoreDial } from "@/components/score-dial";
 import { formatRecord, formatRoi, formatUnits, initials } from "@/lib/format";
-import type { Sport } from "@/lib/constants";
-import { capperHref, windowLabel, type LedgerWindow } from "@/lib/links";
+import { capperHref, windowLabel, type BoardSport, type LedgerWindow } from "@/lib/links";
 import type { Standing } from "@/lib/ledger";
 
 export function LeaderboardTable({
@@ -12,14 +11,16 @@ export function LeaderboardTable({
   window,
   sport = null,
   caption,
+  empty = "No cappers have picks in this scope.",
 }: {
   rows: Standing[];
   window: LedgerWindow;
-  sport?: Sport | null;
+  sport?: BoardSport | null;
   caption: string;
+  empty?: string;
 }) {
   if (rows.length === 0) {
-    return <p className="text-ink-soft">No cappers have picks in this scope.</p>;
+    return <p className="border border-line bg-card px-4 py-4 text-sm leading-6 text-ink-soft">{empty}</p>;
   }
 
   return (

@@ -10,13 +10,14 @@ import { ScoreDial } from "@/components/score-dial";
 import { formatNumber, formatRecord, formatRoi, formatUnits, initials } from "@/lib/format";
 import {
   buildBoard,
+  filterLedger,
   loadLedger,
   picksInScope,
   scopeBoards,
   sortPicks,
   type Standing,
 } from "@/lib/ledger";
-import { boardHref, capperHref, parseSport, parseWindow, windowLabel } from "@/lib/links";
+import { boardHref, capperHref, parseSport, parseWindow, sportsPath, windowLabel } from "@/lib/links";
 import { badgeHint } from "@/lib/scoring";
 
 type PageProps = {
@@ -40,21 +41,28 @@ export default async function CapperPage({ params, searchParams }: PageProps) {
   const window = parseWindow(query.window);
   const { sport, invalid } = parseSport(query.sport);
   const scopeSport = invalid ? null : sport;
-  const ledger = await loadLedger();
-  const capper = ledger.find((item) => item.handle === handle.toLowerCase());
+  const loaded = await loadLedger();
+  const capper = loaded.find((item) => item.handle === handle.toLowerCase());
   if (!capper) notFound();
   if (capper.handle !== handle) redirect(capperHref(capper.handle, window, scopeSport));
 
-  const standing = buildBoard(ledger, window, scopeSport).rows.find((row) => row.handle === capper.handle) ?? null;
-  const picks = sortPicks(picksInScope(capper.picks, window, scopeSport));
-  const scopes = scopeBoards(ledger, window, capper.handle);
+  const mode = capper.isDemo ? "demo" : "verified";
+  const ledger = filterLedger(loaded, mode);
+  const scopedCapper = ledger.find((item) => item.handle === capper.handle) ?? capper;
+  const activeWindow = mode === "verified" ? "all" : window;
+  const standing = buildBoard(ledger, activeWindow, scopeSport).rows.find((row) => row.handle === capper.handle) ?? null;
+  const picks = sortPicks(picksInScope(scopedCapper.picks, activeWindow, scopeSport));
+  const scopes = scopeBoards(ledger, activeWindow, capper.handle);
   const scopeLabel = scopeSport ?? "All sports";
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 py-10">
       <p className="text-sm">
-        <Link href={boardHref(scopeSport, window)} className="underline decoration-line underline-offset-4 hover:decoration-pine">
-          Back to the board
+        <Link
+          href={capper.isDemo ? sportsPath.demo : boardHref(scopeSport, "all")}
+          className="underline decoration-line underline-offset-4 hover:decoration-pine"
+        >
+          {capper.isDemo ? "Back to the demo" : "Back to the board"}
         </Link>
       </p>
 
@@ -69,7 +77,9 @@ export default async function CapperPage({ params, searchParams }: PageProps) {
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-brass">{capper.focus}</p>
           <h1 className="mt-1 font-serif text-4xl text-pine">{capper.displayName}</h1>
-          <p className="mt-1 text-sm text-ink-soft">@{capper.handle} · Demo capper</p>
+          <p className="mt-1 text-sm text-ink-soft">
+            @{capper.handle} · {capper.isDemo ? "DEMO" : "Verified"}
+          </p>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-soft">{capper.bio}</p>
         </div>
         <div className="flex flex-col items-start gap-3">
@@ -78,19 +88,21 @@ export default async function CapperPage({ params, searchParams }: PageProps) {
         </div>
       </header>
 
-      <nav aria-label="Ledger window" className="flex flex-wrap gap-2">
-        <ChoiceLink href={capperHref(capper.handle, "all", scopeSport)} current={window === "all"}>
-          Full ledger
-        </ChoiceLink>
-        <ChoiceLink href={capperHref(capper.handle, "season", scopeSport)} current={window === "season"}>
-          Sample 2025
-        </ChoiceLink>
-      </nav>
+      {capper.isDemo ? (
+        <nav aria-label="Ledger window" className="flex flex-wrap gap-2">
+          <ChoiceLink href={capperHref(capper.handle, "all", scopeSport)} current={window === "all"}>
+            Full demo ledger
+          </ChoiceLink>
+          <ChoiceLink href={capperHref(capper.handle, "season", scopeSport)} current={window === "season"}>
+            Sample 2025
+          </ChoiceLink>
+        </nav>
+      ) : null}
 
       {standing ? (
         <>
           <p className="text-sm leading-6 text-ink-soft">
-            {scopeLabel} · {windowLabel(window)}. {badgeHint(standing.badge)} The table below is every scope in
+            {scopeLabel} · {windowLabel(activeWindow, mode)}. {badgeHint(standing.badge)} The table below is every scope in
             this window, so an all-sports mark can differ from a single sport when the peers change.
           </p>
           <dl className="grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
@@ -130,12 +142,12 @@ export default async function CapperPage({ params, searchParams }: PageProps) {
 
       <section className="flex flex-col gap-3">
         <h2 className="font-serif text-3xl text-pine">By sport</h2>
-        <ScopeTable scopes={scopes} window={window} />
+        <ScopeTable scopes={scopes} window={activeWindow} demo={capper.isDemo} />
       </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="font-serif text-3xl text-pine">Picks</h2>
-        <PickTable picks={picks} showSeason={window === "all"} />
+        <PickTable picks={picks} showSeason={activeWindow === "all"} />
       </section>
     </div>
   );
@@ -144,9 +156,11 @@ export default async function CapperPage({ params, searchParams }: PageProps) {
 function ScopeTable({
   scopes,
   window,
+  demo,
 }: {
-  scopes: Array<{ sport: import("@/lib/constants").Sport | null; label: string; standing: Standing; note: string }>;
+  scopes: Array<{ sport: import("@/lib/links").BoardSport | null; label: string; standing: Standing; note: string }>;
   window: import("@/lib/links").LedgerWindow;
+  demo: boolean;
 }) {
   return (
     <div className="overflow-x-auto border border-line">
@@ -165,7 +179,14 @@ function ScopeTable({
           {scopes.map((scope) => (
             <tr key={scope.label} className="border-t border-line">
               <th scope="row" className="px-3 py-3 font-medium">
-                <Link href={boardHref(scope.sport, window)} className="underline-offset-2 hover:underline">
+                <Link
+                  href={
+                    demo
+                      ? boardHref(scope.sport, window).replace("/sports/leaderboard", "/sports/demo")
+                      : boardHref(scope.sport, "all")
+                  }
+                  className="underline-offset-2 hover:underline"
+                >
                   {scope.label}
                 </Link>
               </th>

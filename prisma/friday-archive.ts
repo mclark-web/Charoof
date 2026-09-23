@@ -116,6 +116,7 @@ export type ArchivePick = {
   clarity: "explicit" | "lean";
   grade: Grade;
   note: string;
+  sourceUrl: string;
   isDemo: boolean;
 };
 
@@ -201,14 +202,14 @@ const CAPPERS: ArchiveCapper[] = [
   {
     handle: "dustinsaracini",
     displayName: "Dustin Saracini",
-    focus: "Covers · Tigers total",
+    focus: "Covers · public cards",
     bio: bio("Dustin Saracini's Covers Tigers–White Sox total", COVERS_MLB),
     hue: 330,
   },
   {
     handle: "quinnallen",
     displayName: "Quinn Allen",
-    focus: "Covers · Braves",
+    focus: "Covers · public cards",
     bio: bio("Quinn Allen's Covers Braves–Astros card", COVERS_BRAVES),
     hue: 50,
   },
@@ -437,6 +438,12 @@ type PickInput = {
   note: string;
 };
 
+function articleUrl(note: string): string {
+  const labeled = note.match(/Article:\s*(https?:\/\/[^\s)]+)/);
+  if (!labeled) throw new Error("Archive pick is missing an article URL");
+  return labeled[1];
+}
+
 function settle(input: PickInput): ArchivePick {
   const eventRow = EVENTS.find((item) => item.id === input.eventId);
   if (!eventRow) throw new Error(`Missing archive event ${input.eventId}`);
@@ -475,7 +482,8 @@ function settle(input: PickInput): ArchivePick {
     clarity: input.clarity ?? "explicit",
     grade,
     note: `${input.note} ${STAKE}`,
-    isDemo: true,
+    sourceUrl: articleUrl(input.note),
+    isDemo: false,
   };
 }
 

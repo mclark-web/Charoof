@@ -17,7 +17,7 @@ import {
   marketLabel,
 } from "@/lib/format";
 import { unitProfit } from "@/lib/grade";
-import { buildBoard, getPickById, loadLedger } from "@/lib/ledger";
+import { buildBoard, filterLedger, getPickById, loadLedger } from "@/lib/ledger";
 import { capperHref } from "@/lib/links";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -28,7 +28,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!found) return { title: "Pick" };
   return {
     title: `${found.pick.selection} · ${found.capper.displayName}`,
-    description: `${found.pick.event.sport} pick on the Charoof demo ledger. ${found.pick.event.sourceNote}`,
+    description: found.pick.isDemo
+      ? `DEMO pick. ${found.pick.event.sourceNote}`
+      : `${found.pick.event.sport} verified pick. ${found.pick.selection}`,
   };
 }
 
@@ -46,7 +48,7 @@ export default async function PickPage({ params }: PageProps) {
   const found = await getPickById(id);
   if (!found) notFound();
   const { pick, capper } = found;
-  const ledger = await loadLedger();
+  const ledger = filterLedger(await loadLedger(), pick.isDemo ? "demo" : "verified");
   const standing = buildBoard(ledger, "all", null).rows.find((row) => row.handle === capper.handle);
   const final =
     pick.event.status === "final" && pick.event.homeScore != null && pick.event.awayScore != null;
@@ -88,6 +90,7 @@ export default async function PickPage({ params }: PageProps) {
       </p>
       <header>
         <p className="text-xs uppercase tracking-[0.18em] text-brass">
+          {pick.isDemo ? "DEMO · " : "Verified · "}
           {pick.event.sport} · {pick.event.season} · {pick.event.weekLabel}
         </p>
         <h1 className="mt-2 font-serif text-4xl text-pine">{pick.selection}</h1>
@@ -135,13 +138,27 @@ export default async function PickPage({ params }: PageProps) {
         <Fact term="Timing" value={locked ? "Before the listed start" : "After the listed start"} />
         <Fact term="Clarity" value={clarityLabel(pick.clarity)} />
         <Fact term="Result source" value={`${pick.event.source} · ${pick.event.status}`} />
+        <Fact
+          term="Source"
+          value={
+            pick.sourceUrl ? (
+              <a href={pick.sourceUrl} className="underline decoration-line underline-offset-4 hover:decoration-pine">
+                {pick.sourceUrl.replace(/^https?:\/\//, "")}
+              </a>
+            ) : pick.isDemo ? (
+              "DEMO · no source"
+            ) : (
+              "Missing"
+            )
+          }
+        />
       </dl>
 
       {pick.note ? <p className="text-sm leading-6 text-ink-soft">{pick.note}</p> : null}
 
       {standing ? (
         <p className="text-sm leading-6 text-ink-soft">
-          On the full ledger, {capper.displayName} is {formatDial(standing.ch)} · {formatFactor(standing.ch)}{" "}
+          On the {pick.isDemo ? "demo" : "verified"} ledger, {capper.displayName} is {formatDial(standing.ch)} · {formatFactor(standing.ch)}{" "}
           <FactorBadge badge={standing.badge} />. One pick does not carry its own Charoof factor. It settles into
           that record.
         </p>

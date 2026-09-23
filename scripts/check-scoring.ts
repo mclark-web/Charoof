@@ -6,10 +6,12 @@ import {
   PUBLIC_FINAL_NOTE,
   PUBLIC_RESULT_SOURCE,
   RESULT_SOURCE,
+  VERIFIED_OPEN_NOTE,
+  VERIFIED_OPEN_SOURCE,
   VOID_NOTE,
 } from "../src/lib/constants";
 import { gradeMarket, propActualFor, spreadLine, totalLine, unitProfit } from "../src/lib/grade";
-import { loadLedger, buildBoard } from "../src/lib/ledger";
+import { loadLedger, buildBoard, filterLedger } from "../src/lib/ledger";
 import { getResultsAdapter } from "../src/lib/feeds";
 import { chadWindowSize, orderAndMark, scorePicks } from "../src/lib/scoring";
 
@@ -155,16 +157,27 @@ async function checkLedger() {
   check(ledger.length >= 10, "demo roster is thin");
 
   for (const capper of ledger) {
-    check(capper.isDemo, `${capper.handle} is not flagged demo`);
+    const verifiedPicks = capper.picks.filter((pick) => !pick.isDemo);
+    check(capper.isDemo === (verifiedPicks.length === 0), `${capper.handle} demo flag does not match its picks`);
+    check(
+      !(capper.picks.some((pick) => pick.isDemo) && verifiedPicks.length > 0),
+      `${capper.handle} mixes demo and verified picks`,
+    );
     for (const pick of capper.picks) {
-      check(pick.isDemo, `${pick.id} is not flagged demo`);
       const archive = pick.event.season === ARCHIVE_SEASON;
-      if (archive) {
-        check(pick.event.source === PUBLIC_RESULT_SOURCE, `${pick.event.id} archive source is ${pick.event.source}`);
-        check(pick.event.sourceNote.startsWith(PUBLIC_FINAL_NOTE), `${pick.event.id} archive note drifted`);
-        check(pick.event.sport !== "NFL", `${pick.event.id} is an NFL row on a Friday with no NFL card`);
+      if (!pick.isDemo) {
+        check(pick.sourceUrl.startsWith("https://"), `${pick.id} is verified without a source URL`);
         check(!/status\/\d{5,}/.test(pick.note ?? ""), `${pick.id} has a tweet-style id`);
+        if (pick.event.status === "final") {
+          check(pick.event.source === PUBLIC_RESULT_SOURCE, `${pick.event.id} verified source is ${pick.event.source}`);
+          check(pick.event.sourceNote.startsWith(PUBLIC_FINAL_NOTE), `${pick.event.id} verified note drifted`);
+        } else {
+          check(pick.event.source === VERIFIED_OPEN_SOURCE, `${pick.event.id} open verified source is ${pick.event.source}`);
+          check(pick.event.sourceNote === VERIFIED_OPEN_NOTE, `${pick.event.id} open verified note drifted`);
+        }
+        if (archive) check(pick.event.sport !== "NFL", `${pick.event.id} is an NFL row on a Friday with no NFL card`);
       } else {
+        check(pick.sourceUrl === "", `${pick.id} demo pick has a source URL`);
         check(pick.event.source === RESULT_SOURCE, `${pick.event.id} source is ${pick.event.source}`);
       }
       const recomputed = gradeMarket({
@@ -185,11 +198,14 @@ async function checkLedger() {
       check(recomputed === pick.grade, `${pick.id} stored ${pick.grade} but grades ${recomputed}`);
       if (pick.event.status === "final") {
         check(pick.event.homeScore != null && pick.event.awayScore != null, `${pick.event.id} final missing score`);
-        if (!archive) check(pick.event.sourceNote === FINAL_NOTE, `${pick.event.id} final note drifted`);
+        if (pick.isDemo) check(pick.event.sourceNote === FINAL_NOTE, `${pick.event.id} final note drifted`);
       }
       if (pick.event.status === "scheduled") {
         check(pick.event.homeScore == null && pick.event.awayScore == null, `${pick.event.id} invented a score`);
-        check(pick.event.sourceNote === OPEN_NOTE, `${pick.event.id} open note drifted`);
+        check(
+          pick.event.sourceNote === (pick.isDemo ? OPEN_NOTE : VERIFIED_OPEN_NOTE),
+          `${pick.event.id} open note drifted`,
+        );
       }
       if (pick.event.status === "cancelled") {
         check(pick.event.sourceNote === VOID_NOTE, `${pick.event.id} void note drifted`);
@@ -197,10 +213,22 @@ async function checkLedger() {
     }
   }
 
-  const overall = buildBoard(ledger, "all", null);
-  const season = buildBoard(ledger, "season", null);
-  const nfl = buildBoard(ledger, "all", "NFL");
-  const ncaaf = buildBoard(ledger, "all", "NCAAF");
+  const demoLedger = filterLedger(ledger, "demo");
+  const verifiedLedger = filterLedger(ledger, "verified");
+  check(!verifiedLedger.some((capper) => capper.handle === "linelock"), "demo capper is on the live board");
+  check(verifiedLedger.some((capper) => capper.handle === "neilparker"), "live board is missing Neil Parker");
+  check(!demoLedger.some((capper) => capper.picks.some((pick) => !pick.isDemo)), "demo ledger contains a verified pick");
+  const steelers = verifiedLedger
+    .flatMap((capper) => capper.picks)
+    .find((pick) => pick.id === "neilparker-nfl-2026-09-20-steelers-total");
+  check(steelers?.grade === "win", `Steelers/Patriots under graded ${steelers?.grade}`);
+  check(steelers?.event.awayScore === 3 && steelers.event.homeScore === 20, "Steelers/Patriots final drifted");
+  check(steelers?.sourceUrl.includes("covers.com/nfl/steelers-vs-patriots"), "Steelers pick lost its source");
+
+  const overall = buildBoard(demoLedger, "all", null);
+  const season = buildBoard(demoLedger, "season", null);
+  const nfl = buildBoard(demoLedger, "all", "NFL");
+  const ncaaf = buildBoard(demoLedger, "all", "NCAAF");
 
   const print = (title: string, rows: typeof overall.rows) => {
     console.log(`\n${title}`);

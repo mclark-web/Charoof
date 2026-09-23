@@ -3,14 +3,15 @@ import Link from "next/link";
 
 import { FridaySlate } from "@/components/friday-slate";
 import { LeaderboardTable } from "@/components/leaderboard-table";
-import { feedNotice, getResultsAdapter } from "@/lib/feeds";
-import { archivePicks, getBoard, loadLedger } from "@/lib/ledger";
+import { VerifiedCards } from "@/components/verified-cards";
+import { ARCHIVE_SEASON } from "@/lib/constants";
+import { archivePicks, buildBoard, filterLedger, loadLedger } from "@/lib/ledger";
 import { sportsPath } from "@/lib/links";
 
 export const metadata: Metadata = {
   title: { absolute: "Charoof Sports — public ledger for sports prediction accounts" },
   description:
-    "Charoof Sports grades public sports picks against final scores. CH is the Charoof factor, read as a 1–10 Chad/Chud scale and as a score out of 100. Demo ledger. Not gambling advice.",
+    "Charoof Sports grades verified public picks against free finals. CH is the Charoof factor. Fiction stays on the demo ledger. Not gambling advice.",
 };
 
 const LEXICON = [
@@ -32,14 +33,17 @@ const LEXICON = [
 ];
 
 export default async function HomePage() {
-  const [board, ledger] = await Promise.all([getBoard("all", null), loadLedger()]);
-  const openPicks = ledger.reduce(
+  const verified = filterLedger(await loadLedger(), "verified");
+  const board = buildBoard(verified, "all", null);
+  const openPicks = verified.reduce(
     (sum, capper) => sum + capper.picks.filter((pick) => pick.grade === "pending").length,
     0,
   );
   const chadCount = board.rows.filter((row) => row.badge === "chad").length;
-  const notice = feedNotice(getResultsAdapter());
-  const archive = archivePicks(ledger);
+  const archive = archivePicks(verified);
+  const recent = verified
+    .flatMap((capper) => capper.picks.filter((pick) => pick.event.season !== ARCHIVE_SEASON).map((pick) => ({ capper, pick })))
+    .sort((a, b) => a.pick.event.startsAt.getTime() - b.pick.event.startsAt.getTime());
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-5 py-10">
@@ -50,9 +54,9 @@ export default async function HomePage() {
             A public record for a posted pick.
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-ink-soft">
-            Charoof Sports grades prediction accounts when the game is final. CH, the Charoof factor, runs from
-            Chud — Uncertainty &amp; Doubt — to Chad — Accuracy &amp; Discipline. Under 70/100 is Chud
-            territory. The top 30% of peers earns Chad.
+            Charoof Sports grades a posted pick when a free public final is recorded. CH, the Charoof factor,
+            runs from Chud — Uncertainty &amp; Doubt — to Chad — Accuracy &amp; Discipline. Under 70/100 is
+            Chud territory. The top 30% of peers earns Chad. Fiction is not on this board.
           </p>
         </div>
         <dl className="grid grid-cols-2 gap-px border border-line bg-line">
@@ -70,23 +74,37 @@ export default async function HomePage() {
         </dl>
       </section>
 
+      <VerifiedCards rows={recent} />
+
       <FridaySlate rows={archive} standings={board.rows} />
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="font-serif text-3xl text-pine">The board</h2>
-            <p className="mt-1 text-sm text-ink-soft">Full demo ledger, all sports. Season-to-date is on the board page.</p>
+            <h2 className="font-serif text-3xl text-pine">Verified rankings</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Verified picks only. The Fri Sep 18 archive is included. Demo fiction is not.
+            </p>
           </div>
           <Link href={sportsPath.board} className="text-sm underline decoration-line underline-offset-4 hover:decoration-pine">
             Open filters
           </Link>
         </div>
-        <LeaderboardTable rows={board.rows} window="all" caption="Full demo ledger, all sports" />
+        <LeaderboardTable
+          rows={board.rows}
+          window="all"
+          caption="Verified ledger, all sports"
+          empty="No verified cappers yet. Paste a sourced pick with npm run ingest, or open the demo ledger for the fiction sample."
+        />
         <p className="text-sm leading-6 text-ink-soft">{board.note}</p>
         <p className="text-sm leading-6 text-ink-soft">
-          {openPicks} sample {openPicks === 1 ? "fixture is" : "fixtures are"} still open, with no score attached.{" "}
-          {notice}
+          {openPicks === 0
+            ? "No verified fixture is waiting on a final."
+            : `${openPicks} verified ${openPicks === 1 ? "fixture is" : "fixtures are"} still open, with no score attached.`}{" "}
+          <Link href={sportsPath.demo} className="underline decoration-line underline-offset-4 hover:decoration-pine">
+            DEMO fiction
+          </Link>{" "}
+          is a separate ledger and does not move these ranks.
         </p>
       </section>
 
