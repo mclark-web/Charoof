@@ -34,7 +34,7 @@ export function SectorBoard({ sector }: { sector: Sector }) {
           </ul>
         </div>
         <div className="board-tube">
-          <GcTube fill={sector.exampleFill} variant="hero" rich label="GC · Grade Calibration" />
+          <GcTube fill={sector.exampleFill} variant="hero" rich label="GC Scale" />
           <p className="hint">Illustrative sector calibration from the hub. Demo rows below are fixtures, not a live book.</p>
         </div>
       </section>
@@ -47,7 +47,7 @@ export function SectorBoard({ sector }: { sector: Sector }) {
               <th>Call</th>
               <th>Lane</th>
               <th>Sample</th>
-              <th>GC</th>
+              <th>GC Scale</th>
             </tr>
           </thead>
           <tbody>
@@ -59,8 +59,8 @@ export function SectorBoard({ sector }: { sector: Sector }) {
                   </td>
                   <td className="mono" data-label="Lane">{row.lane}</td>
                   <td className="mono" data-label="Sample">{row.sample}</td>
-                  <td className="tube-cell" data-label="GC">
-                    <GcTube fill={row.fill} variant="inline" label="GC" />
+                  <td className="tube-cell" data-label="GC Scale">
+                    <GcTube fill={row.fill} variant="inline" label="GC Scale" />
                   </td>
                 </tr>
               ))}

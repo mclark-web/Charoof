@@ -19,7 +19,10 @@ export default function SportsPage() {
           paid odds API. No verified slate is locked in this build, so the lane stays empty rather than inventing a
           record.
         </p>
-        <p className="dim">Demo rows above are fiction. They show the tube, the sample size, and the EXIT LIQUIDITY empty state.</p>
+        <p className="dim">
+          Demo rows above are fiction. They show the tube, the sample size, and the GC Scale grades: STRONG, WEAK,
+          PROVISIONAL, and EXIT LIQUIDITY.
+        </p>
       </section>
     </>
   );

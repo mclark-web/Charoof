@@ -13,7 +13,7 @@ export default function SignInPage() {
       <h1>Boards are public</h1>
       <p>
         GradedCalls does not ask you to create an account to read a grade. Sign-in is not open on this surface. Browse
-        the boards, the GC scale, and the method instead.
+        the boards, the GC Scale, and the method instead.
       </p>
       <div className="hero-actions">
         <Link className="btn btn-primary" href="/#sectors">

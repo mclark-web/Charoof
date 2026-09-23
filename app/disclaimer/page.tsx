@@ -11,7 +11,7 @@ export default function DisclaimerPage() {
       <h1>Disclaimer</h1>
       <p>GradedCalls is not investment advice, not betting advice, and not a solicitation to trade or wager.</p>
       <p>
-        Hub figures such as the call count and the strong / weak mix are an illustrative snapshot of the board frame.
+        Hub figures such as the call count and the STRONG / WEAK mix are an illustrative snapshot of the board frame.
         Sector cards and demo rows are calibration fixtures so the tube and the four grade labels can be read. They are
         not live analyst, social, or sports records.
       </p>

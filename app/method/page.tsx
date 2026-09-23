@@ -61,22 +61,22 @@ export default function MethodPage() {
         </div>
       </div>
 
-      <div className="section-label">Labels</div>
+      <div className="section-label">GC Scale</div>
       <div className="scale-row">
         <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.strongAt} label="GC" />
+          <GcTube fill={GRADE_BANDS.strongAt} label="GC Scale" />
           <p className="hint">STRONG at {GRADE_BANDS.strongAt}% and above</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={54} label="GC" />
+          <GcTube fill={54} label="GC Scale" />
           <p className="hint">PROVISIONAL in the open mid-band</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.weakAt} label="GC" />
+          <GcTube fill={GRADE_BANDS.weakAt} label="GC Scale" />
           <p className="hint">WEAK at {GRADE_BANDS.weakAt}% and below</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={0} label="GC" />
+          <GcTube fill={0} label="GC Scale" />
           <p className="hint">0% fill is empty glass · EXIT LIQUIDITY</p>
         </div>
       </div>

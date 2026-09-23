@@ -60,11 +60,11 @@ export default function HubPage() {
             <div className="hint">2W · 30D · 60D · 90D · 1Y</div>
           </div>
           <div className="stat">
-            <div className="label">Strong / Weak</div>
+            <div className="label">STRONG / WEAK</div>
             <div className="value value-split">
               <span className="ok">41%</span> <span className="dim">/</span> <span className="bad">37%</span>
             </div>
-            <div className="hint">Illustrative mix · rest provisional</div>
+            <div className="hint">Illustrative mix · rest PROVISIONAL</div>
           </div>
           <div className="stat">
             <div className="label">Sources</div>
@@ -84,13 +84,13 @@ export default function HubPage() {
         <Link className="sector" href="/gc-scale">
           <div className="kicker">Trust · Calibration</div>
           <h3>GC Scale</h3>
-          <p>How Strong, Weak, Provisional, and exit liquidity map onto the laboratory tube — same rules on every board.</p>
+          <p>How STRONG, WEAK, PROVISIONAL, and EXIT LIQUIDITY map onto the laboratory tube — same rules on every board.</p>
           <div className="gc-slot">
-            <GcTube fill={72} variant="mini" label="GC" metaInline className="is-card" />
+            <GcTube fill={72} variant="mini" label="GC Scale" metaInline className="is-card" />
           </div>
           <div className="foot">
-            <span>Method · Labels · Fill</span>
-            <span className="go">Explore scale →</span>
+            <span>STRONG · WEAK · PROVISIONAL · EXIT LIQUIDITY</span>
+            <span className="go">GC Scale →</span>
           </div>
         </Link>
       </div>
@@ -114,24 +114,24 @@ export default function HubPage() {
           <div className="n">03</div>
           <h4>Grade</h4>
           <p>
-            Compared to real closes, Monday opens, or final scores — labeled Strong, Weak, or Provisional. {GRADE_BANDS.strongAt}%
-            and above is Strong. {GRADE_BANDS.weakAt}% and below is Weak.
+            Compared to real closes, Monday opens, or final scores — labeled STRONG, WEAK, or PROVISIONAL. {GRADE_BANDS.strongAt}%
+            and above is STRONG. {GRADE_BANDS.weakAt}% and below is WEAK.
           </p>
         </div>
       </div>
 
       <div className="panel method-gc">
         <div>
-          <h2>GC · Grade Calibration</h2>
+          <h2>GC Scale</h2>
           <p>
             The horizontal tube fill is the calibration score — how closely outcomes matched the stated direction.
-            Strong, Weak, or Provisional. Empty glass at 0% is EXIT LIQUIDITY.
+            STRONG, WEAK, or PROVISIONAL. Empty glass at 0% is EXIT LIQUIDITY.
           </p>
           <p className="method-link">
-            <Link href="/gc-scale">Explore the GC scale →</Link>
+            <Link href="/gc-scale">GC Scale →</Link>
           </p>
         </div>
-        <GcTube fill={72} rich centered label="GC · Grade Calibration" className="method-tube" />
+        <GcTube fill={72} rich centered label="GC Scale" className="method-tube" />
       </div>
     </>
   );
