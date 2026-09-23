@@ -58,7 +58,7 @@ export function GcScaleView() {
       <Ambient />
       <section className="gc-hero">
         <div>
-          <div className="chip">Factor · GC</div>
+          <div className="chip">GC · Grade Calibration</div>
           <h1>
             Grade Calibration as a <em>neon tube</em>
           </h1>
@@ -111,9 +111,9 @@ export function GcScaleView() {
       <section className="orient-section panel">
         <h2>Vertical + horizontal</h2>
         <p className="sub">
-          One GC factor, two readable forms. Vertical vial fills bottom → top; horizontal tube fills left → right. Both
-          use <code>--gc-fill</code>, the same neon bloom, and the same grade labels — including <strong>exit liquidity</strong>{" "}
-          at 0%.
+          GC is Grade Calibration, in two readable forms. The vertical vial fills bottom → top; the horizontal tube fills
+          left → right. Both use <code>--gc-fill</code>, the same neon bloom, and the same grade labels — including{" "}
+          <strong>exit liquidity</strong> at 0%.
         </p>
         <div className="orient-grid">
           <div className="panel orient-panel">

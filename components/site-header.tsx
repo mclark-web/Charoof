@@ -9,6 +9,7 @@ const NAV = [
   { href: "/analysts", label: "Analysts" },
   { href: "/fintwit", label: "FinTwit" },
   { href: "/sports", label: "Sports" },
+  { href: "/gcbot", label: "GCBot" },
   { href: "/gc-scale", label: "GC Scale" },
   { href: "/method", label: "Method" },
 ];

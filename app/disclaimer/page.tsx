@@ -17,7 +17,8 @@ export default function DisclaimerPage() {
       </p>
       <p>
         Sports does not use a paid odds API. A verified sports row, when one exists, is a public pick graded on an
-        official result. Demo rows are fiction.
+        official result. Demo rows are fiction. GCBot rows are calibration fixtures for narrative volume. This surface
+        does not call a paid social API.
       </p>
     </section>
   );

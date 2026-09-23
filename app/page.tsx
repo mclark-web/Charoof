@@ -40,6 +40,9 @@ export default function HubPage() {
             <span>
               <strong>Sample size</strong> shown on every profile
             </span>
+            <span>
+              <strong>Zero-cost demo</strong> on GCBot
+            </span>
           </div>
           <p className="byline">Built for accountability in an age of market FOMO, prediction craze, and loud anonymous voices.</p>
         </div>
