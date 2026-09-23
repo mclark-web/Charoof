@@ -1398,6 +1398,23 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 .board-table td[data-label]::before { content: none; }
 .lane-note { margin-top: 22px; padding: 22px 24px; }
 .lane-note p { margin-top: 8px; color: var(--muted); line-height: 1.5; max-width: 68ch; }
+.board-note { margin: -4px 0 12px; color: var(--muted); font-size: 13.5px; line-height: 1.5; max-width: 78ch; }
+.board-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.source-link { color: var(--orange-soft); font-size: 12.5px; }
+.source-link:hover { text-decoration: underline; }
+.count-hero, .roster-meter {
+  padding: 18px 16px; border-radius: 16px;
+  background: rgba(18,20,26,0.55); border: 1px solid rgba(255,255,255,0.08);
+}
+.count-hero .label, .roster-meter .label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--dim);
+}
+.count-hero .value, .roster-meter .value {
+  font-size: 36px; font-weight: 680; letter-spacing: -0.03em; margin-top: 4px;
+}
+.roster-meter { padding: 8px 2px; background: transparent; border: 0; }
+.roster-meter .value { font-size: 28px; }
+.sector .roster-meter .hint { text-align: left; }
 .prose-panel { margin-top: 36px; padding: 28px 24px 32px; }
 .prose-panel h1 { font-size: 36px; margin: 12px 0; max-width: 16ch; }
 .prose-panel p { color: var(--muted); line-height: 1.55; max-width: 62ch; margin-top: 12px; }

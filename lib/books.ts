@@ -1,0 +1,500 @@
+import analystRoster from "@/data/analyst-roster.json";
+import fridayArchive from "@/data/friday-archive.json";
+import fintwitBook from "@/data/fintwit-book.json";
+import gcbotCorpus from "@/data/gcbot-corpus.json";
+import verifiedPicks from "@/data/verified-picks.json";
+import { fillForOutcome, hitFill, outcomeLabel, recordLabel, type Outcome } from "@/lib/outcome";
+import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
+
+export type BoardLane = "Demo" | "Verified" | "Seeded";
+
+export type BoardRow = {
+  id: string;
+  lane: BoardLane;
+  title: string;
+  detail: string;
+  fill: number | null;
+  sample: string;
+  href?: string;
+};
+
+export type BoardSection = {
+  id: string;
+  label: string;
+  note: string;
+  rows: BoardRow[];
+};
+
+export type HeroMeter =
+  | { kind: "tube"; fill: number; hint: string; card: string }
+  | { kind: "count"; value: string; hint: string; card: string };
+
+export type SectorBook = {
+  sector: Sector;
+  hero: HeroMeter;
+  liveHref: string | null;
+  liveLabel: string | null;
+  sections: BoardSection[];
+};
+
+type VerifiedPick = {
+  tipster: string;
+  sport: string;
+  event: string;
+  market: string;
+  side: string;
+  number: number | null;
+  price: string | null;
+  posted_at: string;
+  source_url: string;
+  game_final: boolean;
+  result: string;
+  box_score_url: string;
+  final_score: string;
+};
+
+type FridayPick = {
+  id: string;
+  capper: string;
+  sport: string;
+  event: string;
+  selection: string;
+  grade: string;
+  finalScore: string;
+  sourceUrl: string;
+  postedAt: string;
+};
+
+type FintwitCall = {
+  id: string;
+  cohort: string;
+  cohortTitle: string;
+  name: string;
+  body: string;
+  direction: string;
+  primary: string;
+  ref: number | null;
+  mondayOpen: number | null;
+  directionGrade: string;
+};
+
+const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
+
+function asOutcome(value: string, id: string): Outcome {
+  if (OUTCOMES.has(value as Outcome)) return value as Outcome;
+  throw new Error(`Unknown grade ${value} on ${id}`);
+}
+
+function signedNumber(value: number): string {
+  const digits = Number.isInteger(value) ? 0 : 1;
+  const absolute = Math.abs(value).toFixed(digits);
+  if (value > 0) return `+${absolute}`;
+  if (value < 0) return `−${absolute}`;
+  return "PK";
+}
+
+function verifiedSelection(pick: VerifiedPick): string {
+  if (pick.market === "spread" || pick.market === "run_line") {
+    return pick.number == null ? pick.side : `${pick.side} ${signedNumber(pick.number)}`;
+  }
+  if (pick.market === "total" || pick.market === "total_goals") {
+    return pick.number == null ? pick.side : `${pick.side} ${pick.number}`;
+  }
+  if (pick.market === "moneyline") return `${pick.side} moneyline`;
+  return pick.side;
+}
+
+function outcomeRow(input: {
+  id: string;
+  lane: BoardLane;
+  title: string;
+  detail: string;
+  outcome: Outcome;
+  href?: string;
+}): BoardRow {
+  return {
+    id: input.id,
+    lane: input.lane,
+    title: input.title,
+    detail: input.detail,
+    fill: fillForOutcome(input.outcome),
+    sample: outcomeLabel(input.outcome),
+    href: input.href,
+  };
+}
+
+function tally(outcomes: Outcome[]) {
+  const counts = { win: 0, loss: 0, push: 0, void: 0, pending: 0 };
+  for (const outcome of outcomes) counts[outcome] += 1;
+  return counts;
+}
+
+export function verifiedPickRows(): BoardRow[] {
+  return (verifiedPicks as VerifiedPick[]).map((pick, index) => {
+    const outcome = asOutcome(pick.result, pick.event);
+    const price = pick.price ? ` · price ${pick.price}` : "";
+    return outcomeRow({
+      id: `verified-${index}`,
+      lane: "Verified",
+      title: `${pick.tipster} · ${verifiedSelection(pick)}`,
+      detail: `${pick.sport} · ${pick.event} · Final ${pick.final_score}${price} · posted ${pick.posted_at}`,
+      outcome,
+      href: pick.source_url,
+    });
+  });
+}
+
+export function fridayPickRows(): BoardRow[] {
+  return (fridayArchive.picks as FridayPick[]).map((pick) => {
+    const outcome = asOutcome(pick.grade, pick.id);
+    return outcomeRow({
+      id: pick.id,
+      lane: "Verified",
+      title: `${pick.capper} · ${pick.selection}`,
+      detail: `${pick.sport} · ${pick.event} · Final ${pick.finalScore} · posted ${pick.postedAt.slice(0, 10)}`,
+      outcome,
+      href: pick.sourceUrl,
+    });
+  });
+}
+
+type CapperTally = { name: string; outcomes: Outcome[] };
+
+/** Drop a single publication tag. A joint byline with a slash stays intact. */
+function capperIdentity(name: string): { key: string; label: string } {
+  if (name.includes("/")) return { key: name.toLowerCase(), label: name };
+  const label = name.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+  return { key: label.toLowerCase(), label };
+}
+
+export function publicCapperRows(): BoardRow[] {
+  const byName = new Map<string, CapperTally>();
+  const add = (name: string, outcome: Outcome) => {
+    const identity = capperIdentity(name);
+    const current = byName.get(identity.key) ?? { name: identity.label, outcomes: [] };
+    current.outcomes.push(outcome);
+    byName.set(identity.key, current);
+  };
+
+  for (const pick of verifiedPicks as VerifiedPick[]) {
+    add(pick.tipster, asOutcome(pick.result, pick.event));
+  }
+  for (const pick of fridayArchive.picks as FridayPick[]) {
+    add(pick.capper, asOutcome(pick.grade, pick.id));
+  }
+
+  return [...byName.values()]
+    .map((capper) => {
+      const counts = tally(capper.outcomes);
+      const decisive = counts.win + counts.loss;
+      return {
+        id: `capper-${capper.name}`,
+        lane: "Verified" as const,
+        title: capper.name,
+        detail: `${capper.outcomes.length} public ${capper.outcomes.length === 1 ? "pick" : "picks"} · ${recordLabel(counts.win, counts.loss, counts.push)}${counts.void ? ` · ${counts.void} void` : ""}`,
+        fill: hitFill(counts.win, counts.loss),
+        sample: decisive ? `n = ${decisive}` : "n = 0",
+      };
+    })
+    .sort((a, b) => (b.fill ?? 0) - (a.fill ?? 0) || a.title.localeCompare(b.title));
+}
+
+export function sportsOutcomes(): Outcome[] {
+  return [
+    ...(verifiedPicks as VerifiedPick[]).map((pick) => asOutcome(pick.result, pick.event)),
+    ...(fridayArchive.picks as FridayPick[]).map((pick) => asOutcome(pick.grade, pick.id)),
+  ];
+}
+
+function money(value: number | null): string {
+  if (value == null) return "—";
+  return value.toFixed(2);
+}
+
+export function fintwitCallRows(cohort: string): BoardRow[] {
+  return (fintwitBook.calls as FintwitCall[])
+    .filter((call) => call.cohort === cohort)
+    .map((call) => {
+      const outcome = asOutcome(call.directionGrade, call.id);
+      const tape =
+        outcome === "pending"
+          ? "no Monday open on the stored tape"
+          : `${call.primary} Monday open ${money(call.mondayOpen)} vs Friday close ${money(call.ref)}`;
+      return outcomeRow({
+        id: call.id,
+        lane: "Seeded",
+        title: `${call.name} · ${call.direction} ${call.primary}`,
+        detail: `${call.body} · ${tape}`,
+        outcome,
+      });
+    });
+}
+
+export function fintwitCohortRows(): BoardRow[] {
+  return fintwitBook.cohorts.map((cohort) => {
+    const calls = (fintwitBook.calls as FintwitCall[]).filter((call) => call.cohort === cohort.slug);
+    const counts = tally(calls.map((call) => asOutcome(call.directionGrade, call.id)));
+    return {
+      id: cohort.slug,
+      lane: "Seeded" as const,
+      title: cohort.title,
+      detail: cohort.summary,
+      fill: hitFill(counts.win, counts.loss),
+      sample: counts.win + counts.loss === 0 ? "Open window" : recordLabel(counts.win, counts.loss),
+    };
+  });
+}
+
+export function fintwitOutcomes(): Outcome[] {
+  return (fintwitBook.calls as FintwitCall[]).map((call) => asOutcome(call.directionGrade, call.id));
+}
+
+export function analystRows(): BoardRow[] {
+  return analystRoster.analysts.map((analyst) => ({
+    id: analyst.slug,
+    lane: "Seeded" as const,
+    title: analyst.name,
+    detail: `${analyst.title} · ${analyst.bankName} · ${analyst.sector}`,
+    fill: null,
+    sample: `since ${analyst.startedYear}`,
+  }));
+}
+
+export function bankRows(): BoardRow[] {
+  return analystRoster.banks.map((bank) => ({
+    id: bank.slug,
+    lane: "Seeded" as const,
+    title: bank.name,
+    detail: `${bank.headquarters}. ${bank.description}`,
+    fill: null,
+    sample: "Seeded desk",
+  }));
+}
+
+type CorpusPost = {
+  id: string;
+  account: string;
+  text: string;
+  postedAt: string;
+  narrativeId: string | null;
+};
+
+export function gcbotNarrativeRows(): BoardRow[] {
+  const posts = gcbotCorpus.posts as CorpusPost[];
+  const accounts = new Map(gcbotCorpus.accounts.map((account) => [account.handle, account.name]));
+  return gcbotCorpus.narratives
+    .map((narrative) => {
+      const related = posts
+        .filter((post) => post.narrativeId === narrative.id)
+        .sort((a, b) => a.postedAt.localeCompare(b.postedAt));
+      const first = related[0];
+      const speaker = first ? (accounts.get(first.account) ?? first.account) : "No post";
+      const excerpt = first ? first.text : narrative.summary;
+      return {
+        count: related.length,
+        row: {
+          id: narrative.id,
+          lane: "Seeded" as const,
+          title: narrative.title,
+          detail: `${narrative.topic}. ${narrative.summary} Earliest fixture: ${speaker} — ${excerpt}`,
+          fill: null,
+          sample: `n = ${related.length}`,
+        },
+      };
+    })
+    .sort((a, b) => b.count - a.count || a.row.title.localeCompare(b.row.title))
+    .map((item) => item.row);
+}
+
+function demoSection(sector: Sector): BoardSection {
+  return {
+    id: `${sector.key}-demo`,
+    label: "Demo fixtures",
+    note: "Fiction for the tube, the sample size, and the empty glass. These rows are not the verified or seeded book above.",
+    rows: sector.fixtures.map(fixtureRow),
+  };
+}
+
+function fixtureRow(row: Fixture): BoardRow {
+  return {
+    id: row.id,
+    lane: row.lane,
+    title: row.title,
+    detail: row.detail,
+    fill: row.fill,
+    sample: row.sample,
+  };
+}
+
+function sportsBook(sector: Sector): SectorBook {
+  const counts = tally(sportsOutcomes());
+  const fill = hitFill(counts.win, counts.loss);
+  const record = recordLabel(counts.win, counts.loss, counts.push);
+  return {
+    sector,
+    hero: {
+      kind: "tube",
+      fill,
+      card: `${counts.win + counts.loss + counts.push + counts.void} public picks · ${record}`,
+      hint: `Win rate of decisive verified picks, including the Fri Sep 18 archive. ${record} on wins and losses${counts.void ? `, ${counts.void} void kept out of the fill` : ""}. A single win is 100% STRONG. A single loss is 28% WEAK. 0% is an empty window.`,
+    },
+    liveHref: null,
+    liveLabel: null,
+    sections: [
+      {
+        id: "verified-cards",
+        label: "Verified lane",
+        note: "Fourteen public free picks recovered from data/verified-picks.json (PR #5 accuracy ledger). Graded on the public finals stored with each card. No paid odds API.",
+        rows: verifiedPickRows(),
+      },
+      {
+        id: "friday-archive",
+        label: "Fri Sep 18 archive",
+        note: "Public cards from Covers, Action Network, and ProCappers for Friday, September 18, 2026, graded with the recovered market grader against recorded finals. Two leans with no posted number stay void.",
+        rows: fridayPickRows(),
+      },
+      {
+        id: "public-cappers",
+        label: "Public cappers",
+        note: "Combined record for each name across the verified cards and the Friday archive. The tube is that capper’s decisive hit rate on this hub.",
+        rows: publicCapperRows(),
+      },
+      demoSection(sector),
+    ],
+  };
+}
+
+function analystsBook(sector: Sector): SectorBook {
+  return {
+    sector,
+    hero: {
+      kind: "count",
+      value: String(analystRoster.analysts.length),
+      card: `${analystRoster.analysts.length} analysts · seeded book`,
+      hint: `${analystRoster.banks.length} sample desks · ${analystRoster.tickers.length} tickers · vintage ${analystRoster.asOf}. Names are the bank_troof roster. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+    },
+    liveHref: analystRoster.liveUrl,
+    liveLabel: "Open the live Analysts ledger",
+    sections: [
+      {
+        id: "analyst-roster",
+        label: "Seeded analyst roster",
+        note: "Fictional analysts from the Analysts seed. The live board grades their sample calls against historical split-adjusted closes. This table is the roster, not a regenerated price grade.",
+        rows: analystRows(),
+      },
+      {
+        id: "bank-roster",
+        label: "Seeded desks",
+        note: "Each desk is labeled as a sample franchise in the seed. The description is the seed copy, not a report on the bank.",
+        rows: bankRows(),
+      },
+      demoSection(sector),
+    ],
+  };
+}
+
+function fintwitBookView(sector: Sector): SectorBook {
+  const latest = fintwitBook.cohorts.find((cohort) => cohort.isLatest) ?? fintwitBook.cohorts[fintwitBook.cohorts.length - 1];
+  const counts = tally(fintwitOutcomes());
+  const fill = hitFill(counts.win, counts.loss);
+  return {
+    sector,
+    hero: {
+      kind: "tube",
+      fill,
+      card: `${fintwitBook.calls.length} seeded posts · ${recordLabel(counts.win, counts.loss)}`,
+      hint: `Monday-open direction for the seeded demo book: stated bullish or bearish versus the stored Friday close and Monday regular-session open. ${counts.pending} posts have no Monday open and stay at 0%. This is not the live board’s peer-rank score.`,
+    },
+    liveHref: fintwitBook.liveUrl,
+    liveLabel: "Open the live FinTwit ledger",
+    sections: [
+      {
+        id: "fintwit-latest",
+        label: `Latest seeded weekend · ${latest.title}`,
+        note: latest.summary,
+        rows: fintwitCallRows(latest.slug),
+      },
+      {
+        id: "fintwit-cohorts",
+        label: "Seeded weekends",
+        note: "Five demo cohorts. The tube is the Monday-open hit rate. The September 7 cohort is Labor Day, so that window stays empty rather than copying an earlier print.",
+        rows: fintwitCohortRows(),
+      },
+      {
+        id: "fintwit-accounts",
+        label: "Seeded accounts",
+        note: "Fictional handles from the FinTwit seed. Bios are the seed copy.",
+        rows: fintwitBook.accounts.map((account) => ({
+          id: account.handle,
+          lane: "Seeded" as const,
+          title: account.displayName,
+          detail: `@${account.handle} · ${account.bio}`,
+          fill: null,
+          sample: account.posture,
+        })),
+      },
+      demoSection(sector),
+    ],
+  };
+}
+
+function gcbotBook(sector: Sector): SectorBook {
+  const posts = gcbotCorpus.posts.length;
+  const narratives = gcbotCorpus.narratives.length;
+  const accounts = gcbotCorpus.accounts.length;
+  return {
+    sector,
+    hero: {
+      kind: "count",
+      value: String(posts),
+      card: `${posts} fixture posts · ${narratives} narratives`,
+      hint: `${accounts} fixture accounts. Clone speech and amplifier scores are computed on the live GCBot board from this same corpus. This hub shows the narratives and the earliest post in each thread, and does not invent those two scores.`,
+    },
+    liveHref: "https://charoofbot.vercel.app",
+    liveLabel: "Open the live GCBot board",
+    sections: [
+      {
+        id: "gcbot-narratives",
+        label: "Fixture narratives",
+        note: "Synthetic corpus recovered from the GCBot data file. Volume is the post count. A narrative with posts is not given a fake accuracy grade on this hub.",
+        rows: gcbotNarrativeRows(),
+      },
+      demoSection(sector),
+    ],
+  };
+}
+
+export function sectorBook(key: SectorKey): SectorBook {
+  const sector = sectors.find((item) => item.key === key);
+  if (!sector) throw new Error(`Unknown sector ${key}`);
+  if (key === "sports") return sportsBook(sector);
+  if (key === "analysts") return analystsBook(sector);
+  if (key === "fintwit") return fintwitBookView(sector);
+  return gcbotBook(sector);
+}
+
+export function sectorBooks(): SectorBook[] {
+  return sectors.map((sector) => sectorBook(sector.key));
+}
+
+export function hubStats() {
+  const sports = tally(sportsOutcomes());
+  const fintwit = tally(fintwitOutcomes());
+  const sportsCards = sports.win + sports.loss + sports.push + sports.void + sports.pending;
+  return {
+    sportsCards,
+    sportsRecord: recordLabel(sports.win, sports.loss, sports.push),
+    sportsVoids: sports.void,
+    sportsHitFill: hitFill(sports.win, sports.loss),
+    analysts: analystRoster.analysts.length,
+    banks: analystRoster.banks.length,
+    tickers: analystRoster.tickers.length,
+    fintwitPosts: fintwitBook.calls.length,
+    fintwitRecord: recordLabel(fintwit.win, fintwit.loss, fintwit.push),
+    fintwitOpen: fintwit.pending,
+    fintwitHitFill: hitFill(fintwit.win, fintwit.loss),
+    gcbotPosts: gcbotCorpus.posts.length,
+    gcbotNarratives: gcbotCorpus.narratives.length,
+    gcbotAccounts: gcbotCorpus.accounts.length,
+  };
+}

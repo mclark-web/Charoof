@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { SectorBoard } from "@/components/sector-board";
-import { sectorByKey } from "@/lib/sectors";
+import { sectorBook } from "@/lib/books";
 
 export const metadata: Metadata = {
   title: "FinTwit",
-  description: "Public market calls graded against the next session’s tape, with a horizontal Grade Calibration tube.",
+  description:
+    "Seeded weekend posts graded on the stored Monday open, with a link to the live FinTwit ledger.",
 };
 
 export default function FinTwitPage() {
-  return <SectorBoard sector={sectorByKey("fintwit")} />;
+  return <SectorBoard book={sectorBook("fintwit")} />;
 }

@@ -1,0 +1,609 @@
+{
+  "source": "bank_troof prisma/universe.ts. Sample desks and fictional analysts. The live ledger grades this book against historical split-adjusted closes. This hub snapshot is the roster, not a regenerated price grade.",
+  "liveUrl": "https://bank-troof.vercel.app",
+  "asOf": "2026-09-21",
+  "banks": [
+    {
+      "slug": "evercore",
+      "name": "Evercore ISI",
+      "shortName": "Evercore",
+      "headquarters": "New York",
+      "description": "Sample independent-research desk used to show a high-scoring franchise. Figures are generated. They are not Evercore's actual recommendation record."
+    },
+    {
+      "slug": "bernstein",
+      "name": "Bernstein",
+      "shortName": "Bernstein",
+      "headquarters": "New York",
+      "description": "Sample profile for a research franchise with a tighter hit rate in this demo. Not a statement about Bernstein's published research."
+    },
+    {
+      "slug": "wolfe",
+      "name": "Wolfe Research",
+      "shortName": "Wolfe",
+      "headquarters": "New York",
+      "description": "Sample boutique desk. Sector mix and grades exist so GradedCalls Analysts can show how a smaller roster rolls up to a firm score."
+    },
+    {
+      "slug": "jefferies",
+      "name": "Jefferies",
+      "shortName": "Jefferies",
+      "headquarters": "New York",
+      "description": "Sample full-service desk sitting near the middle of the demo leaderboard. Useful as a baseline, not as a report on Jefferies."
+    },
+    {
+      "slug": "piper",
+      "name": "Piper Sandler",
+      "shortName": "Piper",
+      "headquarters": "Minneapolis",
+      "description": "Sample regional franchise with healthcare and technology coverage in the demo universe."
+    },
+    {
+      "slug": "goldman",
+      "name": "Goldman Sachs",
+      "shortName": "Goldman",
+      "headquarters": "New York",
+      "description": "Sample bulge-bracket book. Goldman Sachs is a familiar label so the product can be searched the way a reader would. The score is fictional."
+    },
+    {
+      "slug": "morgan-stanley",
+      "name": "Morgan Stanley",
+      "shortName": "Morgan Stanley",
+      "headquarters": "New York",
+      "description": "Sample Morgan Stanley research roster. Accuracy, targets, and notes are simulated for the demo and are not the firm's record."
+    },
+    {
+      "slug": "jpmorgan",
+      "name": "JPMorgan",
+      "shortName": "JPMorgan",
+      "headquarters": "New York",
+      "description": "Sample JPMorgan desk covering financials, technology, and industrials. Aggregation here is call-weighted, so one busy analyst can move the firm."
+    },
+    {
+      "slug": "ubs",
+      "name": "UBS",
+      "shortName": "UBS",
+      "headquarters": "Zurich",
+      "description": "Sample UBS franchise included so the leaderboard is not only New York desks. Performance is generated."
+    },
+    {
+      "slug": "barclays",
+      "name": "Barclays",
+      "shortName": "Barclays",
+      "headquarters": "London",
+      "description": "Sample Barclays book with financials and energy coverage. A below-median demo score, labeled as such everywhere it appears."
+    },
+    {
+      "slug": "bofa",
+      "name": "Bank of America",
+      "shortName": "BofA",
+      "headquarters": "Charlotte",
+      "description": "Sample Bank of America roster. The firm score is the average of its demo calls, not an average of analyst averages."
+    },
+    {
+      "slug": "citi",
+      "name": "Citigroup",
+      "shortName": "Citi",
+      "headquarters": "New York",
+      "description": "Sample Citi desk that lands toward the bottom of this vintage on purpose, so the worst-offender view has something to show."
+    },
+    {
+      "slug": "wells-fargo",
+      "name": "Wells Fargo",
+      "shortName": "Wells Fargo",
+      "headquarters": "San Francisco",
+      "description": "Sample Wells Fargo coverage in consumer and energy. Misses are graded the same way as every other desk."
+    },
+    {
+      "slug": "deutsche",
+      "name": "Deutsche Bank",
+      "shortName": "Deutsche",
+      "headquarters": "Frankfurt",
+      "description": "Sample Deutsche Bank desk anchored at the low end of the demo. The point of the page is the grade, not a claim about the bank."
+    }
+  ],
+  "analysts": [
+    {
+      "slug": "helen-voss",
+      "name": "Helen Voss",
+      "title": "Managing Director",
+      "bank": "Evercore",
+      "bankName": "Evercore ISI",
+      "sector": "Technology",
+      "startedYear": 2009
+    },
+    {
+      "slug": "marcus-ellison",
+      "name": "Marcus Ellison",
+      "title": "Managing Director",
+      "bank": "Evercore",
+      "bankName": "Evercore ISI",
+      "sector": "Healthcare",
+      "startedYear": 2006
+    },
+    {
+      "slug": "priya-raman",
+      "name": "Priya Raman",
+      "title": "Director",
+      "bank": "Evercore",
+      "bankName": "Evercore ISI",
+      "sector": "Consumer",
+      "startedYear": 2014
+    },
+    {
+      "slug": "jonathan-hale",
+      "name": "Jonathan Hale",
+      "title": "Managing Director",
+      "bank": "Bernstein",
+      "bankName": "Bernstein",
+      "sector": "Technology",
+      "startedYear": 2008
+    },
+    {
+      "slug": "clara-nunez",
+      "name": "Clara Nunez",
+      "title": "Managing Director",
+      "bank": "Bernstein",
+      "bankName": "Bernstein",
+      "sector": "Financials",
+      "startedYear": 2011
+    },
+    {
+      "slug": "owen-briggs",
+      "name": "Owen Briggs",
+      "title": "Director",
+      "bank": "Bernstein",
+      "bankName": "Bernstein",
+      "sector": "Industrials",
+      "startedYear": 2015
+    },
+    {
+      "slug": "nina-okonkwo",
+      "name": "Nina Okonkwo",
+      "title": "Managing Director",
+      "bank": "Wolfe",
+      "bankName": "Wolfe Research",
+      "sector": "Healthcare",
+      "startedYear": 2007
+    },
+    {
+      "slug": "samuel-drake",
+      "name": "Samuel Drake",
+      "title": "Director",
+      "bank": "Wolfe",
+      "bankName": "Wolfe Research",
+      "sector": "Energy",
+      "startedYear": 2013
+    },
+    {
+      "slug": "alice-chen",
+      "name": "Alice Chen",
+      "title": "Managing Director",
+      "bank": "Jefferies",
+      "bankName": "Jefferies",
+      "sector": "Technology",
+      "startedYear": 2010
+    },
+    {
+      "slug": "robert-lang",
+      "name": "Robert Lang",
+      "title": "Managing Director",
+      "bank": "Jefferies",
+      "bankName": "Jefferies",
+      "sector": "Consumer",
+      "startedYear": 2005
+    },
+    {
+      "slug": "fatima-shah",
+      "name": "Fatima Shah",
+      "title": "Director",
+      "bank": "Jefferies",
+      "bankName": "Jefferies",
+      "sector": "Healthcare",
+      "startedYear": 2016
+    },
+    {
+      "slug": "grace-lindstrom",
+      "name": "Grace Lindstrom",
+      "title": "Managing Director",
+      "bank": "Piper",
+      "bankName": "Piper Sandler",
+      "sector": "Healthcare",
+      "startedYear": 2009
+    },
+    {
+      "slug": "theo-marchetti",
+      "name": "Theo Marchetti",
+      "title": "Director",
+      "bank": "Piper",
+      "bankName": "Piper Sandler",
+      "sector": "Technology",
+      "startedYear": 2017
+    },
+    {
+      "slug": "daniel-cho",
+      "name": "Daniel Cho",
+      "title": "Managing Director",
+      "bank": "Goldman",
+      "bankName": "Goldman Sachs",
+      "sector": "Technology",
+      "startedYear": 2004
+    },
+    {
+      "slug": "sophie-laurent",
+      "name": "Sophie Laurent",
+      "title": "Managing Director",
+      "bank": "Goldman",
+      "bankName": "Goldman Sachs",
+      "sector": "Financials",
+      "startedYear": 2008
+    },
+    {
+      "slug": "andrej-petrov",
+      "name": "Andrej Petrov",
+      "title": "Director",
+      "bank": "Goldman",
+      "bankName": "Goldman Sachs",
+      "sector": "Energy",
+      "startedYear": 2012
+    },
+    {
+      "slug": "camille-brooks",
+      "name": "Camille Brooks",
+      "title": "Managing Director",
+      "bank": "Morgan Stanley",
+      "bankName": "Morgan Stanley",
+      "sector": "Technology",
+      "startedYear": 2007
+    },
+    {
+      "slug": "hassan-iqbal",
+      "name": "Hassan Iqbal",
+      "title": "Managing Director",
+      "bank": "Morgan Stanley",
+      "bankName": "Morgan Stanley",
+      "sector": "Consumer",
+      "startedYear": 2011
+    },
+    {
+      "slug": "elena-vasquez",
+      "name": "Elena Vasquez",
+      "title": "Director",
+      "bank": "Morgan Stanley",
+      "bankName": "Morgan Stanley",
+      "sector": "Healthcare",
+      "startedYear": 2015
+    },
+    {
+      "slug": "william-hart",
+      "name": "William Hart",
+      "title": "Managing Director",
+      "bank": "JPMorgan",
+      "bankName": "JPMorgan",
+      "sector": "Financials",
+      "startedYear": 2003
+    },
+    {
+      "slug": "mei-lin",
+      "name": "Mei Lin",
+      "title": "Managing Director",
+      "bank": "JPMorgan",
+      "bankName": "JPMorgan",
+      "sector": "Technology",
+      "startedYear": 2010
+    },
+    {
+      "slug": "christopher-adeyemi",
+      "name": "Christopher Adeyemi",
+      "title": "Director",
+      "bank": "JPMorgan",
+      "bankName": "JPMorgan",
+      "sector": "Industrials",
+      "startedYear": 2014
+    },
+    {
+      "slug": "ingrid-solberg",
+      "name": "Ingrid Solberg",
+      "title": "Managing Director",
+      "bank": "UBS",
+      "bankName": "UBS",
+      "sector": "Industrials",
+      "startedYear": 2006
+    },
+    {
+      "slug": "patrick-nguyen",
+      "name": "Patrick Nguyen",
+      "title": "Director",
+      "bank": "UBS",
+      "bankName": "UBS",
+      "sector": "Technology",
+      "startedYear": 2016
+    },
+    {
+      "slug": "rebecca-holt",
+      "name": "Rebecca Holt",
+      "title": "Managing Director",
+      "bank": "Barclays",
+      "bankName": "Barclays",
+      "sector": "Financials",
+      "startedYear": 2009
+    },
+    {
+      "slug": "omar-farouk",
+      "name": "Omar Farouk",
+      "title": "Director",
+      "bank": "Barclays",
+      "bankName": "Barclays",
+      "sector": "Energy",
+      "startedYear": 2013
+    },
+    {
+      "slug": "laura-kim",
+      "name": "Laura Kim",
+      "title": "Managing Director",
+      "bank": "BofA",
+      "bankName": "Bank of America",
+      "sector": "Consumer",
+      "startedYear": 2008
+    },
+    {
+      "slug": "james-whitfield",
+      "name": "James Whitfield",
+      "title": "Managing Director",
+      "bank": "BofA",
+      "bankName": "Bank of America",
+      "sector": "Technology",
+      "startedYear": 2005
+    },
+    {
+      "slug": "anika-desai",
+      "name": "Anika Desai",
+      "title": "Director",
+      "bank": "BofA",
+      "bankName": "Bank of America",
+      "sector": "Healthcare",
+      "startedYear": 2017
+    },
+    {
+      "slug": "thomas-berger",
+      "name": "Thomas Berger",
+      "title": "Managing Director",
+      "bank": "Citi",
+      "bankName": "Citigroup",
+      "sector": "Financials",
+      "startedYear": 2004
+    },
+    {
+      "slug": "yuki-tanaka",
+      "name": "Yuki Tanaka",
+      "title": "Director",
+      "bank": "Citi",
+      "bankName": "Citigroup",
+      "sector": "Technology",
+      "startedYear": 2015
+    },
+    {
+      "slug": "natalie-porter",
+      "name": "Natalie Porter",
+      "title": "Managing Director",
+      "bank": "Wells Fargo",
+      "bankName": "Wells Fargo",
+      "sector": "Consumer",
+      "startedYear": 2010
+    },
+    {
+      "slug": "george-halloran",
+      "name": "George Halloran",
+      "title": "Director",
+      "bank": "Wells Fargo",
+      "bankName": "Wells Fargo",
+      "sector": "Energy",
+      "startedYear": 2012
+    },
+    {
+      "slug": "lukas-weber",
+      "name": "Lukas Weber",
+      "title": "Managing Director",
+      "bank": "Deutsche",
+      "bankName": "Deutsche Bank",
+      "sector": "Industrials",
+      "startedYear": 2006
+    },
+    {
+      "slug": "amira-hassan",
+      "name": "Amira Hassan",
+      "title": "Director",
+      "bank": "Deutsche",
+      "bankName": "Deutsche Bank",
+      "sector": "Financials",
+      "startedYear": 2014
+    }
+  ],
+  "tickers": [
+    {
+      "symbol": "AAPL",
+      "name": "Apple",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "MSFT",
+      "name": "Microsoft",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "NVDA",
+      "name": "NVIDIA",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "GOOGL",
+      "name": "Alphabet",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "META",
+      "name": "Meta Platforms",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "AMZN",
+      "name": "Amazon",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "AVGO",
+      "name": "Broadcom",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "CRM",
+      "name": "Salesforce",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "ORCL",
+      "name": "Oracle",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "AMD",
+      "name": "AMD",
+      "sector": "Technology"
+    },
+    {
+      "symbol": "JPM",
+      "name": "JPMorgan Chase",
+      "sector": "Financials"
+    },
+    {
+      "symbol": "GS",
+      "name": "Goldman Sachs Group",
+      "sector": "Financials"
+    },
+    {
+      "symbol": "BAC",
+      "name": "Bank of America",
+      "sector": "Financials"
+    },
+    {
+      "symbol": "V",
+      "name": "Visa",
+      "sector": "Financials"
+    },
+    {
+      "symbol": "MA",
+      "name": "Mastercard",
+      "sector": "Financials"
+    },
+    {
+      "symbol": "UNH",
+      "name": "UnitedHealth",
+      "sector": "Healthcare"
+    },
+    {
+      "symbol": "LLY",
+      "name": "Eli Lilly",
+      "sector": "Healthcare"
+    },
+    {
+      "symbol": "JNJ",
+      "name": "Johnson & Johnson",
+      "sector": "Healthcare"
+    },
+    {
+      "symbol": "PFE",
+      "name": "Pfizer",
+      "sector": "Healthcare"
+    },
+    {
+      "symbol": "ABBV",
+      "name": "AbbVie",
+      "sector": "Healthcare"
+    },
+    {
+      "symbol": "XOM",
+      "name": "Exxon Mobil",
+      "sector": "Energy"
+    },
+    {
+      "symbol": "CVX",
+      "name": "Chevron",
+      "sector": "Energy"
+    },
+    {
+      "symbol": "COP",
+      "name": "ConocoPhillips",
+      "sector": "Energy"
+    },
+    {
+      "symbol": "WMT",
+      "name": "Walmart",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "COST",
+      "name": "Costco",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "NKE",
+      "name": "Nike",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "SBUX",
+      "name": "Starbucks",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "MCD",
+      "name": "McDonald's",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "HD",
+      "name": "Home Depot",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "PG",
+      "name": "Procter & Gamble",
+      "sector": "Consumer"
+    },
+    {
+      "symbol": "CAT",
+      "name": "Caterpillar",
+      "sector": "Industrials"
+    },
+    {
+      "symbol": "GE",
+      "name": "GE Aerospace",
+      "sector": "Industrials"
+    },
+    {
+      "symbol": "BA",
+      "name": "Boeing",
+      "sector": "Industrials"
+    },
+    {
+      "symbol": "HON",
+      "name": "Honeywell",
+      "sector": "Industrials"
+    },
+    {
+      "symbol": "NFLX",
+      "name": "Netflix",
+      "sector": "Media"
+    },
+    {
+      "symbol": "DIS",
+      "name": "Disney",
+      "sector": "Media"
+    },
+    {
+      "symbol": "TMUS",
+      "name": "T-Mobile",
+      "sector": "Media"
+    }
+  ]
+}

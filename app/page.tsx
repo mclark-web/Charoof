@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { GcTube } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
+import { hubStats, sectorBooks } from "@/lib/books";
 import { GRADE_BANDS } from "@/lib/grade";
-import { sectors } from "@/lib/sectors";
 
 export default function HubPage() {
+  const stats = hubStats();
+  const books = sectorBooks();
   return (
     <>
       <section className="hero">
@@ -48,28 +50,33 @@ export default function HubPage() {
         </div>
         <div className="stat-grid">
           <div className="stat">
-            <div className="label">Calls graded</div>
-            <div className="value">12,480</div>
-            <div className="hint">Illustrative snapshot · across all sectors</div>
-          </div>
-          <div className="stat">
-            <div className="label">Avg horizon</div>
-            <div className="value">
-              30<span className="unit">d</span>
+            <div className="label">Verified sports</div>
+            <div className="value">{stats.sportsCards}</div>
+            <div className="hint">
+              Public picks · {stats.sportsRecord}
+              {stats.sportsVoids ? ` · ${stats.sportsVoids} void` : ""}
             </div>
-            <div className="hint">2W · 30D · 60D · 90D · 1Y</div>
           </div>
           <div className="stat">
-            <div className="label">Strong / Weak</div>
-            <div className="value value-split">
-              <span className="ok">41%</span> <span className="dim">/</span> <span className="bad">37%</span>
+            <div className="label">Analyst roster</div>
+            <div className="value">{stats.analysts}</div>
+            <div className="hint">
+              Seeded book · {stats.banks} desks · {stats.tickers} tickers
             </div>
-            <div className="hint">Illustrative mix · rest provisional</div>
           </div>
           <div className="stat">
-            <div className="label">Sources</div>
-            <div className="value value-sm">Public only</div>
-            <div className="hint">No private tip sheets</div>
+            <div className="label">FinTwit posts</div>
+            <div className="value">{stats.fintwitPosts}</div>
+            <div className="hint">
+              Seeded · Monday open {stats.fintwitRecord} · {stats.fintwitOpen} open
+            </div>
+          </div>
+          <div className="stat">
+            <div className="label">GCBot posts</div>
+            <div className="value">{stats.gcbotPosts}</div>
+            <div className="hint">
+              Fixture corpus · {stats.gcbotNarratives} narratives · {stats.gcbotAccounts} accounts
+            </div>
           </div>
         </div>
       </section>
@@ -78,8 +85,8 @@ export default function HubPage() {
         Sectors
       </div>
       <div className="sector-grid">
-        {sectors.map((sector) => (
-          <SectorCard key={sector.key} sector={sector} />
+        {books.map((book) => (
+          <SectorCard key={book.sector.key} book={book} />
         ))}
         <Link className="sector" href="/gc-scale">
           <div className="kicker">Trust · Calibration</div>

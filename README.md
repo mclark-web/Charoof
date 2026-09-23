@@ -13,7 +13,7 @@ Grade labels share one uppercase pill:
 - **WEAK** at 40% and below
 - **EXIT LIQUIDITY** at 0% fill, which is empty glass
 
-Hub totals are labeled as an illustrative snapshot. Board rows are calibration fixtures, not a live book. Sports does not call a paid odds API.
+Sports shows the recovered public pick ledger, including the Fri Sep 18 archive. Analysts, FinTwit, and GCBot preview the seeded books from those boards and link to the live ledgers. Demo rows stay labeled Demo. Sports does not call a paid odds API.
 
 ```bash
 npm install

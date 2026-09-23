@@ -1,25 +1,90 @@
 import Link from "next/link";
 import { GcTube } from "@/components/gc-tube";
-import type { Sector } from "@/lib/sectors";
+import type { BoardRow, BoardSection, SectorBook } from "@/lib/books";
 
-export function SectorCard({ sector }: { sector: Sector }) {
+export function SectorCard({ book }: { book: SectorBook }) {
+  const { sector, hero } = book;
   return (
     <Link className="sector" href={sector.href}>
       <div className="kicker">{sector.kicker}</div>
       <h3>{sector.title}</h3>
       <p>{sector.summary}</p>
       <div className="gc-slot">
-        <GcTube fill={sector.exampleFill} variant="mini" label="GC" metaInline className="is-card" />
+        {hero.kind === "tube" ? (
+          <GcTube fill={hero.fill} variant="mini" label="GC" metaInline className="is-card" />
+        ) : (
+          <div className="roster-meter">
+            <div className="value">{hero.value}</div>
+            <div className="hint">{hero.card}</div>
+          </div>
+        )}
       </div>
       <div className="foot">
-        <span>{sector.foot}</span>
+        <span>{hero.kind === "tube" ? hero.card : sector.foot}</span>
         <span className="go">Open board →</span>
       </div>
     </Link>
   );
 }
 
-export function SectorBoard({ sector }: { sector: Sector }) {
+function RowLinks({ row }: { row: BoardRow }) {
+  if (!row.href) return null;
+  return (
+    <div>
+      <a className="source-link" href={row.href} target="_blank" rel="noreferrer">
+        Source
+      </a>
+    </div>
+  );
+}
+
+function BoardTable({ section }: { section: BoardSection }) {
+  return (
+    <>
+      <div className="section-label">{section.label}</div>
+      <p className="board-note">{section.note}</p>
+      <div className="panel table-scroll">
+        <table className="board-table">
+          <thead>
+            <tr>
+              <th>Call</th>
+              <th>Lane</th>
+              <th>Sample</th>
+              <th>GC</th>
+            </tr>
+          </thead>
+          <tbody>
+            {section.rows.map((row) => (
+              <tr key={row.id}>
+                <td data-label="Call">
+                  <div>{row.title}</div>
+                  <div className="dim">{row.detail}</div>
+                  <RowLinks row={row} />
+                </td>
+                <td className="mono" data-label="Lane">
+                  {row.lane}
+                </td>
+                <td className="mono" data-label="Sample">
+                  {row.sample}
+                </td>
+                <td className="tube-cell" data-label="GC">
+                  {row.fill == null ? (
+                    <span className="dim">On the live ledger</span>
+                  ) : (
+                    <GcTube fill={row.fill} variant="inline" label="GC" />
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+export function SectorBoard({ book }: { book: SectorBook }) {
+  const { sector, hero } = book;
   return (
     <>
       <section className="board-hero">
@@ -32,41 +97,30 @@ export function SectorBoard({ sector }: { sector: Sector }) {
               <li key={item}>{item}</li>
             ))}
           </ul>
+          {book.liveHref && book.liveLabel ? (
+            <div className="board-actions">
+              <a className="btn btn-primary" href={book.liveHref} target="_blank" rel="noreferrer">
+                {book.liveLabel}
+              </a>
+            </div>
+          ) : null}
         </div>
         <div className="board-tube">
-          <GcTube fill={sector.exampleFill} variant="hero" rich label="GC · Grade Calibration" />
-          <p className="hint">Illustrative sector calibration from the hub. Demo rows below are fixtures, not a live book.</p>
+          {hero.kind === "tube" ? (
+            <GcTube fill={hero.fill} variant="hero" rich label="GC · Grade Calibration" />
+          ) : (
+            <div className="count-hero">
+              <div className="label">On this hub</div>
+              <div className="value">{hero.value}</div>
+              <div className="hint">{hero.card}</div>
+            </div>
+          )}
+          <p className="hint">{hero.hint}</p>
         </div>
       </section>
-
-      <div className="section-label">Calibration fixtures</div>
-      <div className="panel table-scroll">
-        <table className="board-table">
-          <thead>
-            <tr>
-              <th>Call</th>
-              <th>Lane</th>
-              <th>Sample</th>
-              <th>GC</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sector.fixtures.map((row) => (
-                <tr key={row.id}>
-                  <td data-label="Call">
-                    <div>{row.title}</div>
-                    <div className="dim">{row.detail}</div>
-                  </td>
-                  <td className="mono" data-label="Lane">{row.lane}</td>
-                  <td className="mono" data-label="Sample">{row.sample}</td>
-                  <td className="tube-cell" data-label="GC">
-                    <GcTube fill={row.fill} variant="inline" label="GC" />
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      {book.sections.map((section) => (
+        <BoardTable key={section.id} section={section} />
+      ))}
     </>
   );
 }
