@@ -1,4 +1,4 @@
-export type SectorKey = "analysts" | "fintwit" | "sports";
+export type SectorKey = "analysts" | "fintwit" | "sports" | "gcbot";
 
 export type Fixture = {
   id: string;
@@ -146,6 +146,48 @@ export const sectors: Sector[] = [
         detail: "0% fill · EXIT LIQUIDITY",
         fill: 0,
         sample: "n = 6",
+      },
+    ],
+  },
+  {
+    key: "gcbot",
+    href: "/gcbot",
+    kicker: "Narratives · Volume",
+    title: "GCBot",
+    summary:
+      "Clone speech and amplifiers, scored by narrative volume. The zero-cost demo uses a synthetic corpus.",
+    foot: "Clone speech · Amplifiers · Volume",
+    exampleFill: 47,
+    trust: [
+      "Clone speech is the same wording posted as an original.",
+      "Amplifiers boost a narrative without being the source.",
+      "Narrative volume shows which stories are repeated harder.",
+      "This surface does not call a paid social API.",
+    ],
+    fixtures: [
+      {
+        id: "gb-clone",
+        lane: "Demo",
+        title: "Demo · repeated wording",
+        detail: "Same phrasing posted again as if it were new",
+        fill: 76,
+        sample: "n = 14",
+      },
+      {
+        id: "gb-amp",
+        lane: "Demo",
+        title: "Demo · amplifier cluster",
+        detail: "Boosts around a source, still open on one thread",
+        fill: 47,
+        sample: "n = 9",
+      },
+      {
+        id: "gb-quiet",
+        lane: "Demo",
+        title: "Demo · no volume",
+        detail: "0% fill · empty glass",
+        fill: 0,
+        sample: "n = 3",
       },
     ],
   },
