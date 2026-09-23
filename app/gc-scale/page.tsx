@@ -3,7 +3,7 @@ import { GcScaleView } from "@/components/gc-scale-view";
 
 export const metadata: Metadata = {
   title: "GC Scale",
-  description: "Grade Calibration as a neon tube. Strong, Weak, Provisional, and exit liquidity at 0% fill.",
+  description: "GC Scale as a neon tube. STRONG, WEAK, PROVISIONAL, and EXIT LIQUIDITY at 0% fill.",
 };
 
 export default function GcScalePage() {

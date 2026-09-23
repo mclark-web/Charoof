@@ -27,7 +27,7 @@ export function clampFill(fill: number): number {
 
 /**
  * 0% is empty glass and EXIT LIQUIDITY.
- * Weak is at or below 40. Provisional is the open mid-band. Strong starts at 65.
+ * WEAK is at or below 40. PROVISIONAL is the open mid-band. STRONG starts at 65.
  */
 export function gradeForFill(fill: number): Grade {
   const n = clampFill(fill);
