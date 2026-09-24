@@ -15,7 +15,7 @@ export default function ContactPage() {
         locked, and which print it was scored against.
       </p>
       <p>
-        <Link href="/method">Read the method →</Link>
+        <Link className="hit-44" href="/method">Read the method →</Link>
       </p>
     </section>
   );
