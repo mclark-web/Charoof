@@ -11,14 +11,14 @@ export default function DisclaimerPage() {
       <h1>Disclaimer</h1>
       <p>GradedCalls is not investment advice, not betting advice, and not a solicitation to trade or wager.</p>
       <p>
-        Hub figures such as the call count and the STRONG / WEAK mix are an illustrative snapshot of the board frame.
-        Sector cards and demo rows are calibration fixtures so the tube and the four grade labels can be read. They are
-        not live analyst, social, or sports records.
+        The hub counts are taken from the books on this site. Verified sports picks are public cards graded on recorded
+        finals. Analyst, FinTwit, and GCBot previews are the seeded or fixture books from those earlier boards, and each
+        page links to the live ledger for the full interactive view. Demo rows are fiction and are labeled Demo.
       </p>
       <p>
-        Sports does not use a paid odds API. A verified sports row, when one exists, is a public pick graded on an
-        official result. Demo rows are fiction. GCBot rows are calibration fixtures for narrative volume. This surface
-        does not call a paid social API.
+        Sports does not use a paid odds API. A verified sports row is a public pick graded on an official result.
+        Analyst names in the seeded roster are fictional sample desks. FinTwit handles are fictional. GCBot posts are a
+        synthetic corpus. This surface does not call a paid social API or a paid odds API.
       </p>
     </section>
   );

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { SectorBoard } from "@/components/sector-board";
-import { sectorByKey } from "@/lib/sectors";
+import { sectorBook } from "@/lib/books";
 
 export const metadata: Metadata = {
   title: "Analysts",
-  description: "Street research graded against split-adjusted closes, with a horizontal Grade Calibration tube.",
+  description:
+    "Seeded analyst roster from the Analysts ledger, with a link to the live board that grades sample calls on split-adjusted closes.",
 };
 
 export default function AnalystsPage() {
-  return <SectorBoard sector={sectorByKey("analysts")} />;
+  return <SectorBoard book={sectorBook("analysts")} />;
 }

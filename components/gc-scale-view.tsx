@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Ambient } from "@/components/ambient";
 import { GcTube } from "@/components/gc-tube";
 import { GRADE_BANDS } from "@/lib/grade";
+import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
 
 const PRESETS = [0, 31, 54, 72, 88, 100];
 
@@ -84,10 +85,10 @@ export function GcScaleView() {
               <strong>STRONG</strong> ≥ {GRADE_BANDS.strongAt}%
             </span>
             <span>
-              <strong>PROVISIONAL</strong> mid-band / open
+              <strong>PROVISIONAL</strong> {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%
             </span>
             <span>
-              <strong>WEAK</strong> ≤ {GRADE_BANDS.weakAt}%
+              <strong>WEAK</strong> below {GRADE_BANDS.weakAt}%
             </span>
             <span>
               <strong>EXIT LIQUIDITY</strong> = 0% fill
@@ -129,7 +130,26 @@ export function GcScaleView() {
         </div>
       </section>
 
-      <div className="section-label">GC Scale</div>
+      <section className="panel orient-section">
+        <h2>Same rules on every board</h2>
+        <p className="sub">
+          STRONG is {GRADE_BANDS.strongAt}% and above. WEAK is below {GRADE_BANDS.weakAt}%. The fill from{" "}
+          {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. 0% is empty glass and{" "}
+          <strong>EXIT LIQUIDITY</strong>.
+        </p>
+        <p className="sub">
+          On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or PENDING — not a grade. A capper’s
+          GC score is the win percentage over the last 7, 14, 30, and 90 days — labeled 1W, 2W, 1M, and 3M — weighted
+          40 / 30 / 20 / 10. Pushes are excluded. A window with no decided picks is dropped and the remaining weights
+          are renormalized. If every window is empty, the capper is PROVISIONAL and the card shows no score.{" "}
+          {PROVISIONAL_SAMPLE_NOTE} The card still shows the percentage and the window records. A sample of 10 or more
+          uses the same cutoffs. The percentage is rounded
+          only for display; 69.5 stays PROVISIONAL. Windows count back from today’s date in America/New_York. A card
+          with a publish date and no clock time stays out of the capper score.
+        </p>
+      </section>
+
+      <div className="section-label">GC Scale — calibration examples</div>
       <div className="scale-row">
         {EXAMPLES.map((example) => (
           <div className="panel scale-card" key={example.fill}>

@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { GcTube } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
+import { hubStats, sectorBooks } from "@/lib/books";
 import { GRADE_BANDS } from "@/lib/grade";
-import { sectors } from "@/lib/sectors";
+import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
+
+const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days";
 
 export default function HubPage() {
+  const stats = hubStats();
+  const books = sectorBooks();
   return (
     <>
       <section className="hero">
@@ -48,28 +53,33 @@ export default function HubPage() {
         </div>
         <div className="stat-grid">
           <div className="stat">
-            <div className="label">Calls graded</div>
-            <div className="value">12,480</div>
-            <div className="hint">Illustrative snapshot · across all sectors</div>
-          </div>
-          <div className="stat">
-            <div className="label">Avg horizon</div>
-            <div className="value">
-              30<span className="unit">d</span>
+            <div className="label">Verified sports</div>
+            <div className="value">{stats.sportsCards}</div>
+            <div className="hint">
+              Public picks · {stats.sportsRecord}
+              {stats.sportsVoids ? ` · ${stats.sportsVoids} void` : ""}
             </div>
-            <div className="hint">2W · 30D · 60D · 90D · 1Y</div>
           </div>
           <div className="stat">
-            <div className="label">STRONG / WEAK</div>
-            <div className="value value-split">
-              <span className="ok">41%</span> <span className="dim">/</span> <span className="bad">37%</span>
+            <div className="label">Analyst roster</div>
+            <div className="value">{stats.analysts}</div>
+            <div className="hint">
+              Seeded book · {stats.banks} desks · {stats.tickers} tickers
             </div>
-            <div className="hint">Illustrative mix · rest PROVISIONAL</div>
           </div>
           <div className="stat">
-            <div className="label">Sources</div>
-            <div className="value value-sm">Public only</div>
-            <div className="hint">No private tip sheets</div>
+            <div className="label">FinTwit posts</div>
+            <div className="value">{stats.fintwitPosts}</div>
+            <div className="hint">
+              Seeded · Monday open {stats.fintwitRecord} · {stats.fintwitOpen} open
+            </div>
+          </div>
+          <div className="stat">
+            <div className="label">GCBot posts</div>
+            <div className="value">{stats.gcbotPosts}</div>
+            <div className="hint">
+              Fixture corpus · {stats.gcbotNarratives} narratives · {stats.gcbotAccounts} accounts
+            </div>
           </div>
         </div>
       </section>
@@ -78,8 +88,8 @@ export default function HubPage() {
         Sectors
       </div>
       <div className="sector-grid">
-        {sectors.map((sector) => (
-          <SectorCard key={sector.key} sector={sector} />
+        {books.map((book) => (
+          <SectorCard key={book.sector.key} book={book} />
         ))}
         <Link className="sector" href="/gc-scale">
           <div className="kicker">Trust · Calibration</div>
@@ -87,6 +97,7 @@ export default function HubPage() {
           <p>How STRONG, WEAK, PROVISIONAL, and EXIT LIQUIDITY map onto the laboratory tube — same rules on every board.</p>
           <div className="gc-slot">
             <GcTube fill={72} variant="mini" label="GC Scale" metaInline className="is-card" />
+            <p className="tube-example">{EXAMPLE_STRONG}</p>
           </div>
           <div className="foot">
             <span>STRONG · WEAK · PROVISIONAL · EXIT LIQUIDITY</span>
@@ -115,7 +126,8 @@ export default function HubPage() {
           <h4>Grade</h4>
           <p>
             Compared to real closes, Monday opens, or final scores — labeled STRONG, WEAK, or PROVISIONAL. {GRADE_BANDS.strongAt}%
-            and above is STRONG. {GRADE_BANDS.weakAt}% and below is WEAK.
+            and above is STRONG. Below {GRADE_BANDS.weakAt}% is WEAK. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
+            PROVISIONAL. {PROVISIONAL_SAMPLE_NOTE}
           </p>
         </div>
       </div>
@@ -124,14 +136,18 @@ export default function HubPage() {
         <div>
           <h2>GC Scale</h2>
           <p>
-            The horizontal tube fill is the calibration score — how closely outcomes matched the stated direction.
-            STRONG, WEAK, or PROVISIONAL. Empty glass at 0% is EXIT LIQUIDITY.
+            Grade Calibration is the horizontal tube fill — how closely outcomes matched the stated direction.
+            STRONG, WEAK, or PROVISIONAL. Empty glass at 0% is EXIT LIQUIDITY once a capper has 10 graded picks in
+            the last 90 days.
           </p>
           <p className="method-link">
-            <Link href="/gc-scale">GC Scale →</Link>
+            <Link className="hit-44" href="/gc-scale">Explore the GC scale →</Link>
           </p>
         </div>
-        <GcTube fill={72} rich centered label="GC Scale" className="method-tube" />
+        <div className="method-example">
+          <GcTube fill={72} rich centered label="GC Scale" className="method-tube" />
+          <p className="tube-example">{EXAMPLE_STRONG}</p>
+        </div>
       </div>
     </>
   );

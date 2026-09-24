@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Ambient } from "@/components/ambient";
 import { GcTube } from "@/components/gc-tube";
 import { GRADE_BANDS } from "@/lib/grade";
+import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
 
 export const metadata: Metadata = {
   title: "Method",
@@ -29,11 +30,11 @@ export default function MethodPage() {
           <div className="orient-pair">
             <div className="orient-col">
               <div className="orient-label">Vertical vial</div>
-              <GcTube fill={72} orientation="vertical" variant="hero" rich label="GC · Method" />
+              <GcTube fill={72} orientation="vertical" variant="hero" rich label="GC Scale" />
             </div>
             <div className="orient-col">
               <div className="orient-label">Horizontal tube</div>
-              <GcTube fill={0} variant="hero" label="GC · Empty" />
+              <GcTube fill={0} variant="hero" label="GC Scale" />
             </div>
           </div>
         </div>
@@ -68,16 +69,49 @@ export default function MethodPage() {
           <p className="hint">STRONG at {GRADE_BANDS.strongAt}% and above</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={54} label="GC Scale" />
-          <p className="hint">PROVISIONAL in the open mid-band</p>
+          <GcTube fill={GRADE_BANDS.weakAt} label="GC Scale" />
+          <p className="hint">PROVISIONAL from {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.weakAt} label="GC Scale" />
-          <p className="hint">WEAK at {GRADE_BANDS.weakAt}% and below</p>
+          <GcTube fill={GRADE_BANDS.weakAt - 1} label="GC Scale" />
+          <p className="hint">WEAK below {GRADE_BANDS.weakAt}%</p>
         </div>
         <div className="panel scale-card">
           <GcTube fill={0} label="GC Scale" />
           <p className="hint">0% fill is empty glass · EXIT LIQUIDITY</p>
+        </div>
+      </div>
+
+      <div className="section-label">Sports</div>
+      <div className="panel method">
+        <div>
+          <h2>Picks show a result. Cappers carry GC.</h2>
+          <p>Same rules on every board. A single sports pick is a result, not a tube.</p>
+        </div>
+        <div className="step">
+          <div className="n">01</div>
+          <h4>Result</h4>
+          <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or PENDING. None of those fills a GC tube.</p>
+        </div>
+        <div className="step">
+          <div className="n">02</div>
+          <h4>Blend</h4>
+          <p>
+            A capper’s score is the win percentage over the last 7, 14, 30, and 90 days, labeled 1W, 2W, 1M, and 3M,
+            weighted 40 / 30 / 20 / 10. Pushes stay out of the rate. A window with no decided picks is dropped and the
+            remaining weights are renormalized.
+          </p>
+        </div>
+        <div className="step">
+          <div className="n">03</div>
+          <h4>Grade</h4>
+          <p>
+            The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.
+            {PROVISIONAL_SAMPLE_NOTE} The card still shows that percentage and the window records. Windows count back
+            from today’s date in America/New_York, shown on the capper
+            section as “as of” that date. A card whose source has a publish date but no clock time stays out of the
+            capper score and record.
+          </p>
         </div>
       </div>
     </>
