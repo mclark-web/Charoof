@@ -138,8 +138,9 @@ export function GcScaleView() {
         <p className="sub">
           STRONG is {GRADE_BANDS.strongAt}% and above. WEAK is below {GRADE_BANDS.weakAt}%. The fill from{" "}
           {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. A graded 0% is empty glass and{" "}
-          <strong>EXIT LIQUIDITY</strong>. When nothing is graded yet, the glass stays empty, no percent is shown, and
-          the label reads Not graded yet.
+          <strong>EXIT LIQUIDITY</strong>. When a call, tube, or horizon has no graded result yet, the glass stays
+          empty, no percent is shown, and the label reads Not graded yet. A Sports capper card with zero graded picks
+          shows PROVISIONAL with no score.
         </p>
         <p className="sub">
           On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or PENDING — not a grade. A capper’s

@@ -37,8 +37,9 @@ describe("ungraded tubes", () => {
     assert.equal(doom.graded, 0);
     assert.equal(doom.fill, 0);
     assert.equal(tubeIsUngraded(doom), true);
-    assert.match(doom.detail, /4:00 PM ET closes/);
-    assert.doesNotMatch(doom.detail, /noon prints/);
+    assert.match(doom.detail, /no Monday open/);
+    assert.match(doom.detail, /Friday, September 4 close/);
+    assert.doesNotMatch(doom.detail, /noon|12:00|4:00|Wednesday/);
   });
 
   it("keeps a demo of four graded misses on EXIT LIQUIDITY", () => {

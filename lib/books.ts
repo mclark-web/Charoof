@@ -485,7 +485,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       {
         id: "fintwit-cohorts",
         label: "Seeded weekends",
-        note: "Five demo cohorts. The tube is the Monday-open hit rate. The September 7 cohort is Labor Day, so that window stays empty rather than copying an earlier print.",
+        note: "Five demo cohorts. The tube is the Monday-open hit rate. The September 7 cohort is Labor Day, so that window stays empty rather than copying an earlier print. This board grades Monday-open direction against the prior Friday close. The FinTwit site grades on Monday noon and Wednesday/Friday 4:00 PM ET closes.",
         rows: fintwitCohortRows(),
       },
       {
