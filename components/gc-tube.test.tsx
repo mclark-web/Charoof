@@ -24,12 +24,21 @@ describe("ungraded tubes", () => {
     assert.doesNotMatch(html, /Not graded yet/);
   });
 
+  it("keys the guard on graded === 0, not the sample wording", () => {
+    assert.equal(tubeIsUngraded({ graded: 0 }), true);
+    assert.equal(tubeIsUngraded({ fill: 0, graded: 4, sample: "Open window" }), false);
+    assert.equal(tubeIsUngraded({ fill: 0, sample: "Open window" }), false);
+    assert.equal(tubeIsUngraded({ fill: 0, sample: "n = 0" }), false);
+  });
+
   it("treats a seeded weekend with no graded calls as ungraded", () => {
     const doom = fintwitCohortRows().find((row) => row.title === "Weekend doom");
     assert.ok(doom);
-    assert.equal(doom.sample, "Open window");
+    assert.equal(doom.graded, 0);
     assert.equal(doom.fill, 0);
     assert.equal(tubeIsUngraded(doom), true);
+    assert.match(doom.detail, /4:00 PM ET closes/);
+    assert.doesNotMatch(doom.detail, /noon prints/);
   });
 
   it("keeps a demo of four graded misses on EXIT LIQUIDITY", () => {
@@ -38,6 +47,6 @@ describe("ungraded tubes", () => {
     assert.equal(row.title, "Demo · 4 graded, 0 hit");
     assert.equal(row.fill, 0);
     assert.equal(row.sample, "n = 4");
-    assert.equal(tubeIsUngraded(row), false);
+    assert.equal(tubeIsUngraded({ ...row, graded: 4 }), false);
   });
 });

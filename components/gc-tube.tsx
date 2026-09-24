@@ -18,10 +18,9 @@ type GcTubeProps = {
   ungraded?: boolean;
 };
 
-/** A 0% tube with nothing graded yet. A graded 0% (losses on the book) stays EXIT LIQUIDITY. */
-export function tubeIsUngraded(row: { fill: number | null; sample?: string }): boolean {
-  if (row.fill !== 0) return false;
-  return row.sample === "Open window" || row.sample === "n = 0";
+/** A tube with nothing graded yet. A graded 0% (losses on the book) stays EXIT LIQUIDITY. */
+export function tubeIsUngraded(row: { graded?: number; fill?: number | null; sample?: string }): boolean {
+  return row.graded === 0;
 }
 
 function join(...parts: Array<string | false | undefined>) {

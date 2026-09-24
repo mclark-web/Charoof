@@ -121,21 +121,21 @@
     {
       "slug": "2026-08-24",
       "title": "Doom versus melt-up",
-      "summary": "A demo weekend book: crash and sell-the-open posts beside euphoric melt-up calls. Grades use the Friday, August 21 cash close and the real noon prints.",
+      "summary": "A demo weekend book: crash and sell-the-open posts beside euphoric melt-up calls. Grades use the Friday, August 21 cash close, the Monday 12:00 PM ET noon print, and the Wednesday and Friday 4:00 PM ET closes.",
       "isLatest": false,
       "callCount": 19
     },
     {
       "slug": "2026-08-31",
       "title": "Panic with a pin",
-      "summary": "Demo weekend posts that mix crash calls with melt-up calls and tight levels. The noon prints are the recorded tape.",
+      "summary": "Demo weekend posts that mix crash calls with melt-up calls and tight levels. The recorded tape is the Monday 12:00 PM ET noon print and the Wednesday and Friday 4:00 PM ET closes.",
       "isLatest": false,
       "callCount": 19
     },
     {
       "slug": "2026-09-07",
       "title": "Weekend doom",
-      "summary": "Fictional weekend posts: war panic, sell-the-open, and melt-up calls. Monday, September 7, 2026 was Labor Day, so the gap and the noon grade stay blank. Wednesday and Friday use the real noon prints.",
+      "summary": "Fictional weekend posts: war panic, sell-the-open, and melt-up calls. Monday, September 7, 2026 was Labor Day, so the gap and the noon grade stay blank. Wednesday and Friday use the real 4:00 PM ET closes.",
       "isLatest": false,
       "callCount": 19
     },
@@ -149,7 +149,7 @@
     {
       "slug": "2026-09-21",
       "title": "Open weekend book",
-      "summary": "This week's fictional doom and melt-up posts. Monday's real open and noon prints are in. Wednesday, September 23 and Friday, September 25 had not printed when this history was fetched, so those grades stay scheduled.",
+      "summary": "This week's fictional doom and melt-up posts. Monday's real open and 12:00 PM ET noon print are in. Wednesday, September 23 and Friday, September 25 had not reached the 4:00 PM ET close when this history was fetched, so those grades stay scheduled.",
       "isLatest": true,
       "callCount": 19
     }

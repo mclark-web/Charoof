@@ -78,9 +78,12 @@ export default function MethodPage() {
         </div>
         <div className="panel scale-card">
           <GcTube fill={0} label="GC Scale" />
-          <p className="hint">0% fill is empty glass · EXIT LIQUIDITY</p>
+          <p className="hint">graded 0% fill is empty glass · EXIT LIQUIDITY</p>
         </div>
       </div>
+      <p className="board-note">
+        When nothing is graded yet, the glass stays empty, no percent is shown, and the label reads Not graded yet.
+      </p>
 
       <div className="section-label">Sports</div>
       <div className="panel method">

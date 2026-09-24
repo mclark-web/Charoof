@@ -13,11 +13,11 @@ const EXAMPLES = [
   { fill: 88, hint: "Direction held across 7D / 30D / 90D" },
   { fill: 54, hint: "Mixed horizons — still open on one leg" },
   { fill: 31, hint: "Mostly wrong vs print after horizons" },
-  { fill: 0, hint: "0% fill · EXIT LIQUIDITY" },
+  { fill: 0, hint: "graded 0% fill · EXIT LIQUIDITY" },
 ];
 
 function presetLabel(fill: number) {
-  if (fill === 0) return "0% EXIT LIQUIDITY";
+  if (fill === 0) return "graded 0% EXIT LIQUIDITY";
   if (fill === 31) return "31% WEAK";
   if (fill === 54) return "54% PROVISIONAL";
   if (fill === 72) return "72% STRONG";
@@ -117,7 +117,7 @@ export function GcScaleView() {
         <p className="sub">
           GC is Grade Calibration, in two readable forms. The vertical vial fills bottom → top; the horizontal tube fills
           left → right. Both use <code>--gc-fill</code>, the same neon bloom, and the same grade labels — including{" "}
-          <strong>EXIT LIQUIDITY</strong> at 0%.
+          <strong>EXIT LIQUIDITY</strong> at graded 0%.
         </p>
         <div className="orient-grid">
           <div className="panel orient-panel">
@@ -138,7 +138,8 @@ export function GcScaleView() {
         <p className="sub">
           STRONG is {GRADE_BANDS.strongAt}% and above. WEAK is below {GRADE_BANDS.weakAt}%. The fill from{" "}
           {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. A graded 0% is empty glass and{" "}
-          <strong>EXIT LIQUIDITY</strong>.
+          <strong>EXIT LIQUIDITY</strong>. When nothing is graded yet, the glass stays empty, no percent is shown, and
+          the label reads Not graded yet.
         </p>
         <p className="sub">
           On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or PENDING — not a grade. A capper’s
@@ -166,7 +167,7 @@ export function GcScaleView() {
         <h2>Interactive demo</h2>
         <p className="sub">
           Drag the control or tap a preset. Tube fill is driven by <code>--gc-fill</code> — liquid width, bloom, swirl,
-          and grade label update live. At 0% the glass is empty and the status is <strong>EXIT LIQUIDITY</strong>.
+          and grade label update live. At a graded 0% the glass is empty and the status is <strong>EXIT LIQUIDITY</strong>.
         </p>
         <div className="demo-controls">
           {PRESETS.map((preset) => (
