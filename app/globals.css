@@ -150,6 +150,9 @@ tr:hover td { background: rgba(235,101,5,0.04); }
 .orange { color: var(--orange-soft); }
 .ok { color: var(--ok); }
 .bad { color: var(--bad); }
+/* Grade rates on stat cards stay neutral. Green and rose are only for WIN and LOSS pills. */
+.stat .ok,
+.stat .bad { color: #c9c9cf; }
 
 .hero {
   padding: 48px 0 28px;
@@ -866,8 +869,7 @@ a.gc-link {
 .gc-grade-tag.exit {
   color: #9a9aa3;
   background: transparent;
-  border-color: rgba(154, 154, 163, 0.45);
-  /* same typeface / weight / letter-spacing / uppercase as Strong·Weak·Provisional */
+  border-color: rgba(154, 154, 163, 0.35);
 }
 
 .result-pill {
@@ -1624,8 +1626,10 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
     font-size: 13.5px;
     flex: 0 0 auto;
   }
+  .nav a[hidden] { display: none; }
   .nav-more-wrap { display: block; }
   .top-actions { display: none; }
+  .btn { min-height: 44px; padding: 12px 14px; }
   .source-link,
   .footer-links a {
     display: inline-flex;
