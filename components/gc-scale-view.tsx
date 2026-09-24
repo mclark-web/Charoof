@@ -72,7 +72,10 @@ export function GcScaleView() {
             <div className="card">
               <div className="letter">GRADE</div>
               <h3>Grade</h3>
-              <p>Every call is scored STRONG, WEAK, or PROVISIONAL against historical closes — never a stale print.</p>
+              <p>
+                A source’s or capper’s GC Scale score is STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY. An individual
+                pick gets a result word — WIN, LOSS, PUSH, VOID, or PENDING — which is not a grade.
+              </p>
             </div>
             <div className="card">
               <div className="letter">CALIBRATION</div>
@@ -91,7 +94,7 @@ export function GcScaleView() {
               <strong>WEAK</strong> below {GRADE_BANDS.weakAt}%
             </span>
             <span>
-              <strong>EXIT LIQUIDITY</strong> = 0% fill
+              <strong>EXIT LIQUIDITY</strong> = graded 0%
             </span>
           </div>
         </div>
@@ -134,7 +137,7 @@ export function GcScaleView() {
         <h2>Same rules on every board</h2>
         <p className="sub">
           STRONG is {GRADE_BANDS.strongAt}% and above. WEAK is below {GRADE_BANDS.weakAt}%. The fill from{" "}
-          {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. 0% is empty glass and{" "}
+          {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. A graded 0% is empty glass and{" "}
           <strong>EXIT LIQUIDITY</strong>.
         </p>
         <p className="sub">

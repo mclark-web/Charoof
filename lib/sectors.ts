@@ -100,7 +100,7 @@ export const sectors: Sector[] = [
       {
         id: "ft-flat",
         lane: "Demo",
-        title: "Demo · no tape",
+        title: "Demo · 4 graded, 0 hit",
         detail: "0% fill · empty glass",
         fill: 0,
         sample: "n = 4",

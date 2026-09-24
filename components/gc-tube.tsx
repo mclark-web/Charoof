@@ -14,7 +14,15 @@ type GcTubeProps = {
   className?: string;
   /** Overrides the fill cutoff. A short capper sample stays PROVISIONAL while the tube still shows the percentage. */
   grade?: Grade;
+  /** No decided grades. Empty glass, never 0% or EXIT LIQUIDITY. */
+  ungraded?: boolean;
 };
+
+/** A 0% tube with nothing graded yet. A graded 0% (losses on the book) stays EXIT LIQUIDITY. */
+export function tubeIsUngraded(row: { fill: number | null; sample?: string }): boolean {
+  if (row.fill !== 0) return false;
+  return row.sample === "Open window" || row.sample === "n = 0";
+}
 
 function join(...parts: Array<string | false | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -60,12 +68,13 @@ export function GcTube({
   live = false,
   className,
   grade: gradeOverride,
+  ungraded = false,
 }: GcTubeProps) {
   const caption = label === "GC" || label === "GC · Grade Calibration" ? "GC Scale" : label;
-  const n = clampFill(fill);
+  const n = ungraded ? 0 : clampFill(fill);
   const shown = displayFill(n);
   const grade = gradeOverride ?? gradeForFill(n);
-  const empty = n === 0 && grade.key === "exit";
+  const empty = ungraded || (n === 0 && grade.key === "exit");
 
   return (
     <div
@@ -85,7 +94,7 @@ export function GcTube({
       )}
       style={{ ["--gc-fill" as string]: `${n}%` }}
       role="img"
-      aria-label={`${caption} ${shown}%, ${grade.name}${empty ? ", empty glass" : ""}`}
+      aria-label={ungraded ? `${caption}, not graded yet` : `${caption} ${shown}%, ${grade.name}${empty ? ", empty glass" : ""}`}
     >
       <div className="gc-glass">
         <div className="gc-bloom" aria-hidden="true" />
@@ -95,8 +104,14 @@ export function GcTube({
       </div>
       <div className={join("gc-meta", metaInline && "is-row")}>
         <div className="gc-label">{caption}</div>
-        <div className="gc-pct">{shown}%</div>
-        <GradePill grade={grade.key} name={grade.name} />
+        {ungraded ? (
+          <div className="dim">Not graded yet</div>
+        ) : (
+          <>
+            <div className="gc-pct">{shown}%</div>
+            <GradePill grade={grade.key} name={grade.name} />
+          </>
+        )}
       </div>
     </div>
   );
