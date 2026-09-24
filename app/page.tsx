@@ -5,6 +5,8 @@ import { hubStats, sectorBooks } from "@/lib/books";
 import { GRADE_BANDS } from "@/lib/grade";
 import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
 
+const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days = STRONG";
+
 export default function HubPage() {
   const stats = hubStats();
   const books = sectorBooks();
@@ -94,7 +96,8 @@ export default function HubPage() {
           <h3>GC Scale</h3>
           <p>How Strong, Weak, Provisional, and exit liquidity map onto the laboratory tube — same rules on every board.</p>
           <div className="gc-slot">
-            <GcTube fill={72} variant="mini" label="GC" metaInline className="is-card" />
+            <GcTube fill={72} variant="mini" label="GC Scale" metaInline className="is-card" />
+            <p className="tube-example">{EXAMPLE_STRONG}</p>
           </div>
           <div className="foot">
             <span>Method · Labels · Fill</span>
@@ -141,7 +144,10 @@ export default function HubPage() {
             <Link className="hit-44" href="/gc-scale">Explore the GC scale →</Link>
           </p>
         </div>
-        <GcTube fill={72} rich centered label="GC · Grade Calibration" className="method-tube" />
+        <div className="method-example">
+          <GcTube fill={72} rich centered label="GC Scale" className="method-tube" />
+          <p className="tube-example">{EXAMPLE_STRONG}</p>
+        </div>
       </div>
     </>
   );
