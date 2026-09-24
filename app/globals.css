@@ -29,15 +29,23 @@
   --font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
 }
-html, body { min-height: 100%; }
+html, body {
+  min-height: 100%;
+  background-color: var(--bg0);
+}
+html { color-scheme: dark; }
 body {
   font-family: var(--font);
   color: var(--text);
-  background:
+  /* Solid charcoal sits under the glow. background-image (not the shorthand)
+     keeps that color when a fixed layer is clipped to the first viewport. */
+  background-color: var(--bg0);
+  background-image:
     radial-gradient(1200px 700px at 12% -10%, rgba(235,101,5,0.16), transparent 55%),
     radial-gradient(900px 600px at 88% 8%, rgba(235,101,5,0.09), transparent 50%),
     radial-gradient(800px 500px at 50% 110%, rgba(40,48,70,0.35), transparent 55%),
     linear-gradient(165deg, #0a0b0d 0%, #12141a 42%, #0e1014 100%);
+  background-repeat: no-repeat;
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
@@ -154,13 +162,18 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid rgba(154, 154, 163, 0.45);
 }
 
-/* Tables */
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+/* Tables and fields sit on charcoal, never the browser's white control fill. */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; background-color: transparent; }
 th {
   text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--dim); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--line);
+  background-color: transparent;
 }
-td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; background-color: transparent; }
+input, textarea, select {
+  background-color: var(--panel-solid);
+  color: var(--text);
+}
 tr:last-child td { border-bottom: 0; }
 tr:hover td { background: rgba(235,101,5,0.04); }
 .mono { font-family: var(--mono); font-size: 12.5px; }
@@ -200,7 +213,7 @@ tr:hover td { background: rgba(235,101,5,0.04); }
 }
 .stat {
   padding: 16px 18px; border-radius: 12px;
-  background: rgba(255,255,255,0.03);
+  background: var(--bg2);
   border: 1px solid var(--line);
 }
 .stat .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--dim); }
@@ -1343,9 +1356,18 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 .gc-scale.method-tube { max-width: none; }
 .gc-scale.method-tube .gc-tube { --tube-h: 52px; }
 .gc-scale.method-tube.is-centered .gc-meta {
-  flex-direction: row; justify-content: center; align-items: center; gap: 12px; margin-top: 4px;
+  flex-direction: row; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 4px;
 }
 .gc-scale.method-tube .gc-pct { font-size: 20px; }
+.gc-scale.method-tube .gc-grade-tag {
+  flex: 0 0 auto;
+}
+.gc-scale.method-tube .gc-grade-tag.strong {
+  color: #eb6505;
+  background: rgba(235, 101, 5, 0.12);
+  border: 1px solid rgba(235, 101, 5, 0.35);
+  border-radius: 999px;
+}
 
 .sector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .sector {
@@ -1400,7 +1422,7 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 .gc-def { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .gc-def .card {
   padding: 14px 16px; border-radius: 12px;
-  background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+  background: var(--bg2); border: 1px solid var(--line);
 }
 .gc-def .letter { font-family: var(--mono); font-size: 12px; color: var(--orange-mid); letter-spacing: 0.08em; }
 .gc-def h3 { font-size: 15px; margin: 4px 0 6px; }
@@ -1453,7 +1475,7 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
   justify-content: center;
   box-sizing: border-box;
   min-height: 44px;
-  border: 1px solid var(--line); background: rgba(255,255,255,0.03); color: var(--text);
+  border: 1px solid var(--line); background: var(--bg2); color: var(--text);
   font: inherit; font-size: 13px; padding: 0 14px; border-radius: 9px; cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.25s ease, border-color 0.2s ease, background 0.2s;
 }

@@ -131,9 +131,9 @@ export default function HubPage() {
 
       <div className="panel method-gc">
         <div>
-          <h2>GC · Grade Calibration</h2>
+          <h2>GC Scale</h2>
           <p>
-            The horizontal tube fill is the calibration score — how closely outcomes matched the stated direction.
+            Grade Calibration is the horizontal tube fill — how closely outcomes matched the stated direction.
             Strong, Weak, or Provisional. Empty glass at 0% is EXIT LIQUIDITY once a capper has 10 graded picks in
             the last 90 days.
           </p>
