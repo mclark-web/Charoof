@@ -106,9 +106,9 @@ export default function MethodPage() {
           <h4>Grade</h4>
           <p>
             The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.
-            Fewer than 10 decided picks in the 90-day window stays PROVISIONAL even when the percentage would clear
-            another cutoff. The card still shows that percentage and the window records, with the note “Provisional
-            until 10 graded picks.” Windows count back from today’s date in America/New_York, shown on the capper
+            Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days, whatever their score. That
+            overrides every band: STRONG, WEAK, and EXIT LIQUIDITY. The card still shows that percentage and the window
+            records, with the note “Provisional until 10 graded picks.” Windows count back from today’s date in America/New_York, shown on the capper
             section as “as of” that date. A card whose source has a publish date but no clock time stays out of the
             capper score and record.
           </p>

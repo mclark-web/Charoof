@@ -132,6 +132,10 @@ describe("sector books", () => {
     assert.match(book.sections[1]?.label ?? "", /Post time unconfirmed/);
     const cappers = book.sections.find((section) => section.id === "public-cappers");
     assert.match(cappers?.note ?? "", new RegExp(`as of ${formatNewYorkDate(newYorkToday())}`));
+    assert.match(
+      cappers?.note ?? "",
+      /PROVISIONAL until they have 10 graded picks in the last 90 days, whatever their score\. That overrides every band: STRONG, WEAK, and EXIT LIQUIDITY/,
+    );
     assert.doesNotMatch(cappers?.note ?? "", /newest public card/);
     assert.equal(book.sections.at(-1)?.id, "sports-demo");
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));

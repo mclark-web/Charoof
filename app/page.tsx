@@ -123,7 +123,8 @@ export default function HubPage() {
           <p>
             Compared to real closes, Monday opens, or final scores — labeled Strong, Weak, or Provisional. {GRADE_BANDS.strongAt}%
             and above is Strong. Below {GRADE_BANDS.weakAt}% is Weak. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
-            Provisional.
+            Provisional. Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days, whatever their
+            score.
           </p>
         </div>
       </div>
