@@ -149,7 +149,7 @@ export function GcScaleView() {
         </p>
       </section>
 
-      <div className="section-label">GC Scale</div>
+      <div className="section-label">GC Scale — calibration examples</div>
       <div className="scale-row">
         {EXAMPLES.map((example) => (
           <div className="panel scale-card" key={example.fill}>

@@ -87,9 +87,11 @@ export function GcTube({
       role="img"
       aria-label={`${caption} ${shown}%, ${grade.name}${empty ? ", empty glass" : ""}`}
     >
-      <div className="gc-bloom" aria-hidden="true" />
-      <div className="gc-tube">
-        <Liquid rich={rich} />
+      <div className="gc-glass">
+        <div className="gc-bloom" aria-hidden="true" />
+        <div className="gc-tube">
+          <Liquid rich={rich} />
+        </div>
       </div>
       <div className={join("gc-meta", metaInline && "is-row")}>
         <div className="gc-label">{caption}</div>

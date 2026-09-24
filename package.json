@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test lib/*.test.ts"
+    "test": "tsx --test lib/*.test.ts",
+    "test:contrast": "node scripts/pill-contrast.mjs"
   },
   "dependencies": {
     "next": "16.3.5",
@@ -21,6 +22,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "pngjs": "^7.0.0",
+    "puppeteer-core": "^25.12.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
