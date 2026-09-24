@@ -30,11 +30,11 @@ export default function MethodPage() {
           <div className="orient-pair">
             <div className="orient-col">
               <div className="orient-label">Vertical vial</div>
-              <GcTube fill={72} orientation="vertical" variant="hero" rich label="GC · Method" />
+              <GcTube fill={72} orientation="vertical" variant="hero" rich label="GC Scale" />
             </div>
             <div className="orient-col">
               <div className="orient-label">Horizontal tube</div>
-              <GcTube fill={0} variant="hero" label="GC · Empty" />
+              <GcTube fill={0} variant="hero" label="GC Scale" />
             </div>
           </div>
         </div>

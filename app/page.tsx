@@ -138,7 +138,7 @@ export default function HubPage() {
             the last 90 days.
           </p>
           <p className="method-link">
-            <Link href="/gc-scale">Explore the GC scale →</Link>
+            <Link className="hit-44" href="/gc-scale">Explore the GC scale →</Link>
           </p>
         </div>
         <GcTube fill={72} rich centered label="GC · Grade Calibration" className="method-tube" />

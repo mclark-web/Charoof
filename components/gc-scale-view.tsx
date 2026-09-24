@@ -99,11 +99,11 @@ export function GcScaleView() {
           <div className="orient-pair">
             <div className="orient-col">
               <div className="orient-label">Vertical · bottom → top</div>
-              <GcTube fill={fill} orientation="vertical" variant="hero" rich label="GC · Vertical" live={live} />
+              <GcTube fill={fill} orientation="vertical" variant="hero" rich label="GC Scale" live={live} />
             </div>
             <div className="orient-col">
               <div className="orient-label">Horizontal · left → right</div>
-              <GcTube fill={fill} variant="hero" rich label="GC · Horizontal" live={live} />
+              <GcTube fill={fill} variant="hero" rich label="GC Scale" live={live} />
             </div>
           </div>
         </div>
