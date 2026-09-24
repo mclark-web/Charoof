@@ -13,11 +13,11 @@ const EXAMPLES = [
   { fill: 88, hint: "Direction held across 7D / 30D / 90D" },
   { fill: 54, hint: "Mixed horizons — still open on one leg" },
   { fill: 31, hint: "Mostly wrong vs print after horizons" },
-  { fill: 0, hint: "0% fill · EXIT LIQUIDITY" },
+  { fill: 0, hint: "graded 0% fill · EXIT LIQUIDITY" },
 ];
 
 function presetLabel(fill: number) {
-  if (fill === 0) return "0% EXIT LIQUIDITY";
+  if (fill === 0) return "graded 0% EXIT LIQUIDITY";
   if (fill === 31) return "31% WEAK";
   if (fill === 54) return "54% PROVISIONAL";
   if (fill === 72) return "72% STRONG";
@@ -64,20 +64,23 @@ export function GcScaleView() {
             <em>GC Scale</em>
           </h1>
           <p className="lead">
-            Grade Calibration as a neon tube. GC measures how closely a call’s outcome matches its stated direction
-            across horizons — calibrated, close-to-close, split-adjusted. Same liquid, two orientations:{" "}
+            Grade Calibration, shown as a liquid gauge. It measures how closely a call’s outcome matches its stated
+            direction across horizons — close-to-close, split-adjusted. Same liquid, two orientations:{" "}
             <strong>vertical vial</strong> (bottom → top) and <strong>horizontal tube</strong> (left → right).
           </p>
           <div className="gc-def">
             <div className="card">
-              <div className="letter">G · GRADED</div>
-              <h3>Graded</h3>
-              <p>Every call is scored STRONG, WEAK, or PROVISIONAL against historical closes — never a stale print.</p>
+              <div className="letter">GRADE</div>
+              <h3>Grade</h3>
+              <p>
+                A source’s or capper’s GC Scale score is STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY. An individual
+                pick gets a result word — WIN, LOSS, PUSH, VOID, or PENDING — which is not a grade.
+              </p>
             </div>
             <div className="card">
-              <div className="letter">C · CALIBRATED</div>
-              <h3>Calibrated</h3>
-              <p>The liquid fill is the calibration score: how much of the thesis held under the method’s rules.</p>
+              <div className="letter">CALIBRATION</div>
+              <h3>Calibration</h3>
+              <p>The liquid fill is how much of the stated direction held under the method’s rules.</p>
             </div>
           </div>
           <div className="grades-note">
@@ -91,7 +94,7 @@ export function GcScaleView() {
               <strong>WEAK</strong> below {GRADE_BANDS.weakAt}%
             </span>
             <span>
-              <strong>EXIT LIQUIDITY</strong> = 0% fill
+              <strong>EXIT LIQUIDITY</strong> = graded 0%
             </span>
           </div>
         </div>
@@ -114,7 +117,7 @@ export function GcScaleView() {
         <p className="sub">
           GC is Grade Calibration, in two readable forms. The vertical vial fills bottom → top; the horizontal tube fills
           left → right. Both use <code>--gc-fill</code>, the same neon bloom, and the same grade labels — including{" "}
-          <strong>EXIT LIQUIDITY</strong> at 0%.
+          <strong>EXIT LIQUIDITY</strong> at graded 0%.
         </p>
         <div className="orient-grid">
           <div className="panel orient-panel">
@@ -134,8 +137,10 @@ export function GcScaleView() {
         <h2>Same rules on every board</h2>
         <p className="sub">
           STRONG is {GRADE_BANDS.strongAt}% and above. WEAK is below {GRADE_BANDS.weakAt}%. The fill from{" "}
-          {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. 0% is empty glass and{" "}
-          <strong>EXIT LIQUIDITY</strong>.
+          {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. A graded 0% is empty glass and{" "}
+          <strong>EXIT LIQUIDITY</strong>. When a call, tube, or horizon has no graded result yet, the glass stays
+          empty, no percent is shown, and the label reads Not graded yet. A Sports capper card with zero graded picks
+          shows PROVISIONAL with no score.
         </p>
         <p className="sub">
           On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or PENDING — not a grade. A capper’s
@@ -149,7 +154,7 @@ export function GcScaleView() {
         </p>
       </section>
 
-      <div className="section-label">GC Scale — calibration examples</div>
+      <div className="section-label">Calibration examples</div>
       <div className="scale-row">
         {EXAMPLES.map((example) => (
           <div className="panel scale-card" key={example.fill}>
@@ -157,13 +162,17 @@ export function GcScaleView() {
             <p className="hint">{example.hint}</p>
           </div>
         ))}
+        <div className="panel scale-card">
+          <GcTube fill={0} ungraded rich label="GC Scale" />
+          <p className="hint">Example · not graded yet</p>
+        </div>
       </div>
 
       <section className="panel demo-panel">
         <h2>Interactive demo</h2>
         <p className="sub">
           Drag the control or tap a preset. Tube fill is driven by <code>--gc-fill</code> — liquid width, bloom, swirl,
-          and grade label update live. At 0% the glass is empty and the status is <strong>EXIT LIQUIDITY</strong>.
+          and grade label update live. At a graded 0% the glass is empty and the status is <strong>EXIT LIQUIDITY</strong>.
         </p>
         <div className="demo-controls">
           {PRESETS.map((preset) => (

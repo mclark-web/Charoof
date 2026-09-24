@@ -78,9 +78,13 @@ export default function MethodPage() {
         </div>
         <div className="panel scale-card">
           <GcTube fill={0} label="GC Scale" />
-          <p className="hint">0% fill is empty glass · EXIT LIQUIDITY</p>
+          <p className="hint">graded 0% fill is empty glass · EXIT LIQUIDITY</p>
         </div>
       </div>
+      <p className="board-note">
+        When a call, tube, or horizon has no graded result yet, the glass stays empty, no percent is shown, and the
+        label reads Not graded yet. A Sports capper card with zero graded picks shows PROVISIONAL with no score.
+      </p>
 
       <div className="section-label">Sports</div>
       <div className="panel method">

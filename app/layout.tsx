@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const description =
-  "Public claims, graded after the outcome. Analysts, FinTwit, Sports, and GCBot. The GC Scale is a neon tube: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
+  "Public claims, graded after the outcome. Analysts, FinTwit, Sports, and GCBot. Grade Calibration, shown as a liquid gauge: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
 
 export const metadata: Metadata = {
   applicationName: "GradedCalls",

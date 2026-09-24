@@ -100,8 +100,8 @@ export const sectors: Sector[] = [
       {
         id: "ft-flat",
         lane: "Demo",
-        title: "Demo · no tape",
-        detail: "0% fill · empty glass",
+        title: "Demo · 4 graded, 0 hit",
+        detail: "graded 0% fill · empty glass",
         fill: 0,
         sample: "n = 4",
       },
@@ -142,8 +142,8 @@ export const sectors: Sector[] = [
       {
         id: "sp-exit",
         lane: "Demo",
-        title: "Demo · empty slate",
-        detail: "0% fill · EXIT LIQUIDITY",
+        title: "Demo · 6 graded, 0 hit",
+        detail: "graded 0% fill · EXIT LIQUIDITY",
         fill: 0,
         sample: "n = 6",
       },
@@ -184,8 +184,8 @@ export const sectors: Sector[] = [
       {
         id: "gb-quiet",
         lane: "Demo",
-        title: "Demo · no volume",
-        detail: "0% fill · empty glass",
+        title: "Demo · 3 graded, 0 hit",
+        detail: "graded 0% fill · empty glass",
         fill: 0,
         sample: "n = 3",
       },

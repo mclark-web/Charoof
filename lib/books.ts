@@ -3,7 +3,7 @@ import fridayArchive from "@/data/friday-archive.json";
 import fintwitBook from "@/data/fintwit-book.json";
 import gcbotCorpus from "@/data/gcbot-corpus.json";
 import verifiedPicks from "@/data/verified-picks.json";
-import type { GradeKey } from "@/lib/grade";
+import { GRADE_BANDS, type GradeKey } from "@/lib/grade";
 import { hitFill, outcomeLabel, recordLabel, resultPill, type Outcome, type ResultPill } from "@/lib/outcome";
 import {
   blendWinRate,
@@ -23,6 +23,8 @@ export type BoardRow = {
   title: string;
   detail: string;
   fill: number | null;
+  /** Decided grades in this score. 0 means nothing is graded yet. */
+  graded?: number;
   sample: string;
   href?: string;
   /** Plain result on a single pick. This is not a GC grade. */
@@ -240,6 +242,7 @@ export function publicCapperRows(asOfDate = newYorkToday()): BoardRow[] {
         title: capper.name,
         detail: `${capper.picks.length} public ${capper.picks.length === 1 ? "pick" : "picks"} · ${recordLabel(counts.win, counts.loss, counts.push)}${counts.void ? ` · ${counts.void} void` : ""}`,
         fill: presented.fill,
+        graded: decisive,
         sample: decisive ? `n = ${decisive}` : "n = 0",
         windows: blended.label,
         gradeKey: presented.grade.key,
@@ -287,13 +290,15 @@ export function fintwitCohortRows(): BoardRow[] {
   return fintwitBook.cohorts.map((cohort) => {
     const calls = (fintwitBook.calls as FintwitCall[]).filter((call) => call.cohort === cohort.slug);
     const counts = tally(calls.map((call) => asOutcome(call.directionGrade, call.id)));
+    const graded = counts.win + counts.loss;
     return {
       id: cohort.slug,
       lane: "Seeded" as const,
       title: cohort.title,
       detail: cohort.summary,
       fill: hitFill(counts.win, counts.loss),
-      sample: counts.win + counts.loss === 0 ? "Open window" : recordLabel(counts.win, counts.loss),
+      graded,
+      sample: graded === 0 ? "Open window" : recordLabel(counts.win, counts.loss),
     };
   });
 }
@@ -419,7 +424,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "public-cappers",
         label: "Public cappers",
-        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. ${PROVISIONAL_SAMPLE_NOTE} The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
+        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. ${PROVISIONAL_SAMPLE_NOTE} STRONG is ${GRADE_BANDS.strongAt}% and above; below ${GRADE_BANDS.weakAt}% is WEAK. The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
         rows: publicCapperRows(asOfDate),
       },
       demoSection(sector),
@@ -480,7 +485,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       {
         id: "fintwit-cohorts",
         label: "Seeded weekends",
-        note: "Five demo cohorts. The tube is the Monday-open hit rate. The September 7 cohort is Labor Day, so that window stays empty rather than copying an earlier print.",
+        note: "Five demo cohorts. The tube is the Monday-open hit rate. The September 7 cohort is Labor Day, so that window stays empty rather than copying an earlier print. This board grades Monday-open direction against the prior Friday close. The FinTwit site grades on the Monday 12:00 PM ET print and the Wednesday/Friday 4:00 PM ET closes.",
         rows: fintwitCohortRows(),
       },
       {

@@ -11,7 +11,6 @@ const routes = [
   "/gc-scale",
   "/gcbot",
   "/method",
-  "/sign-in",
   "/sports",
   "/terms",
 ];

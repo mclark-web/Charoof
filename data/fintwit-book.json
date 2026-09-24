@@ -121,35 +121,35 @@
     {
       "slug": "2026-08-24",
       "title": "Doom versus melt-up",
-      "summary": "A demo weekend book: crash and sell-the-open posts beside euphoric melt-up calls. Grades use the Friday, August 21 cash close and the real noon prints.",
+      "summary": "A demo weekend book: crash and sell-the-open posts beside euphoric melt-up calls. Graded on the Monday, August 24 open versus the Friday, August 21 close.",
       "isLatest": false,
       "callCount": 19
     },
     {
       "slug": "2026-08-31",
       "title": "Panic with a pin",
-      "summary": "Demo weekend posts that mix crash calls with melt-up calls and tight levels. The noon prints are the recorded tape.",
+      "summary": "Demo weekend posts that mix crash calls with melt-up calls and tight levels. Graded on the Monday, August 31 open versus the Friday, August 28 close.",
       "isLatest": false,
       "callCount": 19
     },
     {
       "slug": "2026-09-07",
       "title": "Weekend doom",
-      "summary": "Fictional weekend posts: war panic, sell-the-open, and melt-up calls. Monday, September 7, 2026 was Labor Day, so the gap and the noon grade stay blank. Wednesday and Friday use the real noon prints.",
+      "summary": "Fictional weekend posts: war panic, sell-the-open, and melt-up calls. Monday, September 7, 2026 was Labor Day, so there is no Monday open to compare with the Friday, September 4 close, and this window stays ungraded.",
       "isLatest": false,
       "callCount": 19
     },
     {
       "slug": "2026-09-14",
       "title": "Same noise, next week",
-      "summary": "Another fictional weekend of crash calls and melt-up calls, graded on the real September 14 prints.",
+      "summary": "Another fictional weekend of crash calls and melt-up calls, graded on the Monday, September 14 open versus the Friday, September 11 close.",
       "isLatest": false,
       "callCount": 19
     },
     {
       "slug": "2026-09-21",
       "title": "Open weekend book",
-      "summary": "This week's fictional doom and melt-up posts. Monday's real open and noon prints are in. Wednesday, September 23 and Friday, September 25 had not printed when this history was fetched, so those grades stay scheduled.",
+      "summary": "This week's fictional doom and melt-up posts. Graded on the Monday, September 21 open versus the Friday, September 18 close.",
       "isLatest": true,
       "callCount": 19
     }

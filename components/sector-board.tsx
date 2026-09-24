@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GcTube, GradePill } from "@/components/gc-tube";
+import { GcTube, GradePill, tubeIsUngraded } from "@/components/gc-tube";
 import type { BoardRow, BoardSection, SectorBook } from "@/lib/books";
 import type { ResultPill } from "@/lib/outcome";
 import { gradeForBlendedFill } from "@/lib/recency";
@@ -7,9 +7,9 @@ import { gradeForBlendedFill } from "@/lib/recency";
 const RESULT_TEXT: Record<ResultPill, string> = {
   WIN: "✓ WIN",
   LOSS: "✗ LOSS",
-  PUSH: "PUSH",
-  VOID: "VOID",
-  PENDING: "PENDING",
+  PUSH: "Push",
+  VOID: "Void",
+  PENDING: "Pending",
 };
 
 export function SectorCard({ book }: { book: SectorBook }) {
@@ -57,6 +57,7 @@ function RowScore({ row }: { row: BoardRow }) {
     return <GradePill grade={grade.key} name={grade.name} />;
   }
   if (row.fill == null) return <span className="dim">On the live ledger</span>;
+  if (tubeIsUngraded(row)) return <GcTube fill={0} variant="inline" rich label="GC" ungraded />;
   const grade =
     row.gradeKey && row.gradeName ? { key: row.gradeKey, name: row.gradeName } : undefined;
   return <GcTube fill={row.fill} variant="inline" rich label="GC" grade={grade} />;
