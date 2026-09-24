@@ -64,20 +64,20 @@ export function GcScaleView() {
             <em>GC Scale</em>
           </h1>
           <p className="lead">
-            Grade Calibration as a neon tube. GC measures how closely a call’s outcome matches its stated direction
-            across horizons — calibrated, close-to-close, split-adjusted. Same liquid, two orientations:{" "}
+            Grade Calibration, shown as a liquid gauge. It measures how closely a call’s outcome matches its stated
+            direction across horizons — close-to-close, split-adjusted. Same liquid, two orientations:{" "}
             <strong>vertical vial</strong> (bottom → top) and <strong>horizontal tube</strong> (left → right).
           </p>
           <div className="gc-def">
             <div className="card">
-              <div className="letter">G · GRADED</div>
-              <h3>Graded</h3>
+              <div className="letter">GRADE</div>
+              <h3>Grade</h3>
               <p>Every call is scored STRONG, WEAK, or PROVISIONAL against historical closes — never a stale print.</p>
             </div>
             <div className="card">
-              <div className="letter">C · CALIBRATED</div>
-              <h3>Calibrated</h3>
-              <p>The liquid fill is the calibration score: how much of the thesis held under the method’s rules.</p>
+              <div className="letter">CALIBRATION</div>
+              <h3>Calibration</h3>
+              <p>The liquid fill is how much of the stated direction held under the method’s rules.</p>
             </div>
           </div>
           <div className="grades-note">

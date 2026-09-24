@@ -1,5 +1,7 @@
 # GradedCalls
 
+Brand rules: read BRAND.md before any UI change; deviations are an automatic MUST-FIX.
+
 Public claims, graded after the outcome. This is the umbrella hub: Analysts, FinTwit, Sports, and GCBot.
 
 The product name in the interface is **GradedCalls**. The repository name is technical and does not appear in the public UI. GC means Grade Calibration. The scale section and its tube labels say **GC Scale**. The tube is luminous neon orange (`#eb6505`) on charcoal. Horizontal tubes sit on boards. Vertical vials are limited to the GC Scale and the Method page.
