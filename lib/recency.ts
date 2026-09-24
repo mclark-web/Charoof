@@ -122,7 +122,8 @@ export function gradeForBlendedFill(fill: number | null): Grade {
 /** Decided picks inside the 90-day window. Pushes, voids, and pending picks stay out. */
 export const MIN_GRADED_PICKS = 10;
 
-export const PROVISIONAL_SAMPLE_NOTE = "Provisional until 10 graded picks";
+export const PROVISIONAL_SAMPLE_NOTE =
+  "Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days; this overrides every band: STRONG, WEAK, and EXIT LIQUIDITY.";
 
 export function gradedPickCount(blended: BlendedWinRate): number {
   const window = blended.windows.find((item) => item.key === "3M");

@@ -176,7 +176,10 @@ describe("presentCapper", () => {
     const presented = presentCapper(blended);
     assert.equal(presented.fill, 100);
     assert.equal(presented.grade.name, "PROVISIONAL");
-    assert.equal(presented.note, "Provisional until 10 graded picks");
+    assert.equal(
+      presented.note,
+      "Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days; this overrides every band: STRONG, WEAK, and EXIT LIQUIDITY.",
+    );
   });
 
   it("applies the 70/40 cutoffs once 10 decided picks are in the 90-day window", () => {

@@ -10,7 +10,7 @@ import {
   verifiedPickRows,
 } from "./books";
 import { gradeForFill } from "./grade";
-import { formatNewYorkDate, newYorkToday } from "./recency";
+import { formatNewYorkDate, newYorkToday, PROVISIONAL_SAMPLE_NOTE } from "./recency";
 import { fillForOutcome, hitFill } from "./outcome";
 
 const BANNED = /chad|chud|charoof/i;
@@ -102,13 +102,13 @@ describe("recovered sports ledger", () => {
     assert.equal(rob?.fill, 100 / 3);
     assert.equal(gradeForFill(rob?.fill ?? 0).name, "WEAK");
     assert.equal(rob?.gradeName, "PROVISIONAL");
-    assert.equal(rob?.sampleNote, "Provisional until 10 graded picks");
+    assert.equal(rob?.sampleNote, PROVISIONAL_SAMPLE_NOTE);
     const logan = rows.find((row) => row.title === "Jason Logan");
     assert.equal(logan?.detail, "5 public picks · 2–3");
     assert.equal(logan?.windows, "1W 0–0 · 2W 2–3 · 1M 2–3 · 3M 2–3");
     assert.equal(logan?.fill, 40);
     assert.equal(logan?.gradeName, "PROVISIONAL");
-    assert.equal(logan?.sampleNote, "Provisional until 10 graded picks");
+    assert.equal(logan?.sampleNote, PROVISIONAL_SAMPLE_NOTE);
     const commish = rows.find((row) => row.title === "The Commish");
     assert.equal(commish?.detail, "6 public picks · 3–1 · 2 void");
     assert.equal(commish?.windows, "1W 3–1 · 2W 3–1 · 1M 3–1 · 3M 3–1");
@@ -134,7 +134,7 @@ describe("sector books", () => {
     assert.match(cappers?.note ?? "", new RegExp(`as of ${formatNewYorkDate(newYorkToday())}`));
     assert.match(
       cappers?.note ?? "",
-      /PROVISIONAL until they have 10 graded picks in the last 90 days, whatever their score\. That overrides every band: STRONG, WEAK, and EXIT LIQUIDITY/,
+      /Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days; this overrides every band: STRONG, WEAK, and EXIT LIQUIDITY\./,
     );
     assert.doesNotMatch(cappers?.note ?? "", /newest public card/);
     assert.equal(book.sections.at(-1)?.id, "sports-demo");

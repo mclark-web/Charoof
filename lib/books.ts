@@ -5,7 +5,14 @@ import gcbotCorpus from "@/data/gcbot-corpus.json";
 import verifiedPicks from "@/data/verified-picks.json";
 import type { GradeKey } from "@/lib/grade";
 import { hitFill, outcomeLabel, recordLabel, resultPill, type Outcome, type ResultPill } from "@/lib/outcome";
-import { blendWinRate, formatNewYorkDate, newYorkToday, postedDay, presentCapper } from "@/lib/recency";
+import {
+  blendWinRate,
+  formatNewYorkDate,
+  newYorkToday,
+  postedDay,
+  presentCapper,
+  PROVISIONAL_SAMPLE_NOTE,
+} from "@/lib/recency";
 import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
 
 export type BoardLane = "Demo" | "Verified" | "Unverified" | "Seeded";
@@ -412,7 +419,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "public-cappers",
         label: "Public cappers",
-        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days, whatever their score. That overrides every band: STRONG, WEAK, and EXIT LIQUIDITY. The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
+        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. ${PROVISIONAL_SAMPLE_NOTE} The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
         rows: publicCapperRows(asOfDate),
       },
       demoSection(sector),

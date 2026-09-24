@@ -3,6 +3,7 @@ import { GcTube } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
 import { hubStats, sectorBooks } from "@/lib/books";
 import { GRADE_BANDS } from "@/lib/grade";
+import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
 
 export default function HubPage() {
   const stats = hubStats();
@@ -123,8 +124,7 @@ export default function HubPage() {
           <p>
             Compared to real closes, Monday opens, or final scores — labeled Strong, Weak, or Provisional. {GRADE_BANDS.strongAt}%
             and above is Strong. Below {GRADE_BANDS.weakAt}% is Weak. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
-            Provisional. Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days, whatever their
-            score.
+            Provisional. {PROVISIONAL_SAMPLE_NOTE}
           </p>
         </div>
       </div>
@@ -134,7 +134,8 @@ export default function HubPage() {
           <h2>GC · Grade Calibration</h2>
           <p>
             The horizontal tube fill is the calibration score — how closely outcomes matched the stated direction.
-            Strong, Weak, or Provisional. Empty glass at 0% is EXIT LIQUIDITY.
+            Strong, Weak, or Provisional. Empty glass at 0% is EXIT LIQUIDITY once a capper has 10 graded picks in
+            the last 90 days.
           </p>
           <p className="method-link">
             <Link href="/gc-scale">Explore the GC scale →</Link>
