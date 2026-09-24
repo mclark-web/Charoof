@@ -3,7 +3,8 @@ import fridayArchive from "@/data/friday-archive.json";
 import fintwitBook from "@/data/fintwit-book.json";
 import gcbotCorpus from "@/data/gcbot-corpus.json";
 import verifiedPicks from "@/data/verified-picks.json";
-import { fillForOutcome, hitFill, outcomeLabel, recordLabel, type Outcome } from "@/lib/outcome";
+import { hitFill, outcomeLabel, recordLabel, resultPill, type Outcome, type ResultPill } from "@/lib/outcome";
+import { blendWinRate, postedDay } from "@/lib/recency";
 import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
 
 export type BoardLane = "Demo" | "Verified" | "Seeded";
@@ -16,6 +17,10 @@ export type BoardRow = {
   fill: number | null;
   sample: string;
   href?: string;
+  /** Plain result on a single pick. This is not a GC grade. */
+  result?: ResultPill;
+  /** Capper window line, e.g. 1W 3–1 · 2W 5–3 · 1M 11–8 · 3M 30–24 */
+  windows?: string;
 };
 
 export type BoardSection = {
@@ -117,9 +122,10 @@ function outcomeRow(input: {
     lane: input.lane,
     title: input.title,
     detail: input.detail,
-    fill: fillForOutcome(input.outcome),
+    fill: null,
     sample: outcomeLabel(input.outcome),
     href: input.href,
+    result: resultPill(input.outcome),
   };
 }
 
@@ -158,7 +164,7 @@ export function fridayPickRows(): BoardRow[] {
   });
 }
 
-type CapperTally = { name: string; outcomes: Outcome[] };
+type CapperTally = { name: string; picks: { at: number; outcome: Outcome }[] };
 
 /** Drop a single publication tag. A joint byline with a slash stays intact. */
 function capperIdentity(name: string): { key: string; label: string } {
@@ -167,36 +173,48 @@ function capperIdentity(name: string): { key: string; label: string } {
   return { key: label.toLowerCase(), label };
 }
 
+export function sportsLedgerAsOf(): number {
+  const days = [
+    ...(verifiedPicks as VerifiedPick[]).map((pick) => postedDay(pick.posted_at)),
+    ...(fridayArchive.picks as FridayPick[]).map((pick) => postedDay(pick.postedAt)),
+  ];
+  return days.length ? Math.max(...days) : Date.parse("2026-09-20T00:00:00.000Z");
+}
+
 export function publicCapperRows(): BoardRow[] {
   const byName = new Map<string, CapperTally>();
-  const add = (name: string, outcome: Outcome) => {
+  const add = (name: string, outcome: Outcome, posted: string) => {
     const identity = capperIdentity(name);
-    const current = byName.get(identity.key) ?? { name: identity.label, outcomes: [] };
-    current.outcomes.push(outcome);
+    const at = postedDay(posted);
+    const current = byName.get(identity.key) ?? { name: identity.label, picks: [] };
+    current.picks.push({ at, outcome });
     byName.set(identity.key, current);
   };
 
   for (const pick of verifiedPicks as VerifiedPick[]) {
-    add(pick.tipster, asOutcome(pick.result, pick.event));
+    add(pick.tipster, asOutcome(pick.result, pick.event), pick.posted_at);
   }
   for (const pick of fridayArchive.picks as FridayPick[]) {
-    add(pick.capper, asOutcome(pick.grade, pick.id));
+    add(pick.capper, asOutcome(pick.grade, pick.id), pick.postedAt);
   }
 
+  const asOf = sportsLedgerAsOf();
   return [...byName.values()]
     .map((capper) => {
-      const counts = tally(capper.outcomes);
+      const counts = tally(capper.picks.map((pick) => pick.outcome));
       const decisive = counts.win + counts.loss;
+      const blended = blendWinRate(capper.picks, asOf);
       return {
         id: `capper-${capper.name}`,
         lane: "Verified" as const,
         title: capper.name,
-        detail: `${capper.outcomes.length} public ${capper.outcomes.length === 1 ? "pick" : "picks"} · ${recordLabel(counts.win, counts.loss, counts.push)}${counts.void ? ` · ${counts.void} void` : ""}`,
-        fill: hitFill(counts.win, counts.loss),
+        detail: `${capper.picks.length} public ${capper.picks.length === 1 ? "pick" : "picks"} · ${recordLabel(counts.win, counts.loss, counts.push)}${counts.void ? ` · ${counts.void} void` : ""}`,
+        fill: blended.fill,
         sample: decisive ? `n = ${decisive}` : "n = 0",
+        windows: blended.label,
       };
     })
-    .sort((a, b) => (b.fill ?? 0) - (a.fill ?? 0) || a.title.localeCompare(b.title));
+    .sort((a, b) => (b.fill ?? -1) - (a.fill ?? -1) || a.title.localeCompare(b.title));
 }
 
 export function sportsOutcomes(): Outcome[] {
@@ -336,7 +354,7 @@ function sportsBook(sector: Sector): SectorBook {
       kind: "tube",
       fill,
       card: `${counts.win + counts.loss + counts.push + counts.void} public picks · ${record}`,
-      hint: `Win rate of decisive verified picks, including the Fri Sep 18 archive. ${record} on wins and losses${counts.void ? `, ${counts.void} void kept out of the fill` : ""}. A single win is 100% STRONG. A single loss is 28% WEAK. 0% is an empty window.`,
+      hint: `Decisive win rate on the public book, including the Fri Sep 18 archive. ${record} on wins and losses${counts.void ? `, ${counts.void} void kept out of the fill` : ""}. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, or PENDING. Capper cards use the recency blend.`,
     },
     liveHref: null,
     liveLabel: null,
@@ -344,19 +362,19 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "verified-cards",
         label: "Verified lane",
-        note: "Fourteen public free picks recovered from data/verified-picks.json (PR #5 accuracy ledger). Graded on the public finals stored with each card. No paid odds API.",
+        note: "Fourteen public free picks recovered from data/verified-picks.json (PR #5 accuracy ledger). Each card shows WIN, LOSS, PUSH, or PENDING. It does not get a GC grade. Graded on the public finals stored with each card. No paid odds API.",
         rows: verifiedPickRows(),
       },
       {
         id: "friday-archive",
         label: "Fri Sep 18 archive",
-        note: "Public cards from Covers, Action Network, and ProCappers for Friday, September 18, 2026, graded with the recovered market grader against recorded finals. Two leans with no posted number stay void.",
+        note: "Public cards from Covers, Action Network, and ProCappers for Friday, September 18, 2026, graded with the recovered market grader against recorded finals. Two leans with no posted number stay VOID. The card shows that result, not a GC fill.",
         rows: fridayPickRows(),
       },
       {
         id: "public-cappers",
         label: "Public cappers",
-        note: "Combined record for each name across the verified cards and the Friday archive. The tube is that capper’s decisive hit rate on this hub.",
+        note: `Combined record for each name across the verified cards and the Friday archive. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. Windows count back from ${new Date(sportsLedgerAsOf()).toISOString().slice(0, 10)}, the newest public card on this hub.`,
         rows: publicCapperRows(),
       },
       demoSection(sector),
@@ -403,7 +421,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       kind: "tube",
       fill,
       card: `${fintwitBook.calls.length} seeded posts · ${recordLabel(counts.win, counts.loss)}`,
-      hint: `Monday-open direction for the seeded demo book: stated bullish or bearish versus the stored Friday close and Monday regular-session open. ${counts.pending} posts have no Monday open and stay at 0%. This is not the live board’s peer-rank score.`,
+      hint: `Monday-open direction for the seeded demo book: stated bullish or bearish versus the stored Friday close and Monday regular-session open. ${counts.pending} posts have no Monday open, so they stay PENDING and out of the fill. A single post shows its result, not a GC grade. This is not the live board’s peer-rank score.`,
     },
     liveHref: fintwitBook.liveUrl,
     liveLabel: "Open the live FinTwit ledger",

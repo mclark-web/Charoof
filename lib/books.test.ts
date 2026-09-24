@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   fridayPickRows,
+  fintwitCallRows,
   hubStats,
   publicCapperRows,
   sectorBook,
   verifiedPickRows,
 } from "./books";
+import { gradeForFill } from "./grade";
 import { fillForOutcome, hitFill } from "./outcome";
 
 const BANNED = /chad|chud|charoof/i;
@@ -16,7 +18,7 @@ function visibleText(value: unknown): string {
 }
 
 describe("recovered sports ledger", () => {
-  it("maps outcomes onto the hub tube without treating a loss as an empty glass", () => {
+  it("does not grade a single pick from the old outcome fill", () => {
     assert.equal(fillForOutcome("win"), 100);
     assert.equal(fillForOutcome("loss"), 28);
     assert.equal(fillForOutcome("push"), 50);
@@ -24,6 +26,14 @@ describe("recovered sports ledger", () => {
     assert.equal(fillForOutcome("pending"), 0);
     assert.equal(hitFill(9, 5), 64);
     assert.equal(hitFill(0, 0), 0);
+
+    const picks = [...verifiedPickRows(), ...fridayPickRows(), ...fintwitCallRows("2026-09-21")];
+    assert.ok(picks.length > 0);
+    for (const row of picks) {
+      assert.equal(row.fill, null);
+      assert.ok(row.result);
+      assert.notEqual(row.fill, fillForOutcome("loss"));
+    }
   });
 
   it("fills the verified lane with the 14 recovered public cards", () => {
@@ -36,9 +46,11 @@ describe("recovered sports ledger", () => {
     }
     const steelers = rows.find((row) => row.title.includes("Steelers"));
     assert.equal(steelers?.sample, "Loss");
-    assert.equal(steelers?.fill, 28);
+    assert.equal(steelers?.result, "LOSS");
+    assert.equal(steelers?.fill, null);
     const saints = rows.find((row) => row.detail.includes("Saints"));
     assert.equal(saints?.sample, "Win");
+    assert.equal(saints?.result, "WIN");
   });
 
   it("restores the Friday archive, including the void leans", () => {
@@ -48,6 +60,7 @@ describe("recovered sports ledger", () => {
     assert.equal(over?.sample, "Loss");
     assert.match(over?.detail ?? "", /Miami 33, Wake Forest 20/);
     assert.equal(rows.filter((row) => row.sample === "Void").length, 2);
+    assert.ok(rows.filter((row) => row.sample === "Void").every((row) => row.result === "VOID" && row.fill == null));
   });
 
   it("keeps the joint Bennett / Paul card separate from Rob Paul's Friday card", () => {
@@ -56,9 +69,20 @@ describe("recovered sports ledger", () => {
     const rob = rows.find((row) => row.title === "Rob Paul");
     assert.ok(rob);
     assert.equal(rob?.sample, "n = 3");
+    assert.equal(rob?.windows, "1W 1–2 · 2W 1–2 · 1M 1–2 · 3M 1–2");
+    assert.equal(rob?.fill, 33);
+    assert.equal(gradeForFill(rob?.fill ?? 0).name, "WEAK");
+    const logan = rows.find((row) => row.title === "Jason Logan");
+    assert.equal(logan?.fill, 40);
+    assert.equal(gradeForFill(logan?.fill ?? 0).name, "PROVISIONAL");
     const commish = rows.find((row) => row.title === "The Commish");
-    assert.ok((commish?.detail.match(/public picks/) ?? []).length >= 0);
     assert.match(commish?.detail ?? "", /public picks/);
+    assert.equal(commish?.windows, "1W 5–3 · 2W 5–3 · 1M 5–3 · 3M 5–3");
+    assert.equal(commish?.fill, 63);
+    for (const row of rows) {
+      assert.match(row.windows ?? "", /^1W \d+–\d+ · 2W \d+–\d+ · 1M \d+–\d+ · 3M \d+–\d+$/);
+      assert.equal(row.result, undefined);
+    }
   });
 });
 

@@ -84,10 +84,10 @@ export function GcScaleView() {
               <strong>Strong</strong> ≥ {GRADE_BANDS.strongAt}%
             </span>
             <span>
-              <strong>Provisional</strong> mid-band / open
+              <strong>Provisional</strong> {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%
             </span>
             <span>
-              <strong>Weak</strong> ≤ {GRADE_BANDS.weakAt}%
+              <strong>Weak</strong> below {GRADE_BANDS.weakAt}%
             </span>
             <span>
               <strong>EXIT LIQUIDITY</strong> = 0% fill
@@ -113,7 +113,7 @@ export function GcScaleView() {
         <p className="sub">
           GC is Grade Calibration, in two readable forms. The vertical vial fills bottom → top; the horizontal tube fills
           left → right. Both use <code>--gc-fill</code>, the same neon bloom, and the same grade labels — including{" "}
-          <strong>exit liquidity</strong> at 0%.
+          <strong>EXIT LIQUIDITY</strong> at 0%.
         </p>
         <div className="orient-grid">
           <div className="panel orient-panel">
@@ -127,6 +127,22 @@ export function GcScaleView() {
             <p className="hint">Board tube · fill reads left → right</p>
           </div>
         </div>
+      </section>
+
+      <section className="panel orient-section">
+        <h2>Same rules on every board</h2>
+        <p className="sub">
+          STRONG is {GRADE_BANDS.strongAt}% and above. WEAK is below {GRADE_BANDS.weakAt}%. The fill from{" "}
+          {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is PROVISIONAL. 0% is empty glass and{" "}
+          <strong>EXIT LIQUIDITY</strong>.
+        </p>
+        <p className="sub">
+          On Sports, a single pick shows WIN, LOSS, PUSH, or PENDING. It does not receive a GC grade. A capper’s GC
+          score is the win percentage over the last 7, 14, 30, and 90 days — labeled 1W, 2W, 1M, and 3M — weighted 40 /
+          30 / 20 / 10. Pushes are excluded. A window with no decided picks is dropped and the remaining weights are
+          renormalized. If every window is empty, the capper is PROVISIONAL and the card shows no score. The same
+          cutoffs grade that blend.
+        </p>
       </section>
 
       <div className="section-label">Calibration examples</div>

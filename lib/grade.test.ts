@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { clampFill, gradeForFill } from "./grade";
+import { GRADE_BANDS, clampFill, gradeForFill } from "./grade";
 
 describe("gradeForFill", () => {
   it("treats 0% as empty glass and EXIT LIQUIDITY", () => {
@@ -8,12 +8,14 @@ describe("gradeForFill", () => {
     assert.equal(gradeForFill(-4).key, "exit");
   });
 
-  it("keeps the same uppercase labels at the band edges", () => {
+  it("uses the same uppercase labels at 70 and 40", () => {
+    assert.equal(GRADE_BANDS.strongAt, 70);
+    assert.equal(GRADE_BANDS.weakAt, 40);
     assert.equal(gradeForFill(1).name, "WEAK");
-    assert.equal(gradeForFill(40).name, "WEAK");
-    assert.equal(gradeForFill(41).name, "PROVISIONAL");
-    assert.equal(gradeForFill(64).name, "PROVISIONAL");
-    assert.equal(gradeForFill(65).name, "STRONG");
+    assert.equal(gradeForFill(39).name, "WEAK");
+    assert.equal(gradeForFill(40).name, "PROVISIONAL");
+    assert.equal(gradeForFill(69).name, "PROVISIONAL");
+    assert.equal(gradeForFill(70).name, "STRONG");
     assert.equal(gradeForFill(100).name, "STRONG");
   });
 

@@ -122,7 +122,8 @@ export default function HubPage() {
           <h4>Grade</h4>
           <p>
             Compared to real closes, Monday opens, or final scores — labeled Strong, Weak, or Provisional. {GRADE_BANDS.strongAt}%
-            and above is Strong. {GRADE_BANDS.weakAt}% and below is Weak.
+            and above is Strong. Below {GRADE_BANDS.weakAt}% is Weak. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
+            Provisional.
           </p>
         </div>
       </div>

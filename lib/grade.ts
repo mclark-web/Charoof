@@ -1,7 +1,7 @@
 /** Grade Calibration bands. Display labels and tube fill share this function. */
 
 export const GRADE_BANDS = {
-  strongAt: 65,
+  strongAt: 70,
   weakAt: 40,
 } as const;
 
@@ -27,12 +27,12 @@ export function clampFill(fill: number): number {
 
 /**
  * 0% is empty glass and EXIT LIQUIDITY.
- * Weak is at or below 40. Provisional is the open mid-band. Strong starts at 65.
+ * Below 40 is WEAK. From 40 up to but not including 70 is PROVISIONAL. 70 and above is STRONG.
  */
 export function gradeForFill(fill: number): Grade {
   const n = clampFill(fill);
   if (n <= 0) return { key: "exit", name: LABELS.exit };
-  if (n <= GRADE_BANDS.weakAt) return { key: "weak", name: LABELS.weak };
+  if (n < GRADE_BANDS.weakAt) return { key: "weak", name: LABELS.weak };
   if (n < GRADE_BANDS.strongAt) return { key: "provisional", name: LABELS.provisional };
   return { key: "strong", name: LABELS.strong };
 }

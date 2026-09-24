@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { GcTube } from "@/components/gc-tube";
+import { GcTube, GradePill } from "@/components/gc-tube";
 import type { BoardRow, BoardSection, SectorBook } from "@/lib/books";
+import { gradeForBlendedFill } from "@/lib/recency";
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
@@ -38,7 +39,19 @@ function RowLinks({ row }: { row: BoardRow }) {
   );
 }
 
+function RowScore({ row }: { row: BoardRow }) {
+  if (row.result) return <span className="result-pill">{row.result}</span>;
+  if (row.fill == null && row.windows) {
+    const grade = gradeForBlendedFill(null);
+    return <GradePill grade={grade.key} name={grade.name} />;
+  }
+  if (row.fill == null) return <span className="dim">On the live ledger</span>;
+  return <GcTube fill={row.fill} variant="inline" label="GC" />;
+}
+
 function BoardTable({ section }: { section: BoardSection }) {
+  const resultColumn = section.rows.length > 0 && section.rows.every((row) => row.result);
+  const scoreLabel = resultColumn ? "Result" : "GC";
   return (
     <>
       <div className="section-label">{section.label}</div>
@@ -50,7 +63,7 @@ function BoardTable({ section }: { section: BoardSection }) {
               <th>Call</th>
               <th>Lane</th>
               <th>Sample</th>
-              <th>GC</th>
+              <th>{scoreLabel}</th>
             </tr>
           </thead>
           <tbody>
@@ -59,6 +72,7 @@ function BoardTable({ section }: { section: BoardSection }) {
                 <td data-label="Call">
                   <div>{row.title}</div>
                   <div className="dim">{row.detail}</div>
+                  {row.windows ? <div className="window-record">{row.windows}</div> : null}
                   <RowLinks row={row} />
                 </td>
                 <td className="mono" data-label="Lane">
@@ -67,12 +81,8 @@ function BoardTable({ section }: { section: BoardSection }) {
                 <td className="mono" data-label="Sample">
                   {row.sample}
                 </td>
-                <td className="tube-cell" data-label="GC">
-                  {row.fill == null ? (
-                    <span className="dim">On the live ledger</span>
-                  ) : (
-                    <GcTube fill={row.fill} variant="inline" label="GC" />
-                  )}
+                <td className="tube-cell" data-label={scoreLabel}>
+                  <RowScore row={row} />
                 </td>
               </tr>
             ))}

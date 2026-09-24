@@ -1,12 +1,26 @@
-/** Map a settled outcome onto the hub tube. 0% stays empty glass. */
+/** Single-pick results. A result is not a GC grade. */
 
 export type Outcome = "win" | "loss" | "push" | "void" | "pending";
 
+export type ResultPill = "WIN" | "LOSS" | "PUSH" | "PENDING" | "VOID";
+
+/**
+ * Old map from one outcome onto a tube. Do not pass this into a GC grade.
+ * Capper scores use the recency blend. A single pick shows resultPill instead.
+ */
 export function fillForOutcome(outcome: Outcome): number {
   if (outcome === "win") return 100;
   if (outcome === "loss") return 28;
   if (outcome === "push") return 50;
   return 0;
+}
+
+export function resultPill(outcome: Outcome): ResultPill {
+  if (outcome === "win") return "WIN";
+  if (outcome === "loss") return "LOSS";
+  if (outcome === "push") return "PUSH";
+  if (outcome === "void") return "VOID";
+  return "PENDING";
 }
 
 export function outcomeLabel(outcome: Outcome): string {

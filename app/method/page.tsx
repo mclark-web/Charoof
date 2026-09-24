@@ -68,16 +68,46 @@ export default function MethodPage() {
           <p className="hint">STRONG at {GRADE_BANDS.strongAt}% and above</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={54} label="GC" />
-          <p className="hint">PROVISIONAL in the open mid-band</p>
+          <GcTube fill={GRADE_BANDS.weakAt} label="GC" />
+          <p className="hint">PROVISIONAL from {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%</p>
         </div>
         <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.weakAt} label="GC" />
-          <p className="hint">WEAK at {GRADE_BANDS.weakAt}% and below</p>
+          <GcTube fill={GRADE_BANDS.weakAt - 1} label="GC" />
+          <p className="hint">WEAK below {GRADE_BANDS.weakAt}%</p>
         </div>
         <div className="panel scale-card">
           <GcTube fill={0} label="GC" />
           <p className="hint">0% fill is empty glass · EXIT LIQUIDITY</p>
+        </div>
+      </div>
+
+      <div className="section-label">Sports</div>
+      <div className="panel method">
+        <div>
+          <h2>Picks show a result. Cappers carry GC.</h2>
+          <p>Same rules on every board. A single sports pick is a result, not a tube.</p>
+        </div>
+        <div className="step">
+          <div className="n">01</div>
+          <h4>Result</h4>
+          <p>WIN, LOSS, PUSH, or PENDING. A void is VOID. None of those is a GC fill.</p>
+        </div>
+        <div className="step">
+          <div className="n">02</div>
+          <h4>Blend</h4>
+          <p>
+            A capper’s score is the win percentage over the last 7, 14, 30, and 90 days, labeled 1W, 2W, 1M, and 3M,
+            weighted 40 / 30 / 20 / 10. Pushes stay out of the rate. A window with no decided picks is dropped and the
+            remaining weights are renormalized.
+          </p>
+        </div>
+        <div className="step">
+          <div className="n">03</div>
+          <h4>Grade</h4>
+          <p>
+            The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.
+            Windows count back from the newest public card on this hub.
+          </p>
         </div>
       </div>
     </>

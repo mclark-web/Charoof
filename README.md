@@ -6,14 +6,14 @@ The product name in the interface is **GradedCalls**. GC means Grade Calibration
 
 GCBot scores clone speech and amplifiers by narrative volume. The hub board is a zero-cost demo on a synthetic corpus. It does not call a paid social API.
 
-Grade labels share one uppercase pill:
+Grade labels share one uppercase pill. Same rules on every board:
 
-- **STRONG** at 65% and above
-- **PROVISIONAL** in the open mid-band
-- **WEAK** at 40% and below
+- **STRONG** at 70% and above
+- **PROVISIONAL** from 40% until 70%
+- **WEAK** below 40%
 - **EXIT LIQUIDITY** at 0% fill, which is empty glass
 
-Sports shows the recovered public pick ledger, including the Fri Sep 18 archive. Analysts, FinTwit, and GCBot preview the seeded books from those boards and link to the live ledgers. Demo rows stay labeled Demo. Sports does not call a paid odds API.
+Sports shows the recovered public pick ledger, including the Fri Sep 18 archive. A single pick shows WIN, LOSS, PUSH, or PENDING, not a GC grade. A capper’s GC score is the recency-blended win percentage over the last 7, 14, 30, and 90 days, weighted 40/30/20/10, with pushes left out. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the capper is PROVISIONAL and the card shows no score. Analysts, FinTwit, and GCBot preview the seeded books from those boards and link to the live ledgers. Demo rows stay labeled Demo. Sports does not call a paid odds API.
 
 ```bash
 npm install
