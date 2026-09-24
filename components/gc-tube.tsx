@@ -53,7 +53,7 @@ export function GcTube({
   fill,
   orientation = "horizontal",
   variant = "default",
-  label = "GC",
+  label = "GC Scale",
   rich = false,
   centered = false,
   metaInline = false,
@@ -61,6 +61,7 @@ export function GcTube({
   className,
   grade: gradeOverride,
 }: GcTubeProps) {
+  const caption = label === "GC" || label === "GC · Grade Calibration" ? "GC Scale" : label;
   const n = clampFill(fill);
   const shown = displayFill(n);
   const grade = gradeOverride ?? gradeForFill(n);
@@ -84,14 +85,14 @@ export function GcTube({
       )}
       style={{ ["--gc-fill" as string]: `${n}%` }}
       role="img"
-      aria-label={`${label} ${shown}%, ${grade.name}${empty ? ", empty glass" : ""}`}
+      aria-label={`${caption} ${shown}%, ${grade.name}${empty ? ", empty glass" : ""}`}
     >
       <div className="gc-bloom" aria-hidden="true" />
       <div className="gc-tube">
         <Liquid rich={rich} />
       </div>
       <div className={join("gc-meta", metaInline && "is-row")}>
-        <div className="gc-label">{label}</div>
+        <div className="gc-label">{caption}</div>
         <div className="gc-pct">{shown}%</div>
         <GradePill grade={grade.key} name={grade.name} />
       </div>
