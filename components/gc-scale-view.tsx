@@ -154,7 +154,7 @@ export function GcScaleView() {
         </p>
       </section>
 
-      <div className="section-label">GC Scale — calibration examples</div>
+      <div className="section-label">Calibration examples</div>
       <div className="scale-row">
         {EXAMPLES.map((example) => (
           <div className="panel scale-card" key={example.fill}>
@@ -162,6 +162,10 @@ export function GcScaleView() {
             <p className="hint">{example.hint}</p>
           </div>
         ))}
+        <div className="panel scale-card">
+          <GcTube fill={0} ungraded rich label="GC Scale" />
+          <p className="hint">Example · not graded yet</p>
+        </div>
       </div>
 
       <section className="panel demo-panel">

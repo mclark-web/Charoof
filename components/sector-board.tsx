@@ -7,9 +7,9 @@ import { gradeForBlendedFill } from "@/lib/recency";
 const RESULT_TEXT: Record<ResultPill, string> = {
   WIN: "✓ WIN",
   LOSS: "✗ LOSS",
-  PUSH: "PUSH",
-  VOID: "VOID",
-  PENDING: "PENDING",
+  PUSH: "Push",
+  VOID: "Void",
+  PENDING: "Pending",
 };
 
 export function SectorCard({ book }: { book: SectorBook }) {
