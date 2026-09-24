@@ -131,7 +131,7 @@ export function SectorBoard({ book }: { book: SectorBook }) {
         </div>
         <div className="board-tube">
           {hero.kind === "tube" ? (
-            <GcTube fill={hero.fill} variant="hero" rich label="GC · Grade Calibration" />
+            <GcTube fill={hero.fill} variant="hero" rich label="GC Scale" />
           ) : (
             <div className="count-hero">
               <div className="label">On this hub</div>

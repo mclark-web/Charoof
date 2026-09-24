@@ -1381,6 +1381,22 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 }
 .method-example { min-width: 0; }
 .method-example .tube-example { text-align: center; }
+/* Halo stays on the upper glass. The tube's wide orange shadow is dropped here so the label row stays charcoal. */
+.method-example .gc-bloom {
+  top: -6px;
+  bottom: auto;
+  height: 34px;
+  filter: blur(8px);
+}
+.method-example .gc-tube {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    inset 0 -10px 20px rgba(0,0,0,0.32),
+    inset 1px 0 0 rgba(255,255,255,0.12),
+    inset -1px 0 0 rgba(255,255,255,0.06),
+    0 0 0 1px rgba(235,101,5,0.28),
+    0 10px 18px rgba(0,0,0,0.45);
+}
 
 .sector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .sector {

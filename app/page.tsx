@@ -5,7 +5,7 @@ import { hubStats, sectorBooks } from "@/lib/books";
 import { GRADE_BANDS } from "@/lib/grade";
 import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
 
-const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days = STRONG";
+const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days";
 
 export default function HubPage() {
   const stats = hubStats();
@@ -94,14 +94,14 @@ export default function HubPage() {
         <Link className="sector" href="/gc-scale">
           <div className="kicker">Trust · Calibration</div>
           <h3>GC Scale</h3>
-          <p>How Strong, Weak, Provisional, and exit liquidity map onto the laboratory tube — same rules on every board.</p>
+          <p>How STRONG, WEAK, PROVISIONAL, and EXIT LIQUIDITY map onto the laboratory tube — same rules on every board.</p>
           <div className="gc-slot">
             <GcTube fill={72} variant="mini" label="GC Scale" metaInline className="is-card" />
             <p className="tube-example">{EXAMPLE_STRONG}</p>
           </div>
           <div className="foot">
-            <span>Method · Labels · Fill</span>
-            <span className="go">Explore scale →</span>
+            <span>STRONG · WEAK · PROVISIONAL · EXIT LIQUIDITY</span>
+            <span className="go">GC Scale →</span>
           </div>
         </Link>
       </div>
@@ -125,9 +125,9 @@ export default function HubPage() {
           <div className="n">03</div>
           <h4>Grade</h4>
           <p>
-            Compared to real closes, Monday opens, or final scores — labeled Strong, Weak, or Provisional. {GRADE_BANDS.strongAt}%
-            and above is Strong. Below {GRADE_BANDS.weakAt}% is Weak. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
-            Provisional. {PROVISIONAL_SAMPLE_NOTE}
+            Compared to real closes, Monday opens, or final scores — labeled STRONG, WEAK, or PROVISIONAL. {GRADE_BANDS.strongAt}%
+            and above is STRONG. Below {GRADE_BANDS.weakAt}% is WEAK. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
+            PROVISIONAL. {PROVISIONAL_SAMPLE_NOTE}
           </p>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function HubPage() {
           <h2>GC Scale</h2>
           <p>
             Grade Calibration is the horizontal tube fill — how closely outcomes matched the stated direction.
-            Strong, Weak, or Provisional. Empty glass at 0% is EXIT LIQUIDITY once a capper has 10 graded picks in
+            STRONG, WEAK, or PROVISIONAL. Empty glass at 0% is EXIT LIQUIDITY once a capper has 10 graded picks in
             the last 90 days.
           </p>
           <p className="method-link">

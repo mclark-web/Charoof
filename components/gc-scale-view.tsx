@@ -18,11 +18,11 @@ const EXAMPLES = [
 
 function presetLabel(fill: number) {
   if (fill === 0) return "0% EXIT LIQUIDITY";
-  if (fill === 31) return "31% Weak";
-  if (fill === 54) return "54% Prov";
-  if (fill === 72) return "72% Strong";
-  if (fill === 88) return "88% Strong";
-  return "100%";
+  if (fill === 31) return "31% WEAK";
+  if (fill === 54) return "54% PROVISIONAL";
+  if (fill === 72) return "72% STRONG";
+  if (fill === 88) return "88% STRONG";
+  return "100% STRONG";
 }
 
 export function GcScaleView() {
@@ -59,20 +59,20 @@ export function GcScaleView() {
       <Ambient />
       <section className="gc-hero">
         <div>
-          <div className="chip">GC · Grade Calibration</div>
+          <div className="chip">GC Scale</div>
           <h1>
-            Grade Calibration as a <em>neon tube</em>
+            <em>GC Scale</em>
           </h1>
           <p className="lead">
-            GC measures how closely a call’s outcome matches its stated direction across horizons — calibrated,
-            close-to-close, split-adjusted. Same liquid, two orientations: <strong>vertical vial</strong> (bottom →
-            top) and <strong>horizontal tube</strong> (left → right).
+            Grade Calibration as a neon tube. GC measures how closely a call’s outcome matches its stated direction
+            across horizons — calibrated, close-to-close, split-adjusted. Same liquid, two orientations:{" "}
+            <strong>vertical vial</strong> (bottom → top) and <strong>horizontal tube</strong> (left → right).
           </p>
           <div className="gc-def">
             <div className="card">
               <div className="letter">G · GRADED</div>
               <h3>Graded</h3>
-              <p>Every call is scored Strong, Weak, or Provisional against historical closes — never a stale print.</p>
+              <p>Every call is scored STRONG, WEAK, or PROVISIONAL against historical closes — never a stale print.</p>
             </div>
             <div className="card">
               <div className="letter">C · CALIBRATED</div>
@@ -82,13 +82,13 @@ export function GcScaleView() {
           </div>
           <div className="grades-note">
             <span>
-              <strong>Strong</strong> ≥ {GRADE_BANDS.strongAt}%
+              <strong>STRONG</strong> ≥ {GRADE_BANDS.strongAt}%
             </span>
             <span>
-              <strong>Provisional</strong> {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%
+              <strong>PROVISIONAL</strong> {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%
             </span>
             <span>
-              <strong>Weak</strong> below {GRADE_BANDS.weakAt}%
+              <strong>WEAK</strong> below {GRADE_BANDS.weakAt}%
             </span>
             <span>
               <strong>EXIT LIQUIDITY</strong> = 0% fill
@@ -119,12 +119,12 @@ export function GcScaleView() {
         <div className="orient-grid">
           <div className="panel orient-panel">
             <div className="orient-label">Vertical vial</div>
-            <GcTube fill={fill} orientation="vertical" rich label="GC" live={live} />
+            <GcTube fill={fill} orientation="vertical" rich label="GC Scale" live={live} />
             <p className="hint">Lab vial · fill rises with calibration</p>
           </div>
           <div className="panel orient-panel">
             <div className="orient-label">Horizontal tube</div>
-            <GcTube fill={fill} variant="card" rich label="GC" live={live} className="orient-wide" />
+            <GcTube fill={fill} variant="card" rich label="GC Scale" live={live} className="orient-wide" />
             <p className="hint">Board tube · fill reads left → right</p>
           </div>
         </div>
@@ -149,11 +149,11 @@ export function GcScaleView() {
         </p>
       </section>
 
-      <div className="section-label">Calibration examples</div>
+      <div className="section-label">GC Scale</div>
       <div className="scale-row">
         {EXAMPLES.map((example) => (
           <div className="panel scale-card" key={example.fill}>
-            <GcTube fill={example.fill} rich label="GC" />
+            <GcTube fill={example.fill} rich label="GC Scale" />
             <p className="hint">{example.hint}</p>
           </div>
         ))}
@@ -179,7 +179,7 @@ export function GcScaleView() {
           ))}
         </div>
         <div className="demo-live">
-          <GcTube fill={fill} variant="hero" rich label="GC · Grade Calibration" live={live} />
+          <GcTube fill={fill} variant="hero" rich label="GC Scale" live={live} />
           <div className="range-wrap">
             <label htmlFor="gcRange">Calibration fill</label>
             <input
