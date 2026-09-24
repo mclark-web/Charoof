@@ -31,11 +31,11 @@ export function outcomeLabel(outcome: Outcome): string {
   return "Open";
 }
 
-/** Decisive hit rate. Pushes, voids, and open rows stay out of the denominator. */
+/** Decisive hit rate. Pushes, voids, and open rows stay out of the denominator. Unrounded, so a 69.5 bands as PROVISIONAL. */
 export function hitFill(wins: number, losses: number): number {
   const decisive = wins + losses;
   if (decisive <= 0) return 0;
-  return Math.round((100 * wins) / decisive);
+  return (100 * wins) / decisive;
 }
 
 export function recordLabel(wins: number, losses: number, pushes = 0): string {

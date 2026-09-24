@@ -20,9 +20,15 @@ const LABELS: Record<GradeKey, string> = {
   strong: "STRONG",
 };
 
+/** Clamp onto 0–100 without rounding. Grades read this raw value. */
 export function clampFill(fill: number): number {
   if (!Number.isFinite(fill)) return 0;
-  return Math.max(0, Math.min(100, Math.round(fill)));
+  return Math.max(0, Math.min(100, fill));
+}
+
+/** Rounded percentage for the tube label only. 69.5 displays as 70 and still bands as PROVISIONAL. */
+export function displayFill(fill: number): number {
+  return Math.round(clampFill(fill));
 }
 
 /**

@@ -1,4 +1,4 @@
-import { clampFill, gradeForFill, type GradeKey } from "@/lib/grade";
+import { clampFill, displayFill, gradeForFill, type Grade, type GradeKey } from "@/lib/grade";
 
 type Variant = "default" | "hero" | "mini" | "inline" | "sidebar" | "card";
 
@@ -12,6 +12,8 @@ type GcTubeProps = {
   metaInline?: boolean;
   live?: boolean;
   className?: string;
+  /** Overrides the fill cutoff. A short capper sample stays PROVISIONAL while the tube still shows the percentage. */
+  grade?: Grade;
 };
 
 function join(...parts: Array<string | false | undefined>) {
@@ -57,10 +59,12 @@ export function GcTube({
   metaInline = false,
   live = false,
   className,
+  grade: gradeOverride,
 }: GcTubeProps) {
   const n = clampFill(fill);
-  const grade = gradeForFill(n);
-  const empty = n === 0;
+  const shown = displayFill(n);
+  const grade = gradeOverride ?? gradeForFill(n);
+  const empty = n === 0 && grade.key === "exit";
 
   return (
     <div
@@ -80,7 +84,7 @@ export function GcTube({
       )}
       style={{ ["--gc-fill" as string]: `${n}%` }}
       role="img"
-      aria-label={`${label} ${n}%, ${grade.name}${empty ? ", empty glass" : ""}`}
+      aria-label={`${label} ${shown}%, ${grade.name}${empty ? ", empty glass" : ""}`}
     >
       <div className="gc-bloom" aria-hidden="true" />
       <div className="gc-tube">
@@ -88,7 +92,7 @@ export function GcTube({
       </div>
       <div className={join("gc-meta", metaInline && "is-row")}>
         <div className="gc-label">{label}</div>
-        <div className="gc-pct">{n}%</div>
+        <div className="gc-pct">{shown}%</div>
         <GradePill grade={grade.key} name={grade.name} />
       </div>
     </div>

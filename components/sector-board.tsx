@@ -1,7 +1,16 @@
 import Link from "next/link";
 import { GcTube, GradePill } from "@/components/gc-tube";
 import type { BoardRow, BoardSection, SectorBook } from "@/lib/books";
+import type { ResultPill } from "@/lib/outcome";
 import { gradeForBlendedFill } from "@/lib/recency";
+
+const RESULT_TEXT: Record<ResultPill, string> = {
+  WIN: "✓ WIN",
+  LOSS: "✗ LOSS",
+  PUSH: "PUSH",
+  VOID: "VOID",
+  PENDING: "PENDING",
+};
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
@@ -40,13 +49,17 @@ function RowLinks({ row }: { row: BoardRow }) {
 }
 
 function RowScore({ row }: { row: BoardRow }) {
-  if (row.result) return <span className="result-pill">{row.result}</span>;
+  if (row.result) {
+    return <span className={`result-pill ${row.result.toLowerCase()}`}>{RESULT_TEXT[row.result]}</span>;
+  }
   if (row.fill == null && row.windows) {
     const grade = gradeForBlendedFill(null);
     return <GradePill grade={grade.key} name={grade.name} />;
   }
   if (row.fill == null) return <span className="dim">On the live ledger</span>;
-  return <GcTube fill={row.fill} variant="inline" label="GC" />;
+  const grade =
+    row.gradeKey && row.gradeName ? { key: row.gradeKey, name: row.gradeName } : undefined;
+  return <GcTube fill={row.fill} variant="inline" rich label="GC" grade={grade} />;
 }
 
 function BoardTable({ section }: { section: BoardSection }) {
@@ -73,10 +86,11 @@ function BoardTable({ section }: { section: BoardSection }) {
                   <div>{row.title}</div>
                   <div className="dim">{row.detail}</div>
                   {row.windows ? <div className="window-record">{row.windows}</div> : null}
+                  {row.sampleNote ? <div className="sample-note">{row.sampleNote}</div> : null}
                   <RowLinks row={row} />
                 </td>
                 <td className="mono" data-label="Lane">
-                  {row.lane}
+                  {row.lane === "Unverified" ? "Post time unconfirmed" : row.lane}
                 </td>
                 <td className="mono" data-label="Sample">
                   {row.sample}

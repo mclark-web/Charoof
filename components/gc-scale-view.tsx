@@ -137,11 +137,14 @@ export function GcScaleView() {
           <strong>EXIT LIQUIDITY</strong>.
         </p>
         <p className="sub">
-          On Sports, a single pick shows WIN, LOSS, PUSH, or PENDING. It does not receive a GC grade. A capper’s GC
-          score is the win percentage over the last 7, 14, 30, and 90 days — labeled 1W, 2W, 1M, and 3M — weighted 40 /
-          30 / 20 / 10. Pushes are excluded. A window with no decided picks is dropped and the remaining weights are
-          renormalized. If every window is empty, the capper is PROVISIONAL and the card shows no score. The same
-          cutoffs grade that blend.
+          On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or PENDING — not a grade. A capper’s
+          GC score is the win percentage over the last 7, 14, 30, and 90 days — labeled 1W, 2W, 1M, and 3M — weighted
+          40 / 30 / 20 / 10. Pushes are excluded. A window with no decided picks is dropped and the remaining weights
+          are renormalized. If every window is empty, the capper is PROVISIONAL and the card shows no score. Fewer than
+          10 decided picks in the 90-day window stays PROVISIONAL and still shows the percentage, with the note
+          “Provisional until 10 graded picks.” A sample of 10 or more uses the same cutoffs. The percentage is rounded
+          only for display; 69.5 stays PROVISIONAL. Windows count back from today’s date in America/New_York. A card
+          with a publish date and no clock time stays out of the capper score.
         </p>
       </section>
 

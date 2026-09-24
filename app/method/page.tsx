@@ -90,7 +90,7 @@ export default function MethodPage() {
         <div className="step">
           <div className="n">01</div>
           <h4>Result</h4>
-          <p>WIN, LOSS, PUSH, or PENDING. A void is VOID. None of those is a GC fill.</p>
+          <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or PENDING. None of those fills a GC tube.</p>
         </div>
         <div className="step">
           <div className="n">02</div>
@@ -106,7 +106,11 @@ export default function MethodPage() {
           <h4>Grade</h4>
           <p>
             The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.
-            Windows count back from the newest public card on this hub.
+            Fewer than 10 decided picks in the 90-day window stays PROVISIONAL even when the percentage would clear
+            another cutoff. The card still shows that percentage and the window records, with the note “Provisional
+            until 10 graded picks.” Windows count back from today’s date in America/New_York, shown on the capper
+            section as “as of” that date. A card whose source has a publish date but no clock time stays out of the
+            capper score and record.
           </p>
         </div>
       </div>
