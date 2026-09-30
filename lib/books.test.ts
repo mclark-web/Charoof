@@ -169,8 +169,12 @@ describe("sector books", () => {
     const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
     assert.match(
       css,
-      /\.board-table tbody tr \{\s*content-visibility: auto;\s*contain-intrinsic-size: auto 88px;\s*\}\s*@media \(max-width: 800px\) \{\s*\.board-table tbody tr \{ contain-intrinsic-size: auto 300px; \}\s*\}/,
+      /\.board-table tbody tr \{\s*content-visibility: auto;\s*contain-intrinsic-size: auto 88px;\s*\}\s*\.game-date \{ white-space: nowrap; \}\s*@media \(max-width: 800px\) \{\s*\.board-table tbody tr \{\s*content-visibility: visible;\s*contain-intrinsic-size: auto 300px;\s*\}\s*\}/,
     );
+    assert.match(book.hero.hint, /WIN, LOSS, PUSH, VOID, or Pending/);
+    assert.match(book.sections[0]?.note ?? "", /The pill says Pending/);
+    const verified = book.sections.find((section) => section.id === "verified-cards");
+    assert.match(verified?.note ?? "", /WIN, LOSS, PUSH, or VOID/);
     assert.equal(book.sections.at(-1)?.id, "sports-demo");
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");

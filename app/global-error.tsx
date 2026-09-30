@@ -11,6 +11,9 @@ export default function GlobalError({
 }) {
   return (
     <html lang="en">
+      <head>
+        <title>This board failed to load · GradedCalls</title>
+      </head>
       <body>
         <header className="topbar">
           <div className="topbar-inner">
@@ -25,6 +28,13 @@ export default function GlobalError({
               <button type="button" className="btn" onClick={() => reset()}>
                 Try again
               </button>
+            </p>
+            <p>
+              {/* The root layout failed, so this is a full navigation, not a client transition. */}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a className="hit-44" href="/" title="Hub">
+                Hub
+              </a>
             </p>
           </section>
         </main>

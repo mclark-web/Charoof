@@ -95,7 +95,7 @@ export default function MethodPage() {
         <div className="step">
           <div className="n">01</div>
           <h4>Result</h4>
-          <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or PENDING. None of those fills a GC tube.</p>
+          <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or Pending. None of those fills a GC tube.</p>
         </div>
         <div className="step">
           <div className="n">02</div>
