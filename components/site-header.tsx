@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { BrandMark } from "@/components/brand-mark";
+import { LogoLink } from "@/components/logo-link";
 
 const NAV = [
   { href: "/", label: "Hub" },
@@ -93,12 +93,7 @@ export function SiteHeader() {
   return (
     <header className="topbar">
       <div className="topbar-inner">
-        <Link className="brand" href="/" aria-label="GradedCalls home">
-          <BrandMark />
-          <div className="brand-name">
-            Graded<span>Calls</span>
-          </div>
-        </Link>
+        <LogoLink />
         <nav ref={navRef} className="nav" aria-label="Primary">
           <div ref={measureRef} className="nav-measure" aria-hidden="true">
             {NAV.map((item) => (
