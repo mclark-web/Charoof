@@ -1616,6 +1616,9 @@ input[type="range"].gc-range::-moz-range-thumb {
   content-visibility: auto;
   contain-intrinsic-size: auto 88px;
 }
+@media (max-width: 800px) {
+  .board-table tbody tr { contain-intrinsic-size: auto 300px; }
+}
 .tube-cell { min-width: 220px; }
 .board-table td[data-label]::before { content: none; }
 .lane-note { margin-top: 22px; padding: 22px 24px; }

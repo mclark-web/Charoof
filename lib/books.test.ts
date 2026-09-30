@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   fridayPickRows,
@@ -48,10 +49,18 @@ describe("recovered sports ledger", () => {
     }
     assert.doesNotMatch(titles, /The Commish/);
     assert.doesNotMatch(titles, /Real Madrid/);
-    const steelers = rows.find((row) => row.title.includes("Steelers"));
+    const steelers = rows.find((row) => row.detail.includes("Pittsburgh Steelers @ New England Patriots"));
+    assert.match(steelers?.detail ?? "", /game September 20, 2026/);
     assert.equal(steelers?.sample, "Loss");
     assert.equal(steelers?.result, "LOSS");
     assert.equal(steelers?.fill, null);
+    const chiefs = rows.findIndex(
+      (row) => row.title.includes("Kansas City Chiefs −6.5") && row.detail.includes("2026-09-16 09:36 ET"),
+    );
+    const updatedSteelers = rows.findIndex((row) =>
+      row.detail.includes("Pittsburgh Steelers @ New England Patriots"),
+    );
+    assert.ok(updatedSteelers >= 0 && chiefs > updatedSteelers);
     const saints = rows.find((row) => row.detail.includes("Saints @ Baltimore"));
     assert.equal(saints?.sample, "Win");
     assert.equal(saints?.result, "WIN");
@@ -156,11 +165,19 @@ describe("sector books", () => {
       /Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days; this overrides every band: STRONG, WEAK, and EXIT LIQUIDITY\./,
     );
     assert.doesNotMatch(cappers?.note ?? "", /newest public card/);
+    const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+    assert.match(
+      css,
+      /\.board-table tbody tr \{\s*content-visibility: auto;\s*contain-intrinsic-size: auto 88px;\s*\}\s*@media \(max-width: 800px\) \{\s*\.board-table tbody tr \{ contain-intrinsic-size: auto 300px; \}\s*\}/,
+    );
     assert.equal(book.sections.at(-1)?.id, "sports-demo");
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");
     if (book.hero.kind === "tube") {
       assert.equal(book.hero.card, "268 public picks · 129–97 · 2 void · 40 pending");
+      assert.doesNotMatch(book.hero.hint, /129–97/);
+      assert.doesNotMatch(book.hero.hint, /\d+ void/);
+      assert.doesNotMatch(book.hero.hint, /\d+ pending/);
     }
     assert.doesNotMatch(visibleText(book), BANNED);
   });

@@ -102,6 +102,12 @@ describe("open picks stay pending", () => {
       assert.doesNotMatch(row.detail, /Final /);
       assert.notEqual(row.result, "LOSS");
     }
+    const hatfield = open.find((pick) => pick.source_url.includes("red-sox-vs-yankees"));
+    assert.equal(hatfield?.posted_at, "2026-09-30 14:23 ET");
+    assert.equal(hatfield?.number, 6.5);
+    const cordell = open.find((pick) => pick.source_url.includes("white-sox-vs-astros"));
+    assert.equal(cordell?.posted_at, "2026-09-30 14:48 ET");
+    assert.equal(cordell?.side, "Houston Astros");
     const logan = open.filter(
       (pick) => pick.tipster.startsWith("Jason Logan") && pick.source_url.includes("picks-and-predictions-week-4"),
     );
