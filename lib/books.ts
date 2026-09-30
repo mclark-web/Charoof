@@ -14,6 +14,7 @@ import {
   PROVISIONAL_SAMPLE_NOTE,
 } from "@/lib/recency";
 import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
+import { boardPrice } from "@/lib/sports-grade";
 
 export type BoardLane = "Demo" | "Verified" | "Unverified" | "Seeded";
 
@@ -113,13 +114,14 @@ function signedNumber(value: number): string {
 }
 
 function verifiedSelection(pick: VerifiedPick): string {
-  if (pick.market === "spread" || pick.market === "run_line") {
+  const market = pick.market;
+  if (market === "spread" || market === "run_line" || market.startsWith("spread")) {
     return pick.number == null ? pick.side : `${pick.side} ${signedNumber(pick.number)}`;
   }
-  if (pick.market === "total" || pick.market === "total_goals") {
+  if (market === "total" || market === "total_goals" || market.includes("total")) {
     return pick.number == null ? pick.side : `${pick.side} ${pick.number}`;
   }
-  if (pick.market === "moneyline") return `${pick.side} moneyline`;
+  if (market === "moneyline" || market.startsWith("moneyline")) return `${pick.side} moneyline`;
   return pick.side;
 }
 
@@ -159,12 +161,13 @@ const UNCONFIRMED_SOURCE_NOTE =
 
 function verifiedBoardRow(pick: VerifiedPick, index: number, unconfirmed: boolean): BoardRow {
   const outcome = asOutcome(pick.result, pick.event);
-  const price = pick.price ? ` · price ${pick.price}` : "";
+  const price = pick.price ? ` · price ${pick.price}` : ` · unit price ${boardPrice(pick.price)}`;
+  const score = pick.game_final ? `Final ${pick.final_score}` : "Not final";
   const row = outcomeRow({
     id: unconfirmed ? `unconfirmed-${index}` : `verified-${index}`,
     lane: unconfirmed ? "Unverified" : "Verified",
     title: `${pick.tipster} · ${verifiedSelection(pick)}`,
-    detail: `${pick.sport} · ${pick.event} · Final ${pick.final_score}${price} · posted ${pick.posted_at}${
+    detail: `${pick.sport} · ${pick.event} · ${score}${price} · posted ${pick.posted_at}${
       unconfirmed ? `. ${UNCONFIRMED_SOURCE_NOTE}` : ""
     }`,
     outcome,
@@ -397,8 +400,8 @@ function sportsBook(sector: Sector): SectorBook {
     hero: {
       kind: "tube",
       fill,
-      card: `${counts.win + counts.loss + counts.push + counts.void} public picks · ${record}`,
-      hint: `Decisive win rate on the timed public book, including the Fri Sep 18 archive. ${record} on wins and losses${counts.void ? `, ${counts.void} void kept out of the fill` : ""}. ${unconfirmed.length} cards with no publish time stay out of this record. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, or PENDING. Capper cards use the recency blend.`,
+      card: `${counts.win + counts.loss + counts.push + counts.void + counts.pending} public picks · ${record}${counts.pending ? ` · ${counts.pending} pending` : ""}`,
+      hint: `Decisive win rate on the timed public book, including the Fri Sep 18 archive. ${record} on wins and losses${counts.void ? `, ${counts.void} void kept out of the fill` : ""}${counts.pending ? `. ${counts.pending} open cards stay PENDING and out of the rate` : ""}. ${unconfirmed.length} cards with no publish time stay out of this record. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, or PENDING. Capper cards use the recency blend.`,
     },
     liveHref: null,
     liveLabel: null,
@@ -406,7 +409,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "verified-cards",
         label: "Verified lane",
-        note: `${verified.length} public free picks with a recorded clock time, recovered from data/verified-picks.json. Each card shows WIN, LOSS, PUSH, or PENDING. It does not get a GC grade. Graded on the public finals stored with each card. No paid odds API.`,
+        note: `${verified.length} public free picks with a recorded clock time, recovered from data/verified-picks.json. Each card shows WIN, LOSS, PUSH, or PENDING. It does not get a GC grade. Graded on the public finals stored with each card. A card with no American price uses even money (${boardPrice(null)}) for unit math. The result itself is the line. No paid odds API.`,
         rows: verified,
       },
       {

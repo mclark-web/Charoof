@@ -40,19 +40,19 @@ describe("recovered sports ledger", () => {
 
   it("fills the verified lane with the timed public cards", () => {
     const rows = verifiedPickRows();
-    assert.equal(rows.length, 10);
+    assert.equal(rows.length, 254);
     assert.ok(rows.every((row) => row.lane === "Verified"));
     const titles = rows.map((row) => row.title).join("\n");
-    for (const name of ["Jason Logan", "Chris Hatfield", "Todd Cordell", "Chris Bennett", "Rob Paul"]) {
+    for (const name of ["Jason Logan", "Chris Hatfield", "Todd Cordell", "Chris Bennett", "Rob Paul", "Quinn Allen"]) {
       assert.match(titles, new RegExp(name));
     }
-    assert.doesNotMatch(titles, /Packers/);
+    assert.doesNotMatch(titles, /The Commish/);
     assert.doesNotMatch(titles, /Real Madrid/);
     const steelers = rows.find((row) => row.title.includes("Steelers"));
     assert.equal(steelers?.sample, "Loss");
     assert.equal(steelers?.result, "LOSS");
     assert.equal(steelers?.fill, null);
-    const saints = rows.find((row) => row.detail.includes("Saints"));
+    const saints = rows.find((row) => row.detail.includes("Saints @ Baltimore"));
     assert.equal(saints?.sample, "Win");
     assert.equal(saints?.result, "WIN");
     const bennett = rows.find((row) => row.title.includes("Chris Bennett"));
@@ -95,20 +95,33 @@ describe("recovered sports ledger", () => {
   it("keeps the joint Bennett / Paul card separate from Rob Paul's Friday card", () => {
     const rows = publicCapperRows("2026-09-24");
     assert.ok(rows.some((row) => row.title.includes("Chris Bennett")));
+    const joint = rows.find((row) => row.title.includes("Chris Bennett"));
+    assert.equal(joint?.sample, "n = 1");
+    assert.notEqual(joint?.title, "Rob Paul");
     const rob = rows.find((row) => row.title === "Rob Paul");
     assert.ok(rob);
-    assert.equal(rob?.sample, "n = 3");
-    assert.equal(rob?.windows, "1W 1–2 · 2W 1–2 · 1M 1–2 · 3M 1–2");
-    assert.equal(rob?.fill, 100 / 3);
-    assert.equal(gradeForFill(rob?.fill ?? 0).name, "WEAK");
+    assert.equal(rob?.sample, "n = 23");
+    assert.equal(rob?.windows, "1W 8–4 · 2W 8–4 · 1M 8–4 · 3M 8–4");
+    assert.equal(rob?.fill, 200 / 3);
+    assert.equal(gradeForFill(rob?.fill ?? 0).name, "PROVISIONAL");
     assert.equal(rob?.gradeName, "PROVISIONAL");
-    assert.equal(rob?.sampleNote, PROVISIONAL_SAMPLE_NOTE);
+    assert.equal(rob?.sampleNote, undefined);
     const logan = rows.find((row) => row.title === "Jason Logan");
-    assert.equal(logan?.detail, "5 public picks · 2–3");
-    assert.equal(logan?.windows, "1W 0–0 · 2W 2–3 · 1M 2–3 · 3M 2–3");
-    assert.equal(logan?.fill, 40);
+    assert.equal(logan?.detail, "37 public picks · 12–12");
+    assert.equal(logan?.windows, "1W 6–4 · 2W 11–10 · 1M 11–10 · 3M 11–10");
+    assert.equal(logan?.sample, "n = 24");
+    assert.equal(logan?.fill, 55.42857142857143);
     assert.equal(logan?.gradeName, "PROVISIONAL");
-    assert.equal(logan?.sampleNote, PROVISIONAL_SAMPLE_NOTE);
+    assert.equal(logan?.sampleNote, undefined);
+    const cordell = rows.find((row) => row.title === "Todd Cordell");
+    assert.equal(cordell?.sample, "n = 34");
+    assert.equal(cordell?.gradeName, "STRONG");
+    assert.equal(cordell?.sampleNote, undefined);
+    const inglis = publicCapperRows("2026-09-30").find((row) => row.title === "Josh Inglis");
+    assert.equal(inglis?.sample, "n = 6");
+    assert.ok((inglis?.fill ?? 0) >= 70);
+    assert.equal(inglis?.gradeName, "PROVISIONAL");
+    assert.equal(inglis?.sampleNote, PROVISIONAL_SAMPLE_NOTE);
     const commish = rows.find((row) => row.title === "The Commish");
     assert.equal(commish?.detail, "6 public picks · 3–1 · 2 void");
     assert.equal(commish?.windows, "1W 3–1 · 2W 3–1 · 1M 3–1 · 3M 3–1");
@@ -126,7 +139,7 @@ describe("sector books", () => {
   it("shows verified sports rows before the demo fixtures", () => {
     const book = sectorBook("sports");
     assert.equal(book.sections[0]?.id, "verified-cards");
-    assert.equal(book.sections[0]?.rows.length, 10);
+    assert.equal(book.sections[0]?.rows.length, 254);
     assert.equal(book.sections[1]?.id, "post-time-unconfirmed");
     assert.equal(book.sections[1]?.rows.length, 4);
     assert.match(book.sections[1]?.label ?? "", /Post time unconfirmed/);
@@ -170,8 +183,8 @@ describe("sector books", () => {
 
   it("derives hub counts from the restored books", () => {
     const stats = hubStats();
-    assert.equal(stats.sportsCards, 30);
-    assert.equal(stats.sportsRecord, "18–10");
+    assert.equal(stats.sportsCards, 274);
+    assert.equal(stats.sportsRecord, "133–98");
     assert.equal(stats.sportsVoids, 2);
     assert.equal(stats.analysts, 35);
     assert.equal(stats.banks, 14);
