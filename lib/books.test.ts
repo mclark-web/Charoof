@@ -148,9 +148,10 @@ describe("sector books", () => {
   it("shows verified sports rows before the demo fixtures", () => {
     const book = sectorBook("sports");
     assert.equal(book.sections[0]?.id, "open-picks");
-    assert.equal(book.sections[0]?.rows.length, 40);
+    assert.equal(book.sections[0]?.rows.length, 38);
     assert.equal(book.sections[0]?.rows[0]?.result, "PENDING");
-    assert.match(book.sections[0]?.rows[0]?.title ?? "", /Denver Broncos \+2\.5/);
+    assert.match(book.sections[0]?.rows[0]?.title ?? "", /Atlanta Falcons \+2\.5/);
+    assert.match(book.sections[0]?.rows[0]?.detail ?? "", /game October 5, 2026/);
     assert.ok(book.sections[0]?.rows.every((row) => row.result === "PENDING" && row.fill == null));
     assert.equal(book.sections[1]?.id, "verified-cards");
     assert.equal(book.sections[1]?.rows.length, 208);
@@ -174,7 +175,7 @@ describe("sector books", () => {
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");
     if (book.hero.kind === "tube") {
-      assert.equal(book.hero.card, "268 public picks · 129–97 · 2 void · 40 pending");
+      assert.equal(book.hero.card, "266 public picks · 129–97 · 2 void · 38 pending");
       assert.doesNotMatch(book.hero.hint, /129–97/);
       assert.doesNotMatch(book.hero.hint, /\d+ void/);
       assert.doesNotMatch(book.hero.hint, /\d+ pending/);
@@ -209,10 +210,10 @@ describe("sector books", () => {
 
   it("derives hub counts from the restored books", () => {
     const stats = hubStats();
-    assert.equal(stats.sportsCards, 268);
+    assert.equal(stats.sportsCards, 266);
     assert.equal(stats.sportsRecord, "129–97");
     assert.equal(stats.sportsVoids, 2);
-    assert.equal(stats.sportsPending, 40);
+    assert.equal(stats.sportsPending, 38);
     assert.equal(
       stats.sportsCards,
       129 + 97 + stats.sportsVoids + stats.sportsPending,

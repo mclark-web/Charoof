@@ -16,6 +16,7 @@ type StoredPick = {
   final_score: string;
   posted_at: string;
   source_url: string;
+  game_date?: string;
 };
 
 const picks = verifiedPicks as StoredPick[];
@@ -32,10 +33,10 @@ describe("board price rule", () => {
 
 describe("Sep 19–30 verified finals", () => {
   it("keeps 198 graded cards, 111 wins and 87 losses, after the one-hour cutoff", () => {
-    assert.equal(picks.length, 252);
+    assert.equal(picks.length, 250);
     const pending = picks.filter((pick) => pick.result === "pending").length;
     const added = picks.length - 14 - pending;
-    assert.equal(pending, 40);
+    assert.equal(pending, 38);
     assert.equal(added, 198);
     assert.equal(picks.filter((pick) => pick.result === "win").length, 120);
     assert.equal(picks.filter((pick) => pick.result === "loss").length, 92);
@@ -90,10 +91,17 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 40);
+    assert.equal(open.length, 38);
+    const falcons = open.filter((pick) => pick.event.includes("Falcons") && pick.event.includes("Saints"));
+    assert.equal(falcons.length, 2);
+    assert.ok(falcons.every((pick) => pick.game_date === "2026-10-05"));
+    assert.equal(
+      open.some((pick) => pick.event.includes("Phillies") && /Quinn Allen|Jon Metler/.test(pick.tipster)),
+      false,
+    );
     assert.ok(open.every((pick) => pick.game_final === false && pick.final_score === "Not final"));
     const rows = openPickRows();
-    assert.equal(rows.length, 40);
+    assert.equal(rows.length, 38);
     assert.equal(verifiedPickRows().some((row) => row.result === "PENDING"), false);
     for (const row of rows) {
       assert.equal(row.sample, "Open");
