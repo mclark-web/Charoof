@@ -7,10 +7,26 @@ import { gradeForBlendedFill } from "@/lib/recency";
 const RESULT_TEXT: Record<ResultPill, string> = {
   WIN: "✓ WIN",
   LOSS: "✗ LOSS",
-  PUSH: "Push",
-  VOID: "Void",
+  PUSH: "PUSH",
+  VOID: "VOID",
   PENDING: "Pending",
 };
+
+const GAME_DATE = /game [A-Z][a-z]+ \d{1,2}, \d{4}/;
+
+function RowDetail({ detail }: { detail: string }) {
+  const match = GAME_DATE.exec(detail);
+  if (!match || match.index === undefined) return detail;
+  const start = match.index;
+  const end = start + match[0].length;
+  return (
+    <>
+      {detail.slice(0, start)}
+      <span className="game-date">{match[0]}</span>
+      {detail.slice(end)}
+    </>
+  );
+}
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
@@ -85,7 +101,9 @@ function BoardTable({ section }: { section: BoardSection }) {
               <tr key={row.id}>
                 <td data-label="Call">
                   <div>{row.title}</div>
-                  <div className="dim">{row.detail}</div>
+                  <div className="dim">
+                    <RowDetail detail={row.detail} />
+                  </div>
                   {row.windows ? <div className="window-record">{row.windows}</div> : null}
                   {row.sampleNote ? <div className="sample-note">{row.sampleNote}</div> : null}
                   <RowLinks row={row} />

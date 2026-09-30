@@ -74,7 +74,7 @@ export function GcScaleView() {
               <h3>Grade</h3>
               <p>
                 A source’s or capper’s GC Scale score is STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY. An individual
-                pick gets a result word — WIN, LOSS, PUSH, VOID, or PENDING — which is not a grade.
+                pick gets a result word — WIN, LOSS, PUSH, VOID, or Pending — which is not a grade.
               </p>
             </div>
             <div className="card">
@@ -143,7 +143,7 @@ export function GcScaleView() {
           shows PROVISIONAL with no score.
         </p>
         <p className="sub">
-          On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or PENDING — not a grade. A capper’s
+          On Sports, a single pick shows a result word — WIN, LOSS, PUSH, VOID, or Pending — not a grade. A capper’s
           GC score is the win percentage over the last 7, 14, 30, and 90 days — labeled 1W, 2W, 1M, and 3M — weighted
           40 / 30 / 20 / 10. Pushes are excluded. A window with no decided picks is dropped and the remaining weights
           are renormalized. If every window is empty, the capper is PROVISIONAL and the card shows no score.{" "}
@@ -155,7 +155,7 @@ export function GcScaleView() {
       </section>
 
       <div className="section-label">Calibration examples</div>
-      <div className="scale-row">
+      <div className="scale-row scale-examples">
         {EXAMPLES.map((example) => (
           <div className="panel scale-card" key={example.fill}>
             <GcTube fill={example.fill} rich label="GC Scale" />

@@ -446,7 +446,7 @@ function sportsBook(sector: Sector): SectorBook {
       kind: "tube",
       fill,
       card: publicLedgerLine(counts),
-      hint: `Decisive win rate on the timed public book, including the Fri Sep 18 archive. Voids and pending stay out of the rate. ${unconfirmed.length} cards with no publish time stay out of this record. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, or Pending. Capper cards use the recency blend.`,
+      hint: `Decisive win rate on the timed public book, including the Fri Sep 18 archive. Voids and pending stay out of the rate. ${unconfirmed.length} cards with no publish time stay out of this record. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, VOID, or Pending. Capper cards use the recency blend.`,
     },
     liveHref: null,
     liveLabel: null,
@@ -460,7 +460,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "verified-cards",
         label: "Verified lane",
-        note: `${verified.length} graded public free picks with a recorded clock time, newest game date first, recovered from data/verified-picks.json. Each card shows WIN, LOSS, or PUSH. It does not get a GC grade. Graded on the public finals stored with each card. A card with no American price uses even money (${boardPrice(null)}) for unit math. The result itself is the line. No paid odds API.`,
+        note: `${verified.length} graded public free picks with a recorded clock time, newest game date first, recovered from data/verified-picks.json. Each card shows WIN, LOSS, PUSH, or VOID. It does not get a GC grade. Graded on the public finals stored with each card. A card with no American price uses even money (${boardPrice(null)}) for unit math. The result itself is the line. No paid odds API.`,
         rows: verified,
       },
       {
