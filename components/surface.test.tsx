@@ -55,12 +55,15 @@ describe("sports row chrome", () => {
     );
     assert.match(html, /<span class="game-date">game October 5, 2026<\/span>/);
     assert.match(html, /result-pill pending">Pending</);
-    assert.match(html, /result-pill push">PUSH</);
-    assert.match(html, /result-pill void">VOID</);
+    assert.match(html, /result-pill push">Push</);
+    assert.match(html, /result-pill void">Void</);
     const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
     assert.match(css, /\.game-date \{ white-space: nowrap; \}/);
     assert.match(css, /\.result-pill\.void,\s*\.result-pill\.push,\s*\.result-pill\.pending \{[^}]*font-weight: 650;/);
-    assert.match(css, /\.result-pill\.pending \{\s*text-transform: none;\s*\}/);
+    assert.match(
+      css,
+      /\.result-pill\.void,\s*\.result-pill\.push,\s*\.result-pill\.pending \{\s*text-transform: none;\s*\}/,
+    );
   });
 });
 

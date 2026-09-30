@@ -7,8 +7,8 @@ import { gradeForBlendedFill } from "@/lib/recency";
 const RESULT_TEXT: Record<ResultPill, string> = {
   WIN: "✓ WIN",
   LOSS: "✗ LOSS",
-  PUSH: "PUSH",
-  VOID: "VOID",
+  PUSH: "Push",
+  VOID: "Void",
   PENDING: "Pending",
 };
 
