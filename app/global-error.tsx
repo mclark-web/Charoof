@@ -4,10 +4,10 @@ import { LogoLink } from "@/components/logo-link";
 import "./globals.css";
 
 export default function GlobalError({
-  retry,
+  reset,
 }: {
   error: Error & { digest?: string };
-  retry: () => void;
+  reset: () => void;
 }) {
   return (
     <html lang="en">
@@ -22,7 +22,7 @@ export default function GlobalError({
             <h1>This board failed to load</h1>
             <p>The page hit an error before it could finish.</p>
             <p>
-              <button type="button" className="btn" onClick={() => retry()}>
+              <button type="button" className="btn" onClick={() => reset()}>
                 Try again
               </button>
             </p>
