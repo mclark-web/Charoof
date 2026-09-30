@@ -140,6 +140,7 @@ export function SectorBoard({ book }: { book: SectorBook }) {
               <div className="hint">{hero.card}</div>
             </div>
           )}
+          {hero.kind === "tube" ? <p className="ledger-line">{hero.card}</p> : null}
           <p className="hint">{hero.hint}</p>
         </div>
       </section>

@@ -40,7 +40,7 @@ describe("recovered sports ledger", () => {
 
   it("fills the verified lane with the timed public cards", () => {
     const rows = verifiedPickRows();
-    assert.equal(rows.length, 254);
+    assert.equal(rows.length, 208);
     assert.ok(rows.every((row) => row.lane === "Verified"));
     const titles = rows.map((row) => row.title).join("\n");
     for (const name of ["Jason Logan", "Chris Hatfield", "Todd Cordell", "Chris Bennett", "Rob Paul", "Quinn Allen"]) {
@@ -138,11 +138,17 @@ describe("recovered sports ledger", () => {
 describe("sector books", () => {
   it("shows verified sports rows before the demo fixtures", () => {
     const book = sectorBook("sports");
-    assert.equal(book.sections[0]?.id, "verified-cards");
-    assert.equal(book.sections[0]?.rows.length, 254);
-    assert.equal(book.sections[1]?.id, "post-time-unconfirmed");
-    assert.equal(book.sections[1]?.rows.length, 4);
-    assert.match(book.sections[1]?.label ?? "", /Post time unconfirmed/);
+    assert.equal(book.sections[0]?.id, "open-picks");
+    assert.equal(book.sections[0]?.rows.length, 40);
+    assert.equal(book.sections[0]?.rows[0]?.result, "PENDING");
+    assert.match(book.sections[0]?.rows[0]?.title ?? "", /Denver Broncos \+2\.5/);
+    assert.ok(book.sections[0]?.rows.every((row) => row.result === "PENDING" && row.fill == null));
+    assert.equal(book.sections[1]?.id, "verified-cards");
+    assert.equal(book.sections[1]?.rows.length, 208);
+    assert.ok(book.sections[1]?.rows.every((row) => row.result !== "PENDING"));
+    assert.equal(book.sections[2]?.id, "post-time-unconfirmed");
+    assert.equal(book.sections[2]?.rows.length, 4);
+    assert.match(book.sections[2]?.label ?? "", /Post time unconfirmed/);
     const cappers = book.sections.find((section) => section.id === "public-cappers");
     assert.match(cappers?.note ?? "", new RegExp(`as of ${formatNewYorkDate(newYorkToday())}`));
     assert.match(
@@ -153,6 +159,9 @@ describe("sector books", () => {
     assert.equal(book.sections.at(-1)?.id, "sports-demo");
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");
+    if (book.hero.kind === "tube") {
+      assert.equal(book.hero.card, "268 public picks · 129–97 · 2 void · 40 pending");
+    }
     assert.doesNotMatch(visibleText(book), BANNED);
   });
 
@@ -183,9 +192,14 @@ describe("sector books", () => {
 
   it("derives hub counts from the restored books", () => {
     const stats = hubStats();
-    assert.equal(stats.sportsCards, 274);
-    assert.equal(stats.sportsRecord, "133–98");
+    assert.equal(stats.sportsCards, 268);
+    assert.equal(stats.sportsRecord, "129–97");
     assert.equal(stats.sportsVoids, 2);
+    assert.equal(stats.sportsPending, 40);
+    assert.equal(
+      stats.sportsCards,
+      129 + 97 + stats.sportsVoids + stats.sportsPending,
+    );
     assert.equal(stats.analysts, 35);
     assert.equal(stats.banks, 14);
     assert.equal(stats.fintwitPosts, 95);
