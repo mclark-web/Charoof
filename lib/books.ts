@@ -14,6 +14,7 @@ import {
   PROVISIONAL_SAMPLE_NOTE,
 } from "@/lib/recency";
 import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
+import { boardPrice } from "@/lib/sports-grade";
 
 export type BoardLane = "Demo" | "Verified" | "Unverified" | "Seeded";
 
@@ -65,6 +66,8 @@ type VerifiedPick = {
   number: number | null;
   price: string | null;
   posted_at: string;
+  /** America/New_York calendar date of the game, YYYY-MM-DD. */
+  game_date?: string;
   source_url: string;
   game_final: boolean;
   result: string;
@@ -113,13 +116,14 @@ function signedNumber(value: number): string {
 }
 
 function verifiedSelection(pick: VerifiedPick): string {
-  if (pick.market === "spread" || pick.market === "run_line") {
+  const market = pick.market;
+  if (market === "spread" || market === "run_line" || market.startsWith("spread")) {
     return pick.number == null ? pick.side : `${pick.side} ${signedNumber(pick.number)}`;
   }
-  if (pick.market === "total" || pick.market === "total_goals") {
+  if (market === "total" || market === "total_goals" || market.includes("total")) {
     return pick.number == null ? pick.side : `${pick.side} ${pick.number}`;
   }
-  if (pick.market === "moneyline") return `${pick.side} moneyline`;
+  if (market === "moneyline" || market.startsWith("moneyline")) return `${pick.side} moneyline`;
   return pick.side;
 }
 
@@ -149,6 +153,37 @@ function tally(outcomes: Outcome[]) {
   return counts;
 }
 
+/** Headline parts a reader can add: wins, losses, pushes, voids, and pending. */
+export function publicLedgerLine(counts: ReturnType<typeof tally>): string {
+  const total = counts.win + counts.loss + counts.push + counts.void + counts.pending;
+  return `${total} public picks · ${recordLabel(counts.win, counts.loss, counts.push)} · ${counts.void} void · ${counts.pending} pending`;
+}
+
+function gameDateKey(pick: VerifiedPick): string {
+  if (pick.game_date) return pick.game_date;
+  const match = /(\d{4}-\d{2}-\d{2})/.exec(pick.posted_at);
+  return match?.[1] ?? "";
+}
+
+/**
+ * Comparable ET wall time. A later "updated" clock wins over the first date in
+ * the string, so "~ updated" does not sort by character order.
+ */
+function postedSortKey(value: string): number {
+  const updated = /updated\s+(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2}))?/.exec(value);
+  const stamp = updated ?? /(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}:\d{2}))?/.exec(value);
+  if (!stamp) return 0;
+  const [year, month, day] = stamp[1].split("-").map(Number);
+  const [hour, minute] = (stamp[2] ?? "0:0").split(":").map(Number);
+  return Date.UTC(year, month - 1, day, hour, minute);
+}
+
+function byNewestGame(a: VerifiedPick, b: VerifiedPick): number {
+  const date = gameDateKey(b).localeCompare(gameDateKey(a));
+  if (date !== 0) return date;
+  return postedSortKey(b.posted_at) - postedSortKey(a.posted_at);
+}
+
 /** A calendar date with no clock time cannot prove the post went up before kickoff. */
 export function postTimeUnconfirmed(postedAt: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(postedAt.trim());
@@ -159,12 +194,14 @@ const UNCONFIRMED_SOURCE_NOTE =
 
 function verifiedBoardRow(pick: VerifiedPick, index: number, unconfirmed: boolean): BoardRow {
   const outcome = asOutcome(pick.result, pick.event);
-  const price = pick.price ? ` · price ${pick.price}` : "";
+  const price = pick.price ? ` · price ${pick.price}` : ` · unit price ${boardPrice(pick.price)}`;
+  const score = pick.game_final ? `Final ${pick.final_score}` : "Not final";
+  const game = pick.game_date ? `game ${formatNewYorkDate(pick.game_date)} · ` : "";
   const row = outcomeRow({
     id: unconfirmed ? `unconfirmed-${index}` : `verified-${index}`,
     lane: unconfirmed ? "Unverified" : "Verified",
     title: `${pick.tipster} · ${verifiedSelection(pick)}`,
-    detail: `${pick.sport} · ${pick.event} · Final ${pick.final_score}${price} · posted ${pick.posted_at}${
+    detail: `${pick.sport} · ${pick.event} · ${game}${score}${price} · posted ${pick.posted_at}${
       unconfirmed ? `. ${UNCONFIRMED_SOURCE_NOTE}` : ""
     }`,
     outcome,
@@ -174,11 +211,22 @@ function verifiedBoardRow(pick: VerifiedPick, index: number, unconfirmed: boolea
   return row;
 }
 
-export function verifiedPickRows(): BoardRow[] {
+function timedPickRows(pending: boolean): BoardRow[] {
   return (verifiedPicks as VerifiedPick[])
     .map((pick, index) => ({ pick, index }))
-    .filter(({ pick }) => !postTimeUnconfirmed(pick.posted_at))
+    .filter(({ pick }) => !postTimeUnconfirmed(pick.posted_at) && (pick.result === "pending") === pending)
+    .sort((a, b) => byNewestGame(a.pick, b.pick))
     .map(({ pick, index }) => verifiedBoardRow(pick, index, false));
+}
+
+/** Graded timed cards. Pending cards stay in openPickRows. */
+export function verifiedPickRows(): BoardRow[] {
+  return timedPickRows(false);
+}
+
+/** Games that are not final. The pill is Pending, which is a status, not a grade. */
+export function openPickRows(): BoardRow[] {
+  return timedPickRows(true);
 }
 
 export function unconfirmedPickRows(): BoardRow[] {
@@ -387,8 +435,8 @@ function fixtureRow(row: Fixture): BoardRow {
 function sportsBook(sector: Sector): SectorBook {
   const counts = tally(sportsOutcomes());
   const fill = hitFill(counts.win, counts.loss);
-  const record = recordLabel(counts.win, counts.loss, counts.push);
   const verified = verifiedPickRows();
+  const open = openPickRows();
   const unconfirmed = unconfirmedPickRows();
   const asOfDate = newYorkToday();
   const asOfLabel = formatNewYorkDate(asOfDate);
@@ -397,16 +445,22 @@ function sportsBook(sector: Sector): SectorBook {
     hero: {
       kind: "tube",
       fill,
-      card: `${counts.win + counts.loss + counts.push + counts.void} public picks · ${record}`,
-      hint: `Decisive win rate on the timed public book, including the Fri Sep 18 archive. ${record} on wins and losses${counts.void ? `, ${counts.void} void kept out of the fill` : ""}. ${unconfirmed.length} cards with no publish time stay out of this record. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, or PENDING. Capper cards use the recency blend.`,
+      card: publicLedgerLine(counts),
+      hint: `Decisive win rate on the timed public book, including the Fri Sep 18 archive. Voids and pending stay out of the rate. ${unconfirmed.length} cards with no publish time stay out of this record. Pushes stay out of the rate. A single pick shows WIN, LOSS, PUSH, or Pending. Capper cards use the recency blend.`,
     },
     liveHref: null,
     liveLabel: null,
     sections: [
       {
+        id: "open-picks",
+        label: "Open picks",
+        note: `${open.length} picks whose games are not final, newest game date first. The pill says Pending. That is a status, not a grade, so these rows stay charcoal: no green, no rose, no GC tube, no 0% fill, and no EXIT LIQUIDITY. They stay out of the win rate until an official final is on the card.`,
+        rows: open,
+      },
+      {
         id: "verified-cards",
         label: "Verified lane",
-        note: `${verified.length} public free picks with a recorded clock time, recovered from data/verified-picks.json. Each card shows WIN, LOSS, PUSH, or PENDING. It does not get a GC grade. Graded on the public finals stored with each card. No paid odds API.`,
+        note: `${verified.length} graded public free picks with a recorded clock time, newest game date first, recovered from data/verified-picks.json. Each card shows WIN, LOSS, or PUSH. It does not get a GC grade. Graded on the public finals stored with each card. A card with no American price uses even money (${boardPrice(null)}) for unit math. The result itself is the line. No paid odds API.`,
         rows: verified,
       },
       {
@@ -553,6 +607,7 @@ export function hubStats() {
     sportsCards,
     sportsRecord: recordLabel(sports.win, sports.loss, sports.push),
     sportsVoids: sports.void,
+    sportsPending: sports.pending,
     sportsHitFill: hitFill(sports.win, sports.loss),
     analysts: analystRoster.analysts.length,
     banks: analystRoster.banks.length,

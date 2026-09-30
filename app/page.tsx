@@ -1,4 +1,6 @@
 import Link from "next/link";
+
+export const revalidate = 300;
 import { GcTube } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
 import { hubStats, sectorBooks } from "@/lib/books";
@@ -56,8 +58,7 @@ export default function HubPage() {
             <div className="label">Verified sports</div>
             <div className="value">{stats.sportsCards}</div>
             <div className="hint">
-              Public picks · {stats.sportsRecord}
-              {stats.sportsVoids ? ` · ${stats.sportsVoids} void` : ""}
+              Public picks · {stats.sportsRecord} · {stats.sportsVoids} void · {stats.sportsPending} pending
             </div>
           </div>
           <div className="stat">

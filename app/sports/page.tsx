@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { SectorBoard } from "@/components/sector-board";
 import { sectorBook } from "@/lib/books";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Sports",
   description:
