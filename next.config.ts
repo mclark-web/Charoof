@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       { source: "/sign-in", destination: "/", permanent: true },
       { source: "/gc-scale", destination: "/method#gc-scale", permanent: true },
       { source: "/methodology", destination: "/method", permanent: true },
+      { source: "/sports", destination: "/", permanent: true },
     ];
   },
 };

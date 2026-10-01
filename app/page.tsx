@@ -2,17 +2,19 @@ import Link from "next/link";
 
 export const revalidate = 300;
 import { GcTube } from "@/components/gc-tube";
-import { SectorCard } from "@/components/sector-board";
-import { hubStats, sectorBooks } from "@/lib/books";
+import { SectorBoard, SectorCard } from "@/components/sector-board";
+import { sectorBooks } from "@/lib/books";
 
 const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days";
 
 export default function HubPage() {
-  const stats = hubStats();
   const books = sectorBooks();
+  const sports = books.find((book) => book.sector.key === "sports");
+  if (!sports) throw new Error("Missing sports book");
+  const others = books.filter((book) => book.sector.key !== "sports");
   return (
     <>
-      <section className="hero">
+      <section className="hero hero-solo">
         <div>
           <div className="chip">Public accountability board</div>
           <h1>
@@ -21,73 +23,19 @@ export default function HubPage() {
             <em>Graded</em> after the outcome.
           </h1>
           <p className="hero-lead">
-            We freeze what people said in public, then grade it against real prices, tape, and final scores — so you
-            can trust a record, not a highlight reel.
+            Sports picks are the record on this hub. We freeze what people said in public, then grade it against real
+            prices, tape, and final scores.
           </p>
-          <div className="hero-actions">
-            <Link className="btn btn-primary" href="/#sectors">
-              Open the boards
-            </Link>
-            <Link className="btn" href="/method">
-              How grading works
-            </Link>
-          </div>
-          <div className="trust-row">
-            <span>
-              <strong>No paid odds APIs</strong> on Sports
-            </span>
-            <span>
-              <strong>Split-adjusted</strong> prices on Analysts
-            </span>
-            <span>
-              <strong>Monday-open</strong> tape on FinTwit
-            </span>
-            <span>
-              <strong>Sample size</strong> shown on every profile
-            </span>
-            <span>
-              <strong>Zero-cost demo</strong> on GCBot
-            </span>
-          </div>
-          <p className="byline">Built for accountability in an age of market FOMO, prediction craze, and loud anonymous voices.</p>
-        </div>
-        <div className="stat-grid">
-          <div className="stat">
-            <div className="label">Verified sports</div>
-            <div className="value">{stats.sportsCards}</div>
-            <div className="hint">
-              Public picks · {stats.sportsRecord} · {stats.sportsVoids} void · {stats.sportsPending} pending
-            </div>
-          </div>
-          <div className="stat">
-            <div className="label">Analyst roster</div>
-            <div className="value">{stats.analysts}</div>
-            <div className="hint">
-              Seeded book · {stats.banks} desks · {stats.tickers} tickers
-            </div>
-          </div>
-          <div className="stat">
-            <div className="label">FinTwit posts</div>
-            <div className="value">{stats.fintwitPosts}</div>
-            <div className="hint">
-              Seeded · Monday open {stats.fintwitRecord} · {stats.fintwitOpen} open
-            </div>
-          </div>
-          <div className="stat">
-            <div className="label">GCBot posts</div>
-            <div className="value">{stats.gcbotPosts}</div>
-            <div className="hint">
-              Fixture corpus · {stats.gcbotNarratives} narratives · {stats.gcbotAccounts} accounts
-            </div>
-          </div>
         </div>
       </section>
+
+      <SectorBoard book={sports} />
 
       <div className="section-label" id="sectors">
         Sectors
       </div>
       <div className="sector-grid">
-        {books.map((book) => (
+        {others.map((book) => (
           <SectorCard key={book.sector.key} book={book} />
         ))}
         <Link className="sector sector-copy" href="/method#gc-scale">

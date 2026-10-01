@@ -190,6 +190,10 @@ tr:hover td { background: rgba(235,101,5,0.04); }
   padding: 48px 0 28px;
   display: grid; grid-template-columns: 1.35fr 1fr; gap: 36px; align-items: end;
 }
+.hero.hero-solo {
+  grid-template-columns: 1fr;
+  padding: 28px 0 4px;
+}
 .hero h1 {
   font-size: 44px; line-height: 1.08; letter-spacing: -0.03em; font-weight: 680;
   max-width: 14ch;
@@ -1338,6 +1342,52 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
   padding: 40px 0 12px;
   display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 36px; align-items: center;
 }
+.record-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 28px;
+  align-items: center;
+  margin-top: 8px;
+}
+.record-banner {
+  min-width: 0;
+  padding: 16px 18px 18px;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(26, 29, 38, 0.95), rgba(14, 16, 22, 0.95));
+  border: 1px solid var(--line);
+}
+.record-banner .section-label { margin: 0 0 10px; }
+.record-banner .label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.record-banner .ledger-line {
+  margin: 6px 0 0;
+  font-size: 26px;
+  font-weight: 680;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.record-hint {
+  margin: 12px 0 0;
+  max-width: 68ch;
+  font-size: 13.5px;
+  line-height: 1.5;
+  text-align: left;
+  color: var(--muted);
+}
+.record-layout .board-tube { min-width: 0; }
+.record-layout .gc-scale.is-hero { max-width: 100%; }
+.sports-intro { margin-top: 8px; }
+.sports-summary { margin-top: 0; }
+.show-more-row { padding: 4px 16px 16px; }
+.show-more { width: 100%; }
+#record, #sports, #picks, #sectors { scroll-margin-top: 76px; }
 .trust-list { margin-top: 18px; padding-left: 18px; color: var(--dim); font-size: 14px; line-height: 1.6; }
 .table-scroll { max-width: 100%; }
 .board-table tbody tr {
@@ -1404,7 +1454,8 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
   .brand { min-width: 44px; }
   .nav a { white-space: nowrap; }
   .wrap { padding: 0 16px 48px; }
-  .hero, .board-hero, .gc-hero, .method, .method-gc { grid-template-columns: 1fr; }
+  .hero, .board-hero, .gc-hero, .method, .method-gc, .record-layout { grid-template-columns: 1fr; }
+  .record-banner .ledger-line { font-size: 22px; }
   .sector-grid { grid-template-columns: 1fr; }
   .hero h1, .board-hero h1, .gc-hero h1, .prose-panel h1 { font-size: 34px; }
 }

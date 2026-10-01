@@ -1,32 +1,7 @@
 import Link from "next/link";
-import { GcTube, GradePill, tubeIsUngraded } from "@/components/gc-tube";
-import type { BoardRow, BoardSection, SectorBook } from "@/lib/books";
-import type { ResultPill } from "@/lib/outcome";
-import { gradeForBlendedFill } from "@/lib/recency";
-
-const RESULT_TEXT: Record<ResultPill, string> = {
-  WIN: "✓ WIN",
-  LOSS: "✗ LOSS",
-  PUSH: "Push",
-  VOID: "Void",
-  PENDING: "Pending",
-};
-
-const GAME_DATE = /game [A-Z][a-z]+ \d{1,2}, \d{4}/;
-
-function RowDetail({ detail }: { detail: string }) {
-  const match = GAME_DATE.exec(detail);
-  if (!match || match.index === undefined) return detail;
-  const start = match.index;
-  const end = start + match[0].length;
-  return (
-    <>
-      {detail.slice(0, start)}
-      <span className="game-date">{match[0]}</span>
-      {detail.slice(end)}
-    </>
-  );
-}
+import { BoardTable } from "@/components/board-table";
+import { GcTube } from "@/components/gc-tube";
+import type { SectorBook } from "@/lib/books";
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
@@ -66,99 +41,33 @@ export function SectorCard({ book }: { book: SectorBook }) {
   );
 }
 
-function RowLinks({ row }: { row: BoardRow }) {
-  if (!row.href) return null;
-  return (
-    <div>
-      <a className="source-link" href={row.href} target="_blank" rel="noreferrer">
-        Source
-      </a>
-    </div>
-  );
-}
-
-function RowScore({ row }: { row: BoardRow }) {
-  if (row.result) {
-    return <span className={`result-pill ${row.result.toLowerCase()}`}>{RESULT_TEXT[row.result]}</span>;
-  }
-  if (row.fill == null && row.windows) {
-    const grade = gradeForBlendedFill(null);
-    return <GradePill grade={grade.key} name={grade.name} />;
-  }
-  if (row.fill == null) return <span className="dim">On the live ledger</span>;
-  if (tubeIsUngraded(row)) return <GcTube fill={0} variant="inline" rich label="GC" ungraded />;
-  const grade =
-    row.gradeKey && row.gradeName ? { key: row.gradeKey, name: row.gradeName } : undefined;
-  return <GcTube fill={row.fill} variant="inline" rich label="GC" grade={grade} />;
-}
-
-function BoardTable({ section }: { section: BoardSection }) {
-  const resultColumn = section.rows.length > 0 && section.rows.every((row) => row.result);
-  const scoreLabel = resultColumn ? "Result" : "GC";
-  return (
-    <>
-      <div className="section-label">{section.label}</div>
-      <p className="board-note">
-        {section.note}
-        {section.id === "public-cappers" ? (
-          <>
-            {" "}
-            <Link className="hit-44" href="/method#sports-score">
-              How capper scores are built
-            </Link>
-            .
-          </>
-        ) : null}
-      </p>
-      <div className="panel table-scroll">
-        <table className="board-table">
-          <thead>
-            <tr>
-              <th>Call</th>
-              <th>Lane</th>
-              <th>Sample</th>
-              <th>{scoreLabel}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {section.rows.map((row) => (
-              <tr key={row.id}>
-                <td data-label="Call">
-                  <div>{row.title}</div>
-                  <div className="dim">
-                    <RowDetail detail={row.detail} />
-                  </div>
-                  {row.windows ? <div className="window-record">{row.windows}</div> : null}
-                  {row.sampleNote ? <div className="sample-note">{row.sampleNote}</div> : null}
-                  <RowLinks row={row} />
-                </td>
-                <td className="mono" data-label="Lane">
-                  {row.lane === "Unverified" ? "Post time unconfirmed" : row.lane}
-                </td>
-                <td className="mono" data-label="Sample">
-                  {row.sample}
-                </td>
-                <td className="tube-cell" data-label={scoreLabel}>
-                  <RowScore row={row} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  );
-}
-
 export function SectorBoard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
+  const cappers = book.sections.filter((section) => section.id === "public-cappers");
+  const picks = book.sections.filter((section) => section.id !== "public-cappers");
+  const recordFirst = hero.kind === "tube";
   return (
     <>
-      <section className="board-hero">
+      {recordFirst ? (
+        <section className="record-layout" id="record" aria-label="Total record">
+          <div className="record-banner">
+            <div className="section-label" id="sports">
+              Sports
+            </div>
+            <p className="label">Total record</p>
+            <h2 className="ledger-line">{hero.card}</h2>
+            <p className="hint record-hint">{hero.hint}</p>
+          </div>
+          <div className="board-tube">
+            <GcTube fill={hero.fill} variant="hero" rich label="GC Scale" />
+          </div>
+        </section>
+      ) : null}
+      <section className={recordFirst ? "sports-intro" : "board-hero"}>
         <div>
-          <div className="chip">{sector.kicker}</div>
-          <h1>{sector.title}</h1>
-          <p className="hero-lead">{sector.summary}</p>
+          {recordFirst ? null : <div className="chip">{sector.kicker}</div>}
+          {recordFirst ? null : <h1>{sector.title}</h1>}
+          <p className={recordFirst ? "board-note sports-summary" : "hero-lead"}>{sector.summary}</p>
           <ul className="trust-list">
             {sector.trust.map((item) => (
               <li key={item}>{item}</li>
@@ -172,23 +81,25 @@ export function SectorBoard({ book }: { book: SectorBook }) {
             </div>
           ) : null}
         </div>
-        <div className="board-tube">
-          {hero.kind === "tube" ? (
-            <GcTube fill={hero.fill} variant="hero" rich label="GC Scale" />
-          ) : (
+        {recordFirst ? null : hero.kind === "count" ? (
+          <div className="board-tube">
             <div className="count-hero">
               <div className="label">On this hub</div>
               <div className="value">{hero.value}</div>
               <div className="hint">{hero.card}</div>
             </div>
-          )}
-          {hero.kind === "tube" ? <p className="ledger-line">{hero.card}</p> : null}
-          <p className="hint">{hero.hint}</p>
-        </div>
+            <p className="hint">{hero.hint}</p>
+          </div>
+        ) : null}
       </section>
-      {book.sections.map((section) => (
+      {cappers.map((section) => (
         <BoardTable key={section.id} section={section} />
       ))}
+      <div id="picks">
+        {picks.map((section) => (
+          <BoardTable key={section.id} section={section} />
+        ))}
+      </div>
     </>
   );
 }

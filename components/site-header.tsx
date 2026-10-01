@@ -4,18 +4,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LogoLink } from "@/components/logo-link";
+import { LIVE_BOARDS } from "@/lib/sectors";
 
-const NAV = [
+type NavItem = { href: string; label: string; external?: boolean };
+
+const NAV: NavItem[] = [
   { href: "/", label: "Hub" },
-  { href: "/sports", label: "Sports" },
+  ...LIVE_BOARDS.map((board) => ({ href: board.href, label: board.label, external: true })),
   { href: "/method", label: "Method" },
 ];
 
 const COMPACT_QUERY = "(max-width: 820px)";
 
-function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+function isActive(pathname: string, item: NavItem) {
+  if (item.external) return false;
+  if (item.href === "/") return pathname === "/";
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+function NavLink({ item, className, hidden }: { item: NavItem; className?: string; hidden?: boolean }) {
+  if (item.external) {
+    return (
+      <a href={item.href} className={className} hidden={hidden}>
+        {item.label}
+      </a>
+    );
+  }
+  return (
+    <Link href={item.href} className={className} hidden={hidden}>
+      {item.label}
+    </Link>
+  );
 }
 
 export function SiteHeader() {
@@ -101,15 +120,12 @@ export function SiteHeader() {
           {NAV.map((item, index) => {
             const hidden = index >= shownCount;
             return (
-              <Link
+              <NavLink
                 key={item.href}
-                href={item.href}
-                data-nav-item
+                item={item}
                 hidden={hidden}
-                className={isActive(pathname, item.href) ? "active" : undefined}
-              >
-                {item.label}
-              </Link>
+                className={isActive(pathname, item) ? "active" : undefined}
+              />
             );
           })}
         </nav>
@@ -127,9 +143,7 @@ export function SiteHeader() {
           {open ? (
             <div id="nav-more-menu" className="nav-menu">
               {overflow.map((item) => (
-                <Link key={item.href} href={item.href} className={isActive(pathname, item.href) ? "active" : undefined}>
-                  {item.label}
-                </Link>
+                <NavLink key={item.href} item={item} className={isActive(pathname, item) ? "active" : undefined} />
               ))}
               <Link href="/#sectors">Browse grades</Link>
             </div>
