@@ -22,16 +22,27 @@ function isActive(pathname: string, item: NavItem) {
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function NavLink({ item, className, hidden }: { item: NavItem; className?: string; hidden?: boolean }) {
+function NavLink({
+  item,
+  className,
+  hidden,
+  current,
+}: {
+  item: NavItem;
+  className?: string;
+  hidden?: boolean;
+  current?: boolean;
+}) {
+  const ariaCurrent = current ? "page" : undefined;
   if (item.external) {
     return (
-      <a href={item.href} className={className} hidden={hidden}>
+      <a href={item.href} className={className} hidden={hidden} aria-current={ariaCurrent}>
         {item.label}
       </a>
     );
   }
   return (
-    <Link href={item.href} className={className} hidden={hidden}>
+    <Link href={item.href} className={className} hidden={hidden} aria-current={ariaCurrent}>
       {item.label}
     </Link>
   );
@@ -93,7 +104,10 @@ export function SiteHeader() {
       if (menu && event.target instanceof Node && !menu.contains(event.target)) setOpen(false);
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        moreRef.current?.querySelector<HTMLButtonElement>("button.nav-more")?.focus();
+      }
     };
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", onKey);
@@ -119,12 +133,14 @@ export function SiteHeader() {
           </div>
           {NAV.map((item, index) => {
             const hidden = index >= shownCount;
+            const current = isActive(pathname, item);
             return (
               <NavLink
                 key={item.href}
                 item={item}
                 hidden={hidden}
-                className={isActive(pathname, item) ? "active" : undefined}
+                current={current}
+                className={current ? "active" : undefined}
               />
             );
           })}
@@ -142,9 +158,10 @@ export function SiteHeader() {
           </button>
           {open ? (
             <div id="nav-more-menu" className="nav-menu">
-              {overflow.map((item) => (
-                <NavLink key={item.href} item={item} className={isActive(pathname, item) ? "active" : undefined} />
-              ))}
+              {overflow.map((item) => {
+                const current = isActive(pathname, item);
+                return <NavLink key={item.href} item={item} current={current} className={current ? "active" : undefined} />;
+              })}
               <Link href="/#sectors">Browse grades</Link>
             </div>
           ) : null}

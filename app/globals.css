@@ -1387,6 +1387,16 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 .sports-summary { margin-top: 0; }
 .show-more-row { padding: 4px 16px 16px; }
 .show-more { width: 100%; }
+.show-more-done {
+  margin: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.show-more-done:focus-visible { outline: 2px solid var(--gc-orange-mid); outline-offset: 3px; border-radius: 8px; }
 #record, #sports, #picks, #sectors { scroll-margin-top: 76px; }
 .trust-list { margin-top: 18px; padding-left: 18px; color: var(--dim); font-size: 14px; line-height: 1.6; }
 .table-scroll { max-width: 100%; }

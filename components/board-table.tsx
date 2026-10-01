@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { GcTube, GradePill, tubeIsUngraded } from "@/components/gc-tube";
 import type { BoardRow, BoardSection } from "@/lib/books";
@@ -62,11 +62,17 @@ function RowScore({ row }: { row: BoardRow }) {
 export function BoardTable({ section }: { section: BoardSection }) {
   const keepOpen = section.id === "public-cappers";
   const [shown, setShown] = useState(keepOpen ? section.rows.length : Math.min(PREVIEW, section.rows.length));
+  const [revealed, setRevealed] = useState(false);
+  const doneRef = useRef<HTMLParagraphElement>(null);
   const rows = section.rows.slice(0, shown);
   const remaining = section.rows.length - shown;
   const step = Math.min(STEP, remaining);
+  useEffect(() => {
+    if (revealed && remaining === 0) doneRef.current?.focus();
+  }, [revealed, remaining]);
   const resultColumn = section.rows.length > 0 && section.rows.every((row) => row.result);
   const scoreLabel = resultColumn ? "Result" : "GC";
+  const rowsId = `${section.id}-rows`;
   return (
     <>
       <div className="section-label">{section.label}</div>
@@ -92,7 +98,7 @@ export function BoardTable({ section }: { section: BoardSection }) {
               <th>{scoreLabel}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id={rowsId}>
             {rows.map((row) => (
               <tr key={row.id}>
                 <td data-label="Call">
@@ -122,10 +128,21 @@ export function BoardTable({ section }: { section: BoardSection }) {
             <button
               type="button"
               className="btn show-more"
-              onClick={() => setShown((count) => Math.min(section.rows.length, count + STEP))}
+              aria-expanded={revealed}
+              aria-controls={rowsId}
+              onClick={() => {
+                setRevealed(true);
+                setShown((count) => Math.min(section.rows.length, count + STEP));
+              }}
             >
               Show {step} more
             </button>
+          </div>
+        ) : revealed ? (
+          <div className="show-more-row">
+            <p ref={doneRef} tabIndex={-1} role="status" className="show-more-done">
+              All {section.rows.length} shown
+            </p>
           </div>
         ) : null}
       </div>

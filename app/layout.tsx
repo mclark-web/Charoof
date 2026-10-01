@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const description =
-  "Public claims, graded after the outcome. Analysts, FinTwit, Sports, and GCBot. Grade Calibration, shown as a liquid gauge: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
+  "The GradedCalls hub shows the public sports ledger, with links to the Analysts, FinTwit, and GCBot boards. Grade Calibration, shown as a liquid gauge: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
 
 export const metadata: Metadata = {
   applicationName: "GradedCalls",
