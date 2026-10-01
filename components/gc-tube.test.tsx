@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { GcTube, tubeIsUngraded } from "./gc-tube";
@@ -14,6 +15,18 @@ describe("ungraded tubes", () => {
     assert.doesNotMatch(html, /EXIT/);
     assert.doesNotMatch(html, /gc-pct/);
     assert.doesNotMatch(html, />0%</);
+  });
+
+  it("renders a horizontal tube and does not offer a vertical vial", () => {
+    const html = renderToStaticMarkup(<GcTube fill={72} label="GC Scale" />);
+    assert.match(html, /class="gc-scale"/);
+    assert.doesNotMatch(html, /is-vertical/);
+    const source = readFileSync(new URL("./gc-tube.tsx", import.meta.url), "utf8");
+    assert.doesNotMatch(source, /is-vertical|orientation/);
+    const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+    assert.doesNotMatch(css, /\.gc-scale\.is-vertical/);
+    assert.doesNotMatch(css, /\.gc-vial/);
+    assert.doesNotMatch(css, /\.gc-range|\.gc-demo-btn|\.is-live/);
   });
 
   it("keeps a graded 0% as empty glass and EXIT LIQUIDITY", () => {

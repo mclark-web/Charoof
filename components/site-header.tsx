@@ -7,11 +7,7 @@ import { LogoLink } from "@/components/logo-link";
 
 const NAV = [
   { href: "/", label: "Hub" },
-  { href: "/analysts", label: "Analysts" },
-  { href: "/fintwit", label: "FinTwit" },
   { href: "/sports", label: "Sports" },
-  { href: "/gcbot", label: "GCBot" },
-  { href: "/gc-scale", label: "GC Scale" },
   { href: "/method", label: "Method" },
 ];
 
@@ -135,15 +131,11 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
-              <Link href="/sign-in">Sign in</Link>
               <Link href="/#sectors">Browse grades</Link>
             </div>
           ) : null}
         </div>
         <div className="top-actions">
-          <Link className="btn" href="/sign-in">
-            Sign in
-          </Link>
           <Link className="btn btn-primary" href="/#sectors">
             Browse grades
           </Link>

@@ -11,7 +11,7 @@ import {
   verifiedPickRows,
 } from "./books";
 import { gradeForFill } from "./grade";
-import { formatNewYorkDate, newYorkToday, PROVISIONAL_SAMPLE_NOTE } from "./recency";
+import { formatNewYorkDate, newYorkToday } from "./recency";
 import { fillForOutcome, hitFill } from "./outcome";
 
 const BANNED = /chad|chud|charoof/i;
@@ -130,7 +130,7 @@ describe("recovered sports ledger", () => {
     assert.equal(inglis?.sample, "n = 6");
     assert.ok((inglis?.fill ?? 0) >= 70);
     assert.equal(inglis?.gradeName, "PROVISIONAL");
-    assert.equal(inglis?.sampleNote, PROVISIONAL_SAMPLE_NOTE);
+    assert.equal(inglis?.sampleNote, undefined);
     const commish = rows.find((row) => row.title === "The Commish");
     assert.equal(commish?.detail, "6 public picks · 3–1 · 2 void");
     assert.equal(commish?.windows, "1W 3–1 · 2W 3–1 · 1M 3–1 · 3M 3–1");
@@ -161,10 +161,10 @@ describe("sector books", () => {
     assert.match(book.sections[2]?.label ?? "", /Post time unconfirmed/);
     const cappers = book.sections.find((section) => section.id === "public-cappers");
     assert.match(cappers?.note ?? "", new RegExp(`as of ${formatNewYorkDate(newYorkToday())}`));
-    assert.match(
-      cappers?.note ?? "",
-      /Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days; this overrides every band: STRONG, WEAK, and EXIT LIQUIDITY\./,
-    );
+    assert.match(cappers?.note ?? "", /PROVISIONAL until 10 graded picks in 90 days\./);
+    assert.doesNotMatch(cappers?.note ?? "", /Cappers show PROVISIONAL until they have 10 graded picks/);
+    const provisionalFootnotes = (cappers?.note ?? "").split("PROVISIONAL until 10 graded picks in 90 days.").length - 1;
+    assert.equal(provisionalFootnotes, 1);
     assert.doesNotMatch(cappers?.note ?? "", /newest public card/);
     const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
     assert.match(
@@ -172,7 +172,9 @@ describe("sector books", () => {
       /\.board-table tbody tr \{\s*content-visibility: auto;\s*contain-intrinsic-size: auto 88px;\s*\}\s*\.game-date \{ white-space: nowrap; \}\s*@media \(max-width: 800px\) \{\s*\.board-table tbody tr \{\s*content-visibility: visible;\s*contain-intrinsic-size: auto 300px;\s*\}\s*\}/,
     );
     assert.match(book.hero.hint, /WIN, LOSS, PUSH, VOID, or Pending/);
-    assert.match(book.sections[0]?.note ?? "", /The pill says Pending/);
+    assert.match(book.sections[0]?.note ?? "", /Pending is a status, not a grade; open picks stay out of the win rate\./);
+    assert.equal(book.sections.at(-1)?.note, "Demo rows are fiction, labeled Demo.");
+    assert.ok(book.sector.trust.includes("Demo rows are fiction, labeled Demo."));
     const verified = book.sections.find((section) => section.id === "verified-cards");
     assert.match(verified?.note ?? "", /WIN, LOSS, PUSH, or VOID/);
     assert.equal(book.sections.at(-1)?.id, "sports-demo");

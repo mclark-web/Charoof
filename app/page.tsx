@@ -4,10 +4,6 @@ export const revalidate = 300;
 import { GcTube } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
 import { hubStats, sectorBooks } from "@/lib/books";
-import { GRADE_BANDS } from "@/lib/grade";
-import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
-
-const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days";
 
 export default function HubPage() {
   const stats = hubStats();
@@ -92,14 +88,10 @@ export default function HubPage() {
         {books.map((book) => (
           <SectorCard key={book.sector.key} book={book} />
         ))}
-        <Link className="sector" href="/gc-scale">
+        <Link className="sector sector-copy" href="/method#gc-scale">
           <div className="kicker">Trust · Calibration</div>
           <h3>GC Scale</h3>
-          <p>How STRONG, WEAK, PROVISIONAL, and EXIT LIQUIDITY map onto the laboratory tube — same rules on every board.</p>
-          <div className="gc-slot">
-            <GcTube fill={72} variant="mini" label="GC Scale" metaInline className="is-card" />
-            <p className="tube-example">{EXAMPLE_STRONG}</p>
-          </div>
+          <p>How the four grades work — same rules on every board.</p>
           <div className="foot">
             <span>STRONG · WEAK · PROVISIONAL · EXIT LIQUIDITY</span>
             <span className="go">GC Scale →</span>
@@ -125,11 +117,7 @@ export default function HubPage() {
         <div className="step">
           <div className="n">03</div>
           <h4>Grade</h4>
-          <p>
-            Compared to real closes, Monday opens, or final scores — labeled STRONG, WEAK, or PROVISIONAL. {GRADE_BANDS.strongAt}%
-            and above is STRONG. Below {GRADE_BANDS.weakAt}% is WEAK. From {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}% is
-            PROVISIONAL. {PROVISIONAL_SAMPLE_NOTE}
-          </p>
+          <p>Compared to real closes, Monday opens, or final scores and graded on the GC Scale.</p>
         </div>
       </div>
 
@@ -137,17 +125,14 @@ export default function HubPage() {
         <div>
           <h2>GC Scale</h2>
           <p>
-            Grade Calibration is the horizontal tube fill — how closely outcomes matched the stated direction.
-            STRONG, WEAK, or PROVISIONAL. Empty glass at 0% is EXIT LIQUIDITY once a capper has 10 graded picks in
-            the last 90 days.
+            GC Scale: how closely outcomes matched the call — STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY.
           </p>
           <p className="method-link">
-            <Link className="hit-44" href="/gc-scale">GC Scale →</Link>
+            <Link className="hit-44" href="/method#gc-scale">GC Scale →</Link>
           </p>
         </div>
         <div className="method-example">
           <GcTube fill={72} rich centered label="GC Scale" className="method-tube" />
-          <p className="tube-example">{EXAMPLE_STRONG}</p>
         </div>
       </div>
     </>

@@ -25,7 +25,7 @@ export type Sector = {
 export const sectors: Sector[] = [
   {
     key: "analysts",
-    href: "/analysts",
+    href: "https://bank-troof.vercel.app",
     kicker: "Equities · Research",
     title: "Analysts",
     summary:
@@ -67,7 +67,7 @@ export const sectors: Sector[] = [
   },
   {
     key: "fintwit",
-    href: "/fintwit",
+    href: "https://fintwittruth.vercel.app",
     kicker: "Markets · Social",
     title: "FinTwit",
     summary:
@@ -119,7 +119,7 @@ export const sectors: Sector[] = [
     trust: [
       "No paid odds APIs.",
       "Verified picks are public posts graded on official final scores.",
-      "Demo rows are fiction for the tube, and they are labeled Demo.",
+      "Demo rows are fiction, labeled Demo.",
       "Sample size sits on every profile.",
     ],
     fixtures: [
@@ -151,7 +151,7 @@ export const sectors: Sector[] = [
   },
   {
     key: "gcbot",
-    href: "/gcbot",
+    href: "https://charoofbot.vercel.app",
     kicker: "Narratives · Volume",
     title: "GCBot",
     summary:
