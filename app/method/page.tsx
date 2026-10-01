@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Ambient } from "@/components/ambient";
-import { GcTube } from "@/components/gc-tube";
+import { GradePill } from "@/components/gc-tube";
 import { GRADE_BANDS } from "@/lib/grade";
 import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
 
@@ -22,28 +22,16 @@ export default function MethodPage() {
             <em>No silent edits.</em>
           </h1>
           <p className="lead">
-            A grade is a public claim, a locked entry, and an outcome you can check. GC is Grade Calibration: the tube
-            fill is how much of the stated direction held.
+            A grade is a public claim, a locked entry, and an outcome you can check. GC Scale is Grade Calibration: how
+            much of the stated direction held.
           </p>
-        </div>
-        <div className="hero-stage hero-dual">
-          <div className="orient-pair">
-            <div className="orient-col">
-              <div className="orient-label">Vertical vial</div>
-              <GcTube fill={72} orientation="vertical" variant="hero" rich label="GC Scale" />
-            </div>
-            <div className="orient-col">
-              <div className="orient-label">Horizontal tube</div>
-              <GcTube fill={0} variant="hero" label="GC Scale" />
-            </div>
-          </div>
         </div>
       </section>
 
       <div className="panel method">
         <div>
           <h2>How a call becomes a grade</h2>
-          <p>Boards use the horizontal tube. The vertical vial is the lab view on this page and on GC Scale.</p>
+          <p>Same rules on every board. No silent edits after lock. Misses stay on the record.</p>
         </div>
         <div className="step">
           <div className="n">01</div>
@@ -62,62 +50,61 @@ export default function MethodPage() {
         </div>
       </div>
 
-      <div className="section-label">GC Scale</div>
-      <div className="scale-row">
-        <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.strongAt} label="GC Scale" />
-          <p className="hint">STRONG at {GRADE_BANDS.strongAt}% and above</p>
-        </div>
-        <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.weakAt} label="GC Scale" />
-          <p className="hint">PROVISIONAL from {GRADE_BANDS.weakAt}% until {GRADE_BANDS.strongAt}%</p>
-        </div>
-        <div className="panel scale-card">
-          <GcTube fill={GRADE_BANDS.weakAt - 1} label="GC Scale" />
-          <p className="hint">WEAK below {GRADE_BANDS.weakAt}%</p>
-        </div>
-        <div className="panel scale-card">
-          <GcTube fill={0} label="GC Scale" />
-          <p className="hint">graded 0% fill is empty glass · EXIT LIQUIDITY</p>
-        </div>
-      </div>
-      <p className="board-note">
-        When a call, tube, or horizon has no graded result yet, the glass stays empty, no percent is shown, and the
-        label reads Not graded yet. A Sports capper card with zero graded picks shows PROVISIONAL with no score.
-      </p>
+      <section id="gc-scale">
+        <div className="section-label">GC Scale</div>
+        <p className="board-note">GC Scale grades how closely a call’s outcome matched its stated direction.</p>
+        <ul className="grade-list">
+          <li>
+            <GradePill grade="strong" name="STRONG" /> {GRADE_BANDS.strongAt}% and above
+          </li>
+          <li>
+            <GradePill grade="provisional" name="PROVISIONAL" /> {GRADE_BANDS.weakAt}% up to {GRADE_BANDS.strongAt}%
+          </li>
+          <li>
+            <GradePill grade="weak" name="WEAK" /> under {GRADE_BANDS.weakAt}%
+          </li>
+          <li>
+            graded 0% = <GradePill grade="exit" name="EXIT LIQUIDITY" /> with empty glass
+          </li>
+        </ul>
+        <p className="board-note">An ungraded result reads Not graded yet.</p>
+        <p className="board-note">Scores are rounded only for display; 69.5% stays PROVISIONAL.</p>
+        <p className="board-note">A sample of 10 or more graded picks uses the same cutoffs.</p>
+      </section>
 
-      <div className="section-label">Sports</div>
-      <div className="panel method">
-        <div>
-          <h2>Picks show a result. Cappers carry GC.</h2>
-          <p>Same rules on every board. A single sports pick is a result, not a tube.</p>
+      <section id="sports-score">
+        <div className="section-label">Sports</div>
+        <div className="panel method">
+          <div>
+            <h2>Picks show a result. Cappers carry GC.</h2>
+            <p>Same rules on every board. A single sports pick is a result, not a tube.</p>
+          </div>
+          <div className="step">
+            <div className="n">01</div>
+            <h4>Result</h4>
+            <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or Pending. None of those fills a GC tube.</p>
+          </div>
+          <div className="step">
+            <div className="n">02</div>
+            <h4>Blend</h4>
+            <p>
+              A capper’s score is the win percentage over the last 7, 14, 30, and 90 days, labeled 1W, 2W, 1M, and 3M,
+              weighted 40 / 30 / 20 / 10. Pushes stay out of the rate. A window with no decided picks is dropped and the
+              remaining weights are renormalized.
+            </p>
+          </div>
+          <div className="step">
+            <div className="n">03</div>
+            <h4>Grade</h4>
+            <p>
+              The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.{" "}
+              {PROVISIONAL_SAMPLE_NOTE} The card still shows that percentage and the window records. Windows count back
+              from today’s date in America/New_York, shown on the capper section as “as of” that date. A card whose
+              source has a publish date but no clock time stays out of the capper score and record.
+            </p>
+          </div>
         </div>
-        <div className="step">
-          <div className="n">01</div>
-          <h4>Result</h4>
-          <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or Pending. None of those fills a GC tube.</p>
-        </div>
-        <div className="step">
-          <div className="n">02</div>
-          <h4>Blend</h4>
-          <p>
-            A capper’s score is the win percentage over the last 7, 14, 30, and 90 days, labeled 1W, 2W, 1M, and 3M,
-            weighted 40 / 30 / 20 / 10. Pushes stay out of the rate. A window with no decided picks is dropped and the
-            remaining weights are renormalized.
-          </p>
-        </div>
-        <div className="step">
-          <div className="n">03</div>
-          <h4>Grade</h4>
-          <p>
-            The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.
-            {PROVISIONAL_SAMPLE_NOTE} The card still shows that percentage and the window records. Windows count back
-            from today’s date in America/New_York, shown on the capper
-            section as “as of” that date. A card whose source has a publish date but no clock time stays out of the
-            capper score and record.
-          </p>
-        </div>
-      </div>
+      </section>
     </>
   );
 }

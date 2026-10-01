@@ -30,8 +30,9 @@ function RowDetail({ detail }: { detail: string }) {
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
-  return (
-    <Link className="sector" href={sector.href}>
+  const external = sector.href.startsWith("http");
+  const body = (
+    <>
       <div className="kicker">{sector.kicker}</div>
       <h3>{sector.title}</h3>
       <p>{sector.summary}</p>
@@ -49,6 +50,18 @@ export function SectorCard({ book }: { book: SectorBook }) {
         <span>{hero.kind === "tube" ? hero.card : sector.foot}</span>
         <span className="go">Open board →</span>
       </div>
+    </>
+  );
+  if (external) {
+    return (
+      <a className="sector" href={sector.href}>
+        {body}
+      </a>
+    );
+  }
+  return (
+    <Link className="sector" href={sector.href}>
+      {body}
     </Link>
   );
 }
@@ -85,7 +98,18 @@ function BoardTable({ section }: { section: BoardSection }) {
   return (
     <>
       <div className="section-label">{section.label}</div>
-      <p className="board-note">{section.note}</p>
+      <p className="board-note">
+        {section.note}
+        {section.id === "public-cappers" ? (
+          <>
+            {" "}
+            <Link className="hit-44" href="/method#sports-score">
+              How capper scores are built
+            </Link>
+            .
+          </>
+        ) : null}
+      </p>
       <div className="panel table-scroll">
         <table className="board-table">
           <thead>

@@ -86,4 +86,54 @@ describe("hub copy", () => {
     assert.match(errorPage, />\s*Hub\s*</);
     assert.equal(existsSync(new URL("../public/gradedcalls-lockup.png", import.meta.url)), false);
   });
+
+  it("folds GC Scale into Method and drops the retired preview copy", () => {
+    const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+    const method = readFileSync(new URL("../app/method/page.tsx", import.meta.url), "utf8").replace(/\s+/g, " ");
+    const disclaimer = readFileSync(new URL("../app/disclaimer/page.tsx", import.meta.url), "utf8").replace(/\s+/g, " ");
+    const header = readFileSync(new URL("./site-header.tsx", import.meta.url), "utf8");
+    const footer = readFileSync(new URL("./site-footer.tsx", import.meta.url), "utf8");
+    const sitemap = readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
+    assert.match(home, /Compared to real closes, Monday opens, or final scores and graded on the GC Scale\./);
+    assert.match(home, /How the four grades work — same rules on every board\./);
+    assert.match(home, /GC Scale: how closely outcomes matched the call — STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY\./);
+    assert.equal((home.match(/Example: 72%/g) || []).length, 1);
+    assert.doesNotMatch(home, /vertical vial|href="\/gc-scale"|href="\/analysts"|href="\/fintwit"|href="\/gcbot"|--gc-fill/);
+    assert.match(method, /id="gc-scale"/);
+    assert.match(method, /GC Scale is Grade Calibration: how much of the stated direction held\./);
+    assert.match(method, /GC Scale grades how closely a call’s outcome matched its stated direction\./);
+    assert.match(method, /\{GRADE_BANDS\.strongAt\}% and above/);
+    assert.match(method, /\{GRADE_BANDS\.weakAt\}% up to \{GRADE_BANDS\.strongAt\}%/);
+    assert.match(method, /under \{GRADE_BANDS\.weakAt\}%/);
+    assert.match(method, /graded 0% =/);
+    assert.match(method, /EXIT LIQUIDITY/);
+    assert.match(method, /with empty glass/);
+    assert.match(method, /An ungraded result reads Not graded yet\./);
+    assert.match(method, /Scores are rounded only for display; 69\.5% stays PROVISIONAL\./);
+    assert.match(method, /A sample of 10 or more graded picks uses the same cutoffs\./);
+    assert.match(method, /id="sports-score"/);
+    const board = readFileSync(new URL("./sector-board.tsx", import.meta.url), "utf8");
+    assert.match(board, /href="\/method#sports-score"/);
+    assert.match(board, /How capper scores are built/);
+    assert.match(method, /weighted 40 \/ 30 \/ 20 \/ 10/);
+    assert.match(method, /\{PROVISIONAL_SAMPLE_NOTE\}/);
+    const recency = readFileSync(new URL("../lib/recency.ts", import.meta.url), "utf8");
+    assert.match(
+      recency,
+      /Cappers show PROVISIONAL until they have 10 graded picks in the last 90 days; this overrides every band: STRONG, WEAK, and EXIT LIQUIDITY\./,
+    );
+    assert.doesNotMatch(method, /vertical vial|horizontal tube|--gc-fill/);
+    assert.match(disclaimer, /the home cards link to the live ledgers/);
+    assert.match(disclaimer, /Demo rows are fiction, labeled Demo\./);
+    assert.doesNotMatch(disclaimer, /each page links to the live ledger/);
+    assert.doesNotMatch(header, /Sign in|\/sign-in|\/analysts|\/fintwit|\/gcbot|\/gc-scale/);
+    assert.doesNotMatch(footer, /\/gcbot/);
+    assert.doesNotMatch(sitemap, /\/analysts|\/fintwit|\/gcbot|\/gc-scale|\/sign-in/);
+    assert.equal(existsSync(new URL("../components/gc-scale-view.tsx", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/gc-scale/page.tsx", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/analysts/page.tsx", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/fintwit/page.tsx", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/gcbot/page.tsx", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/sign-in/page.tsx", import.meta.url)), false);
+  });
 });

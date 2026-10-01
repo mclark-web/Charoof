@@ -133,13 +133,14 @@ export function gradedPickCount(blended: BlendedWinRate): number {
 export type CapperPresentation = {
   fill: number | null;
   grade: Grade;
-  /** Shown when a score exists but the 90-day sample is still under 10. */
+  /** Unused on the card. The short-sample rule is stated once on /method and once on /sports. */
   note: string | null;
 };
 
 /**
  * Under 10 decided picks in 90 days, the card stays PROVISIONAL and still shows
  * the blended percentage. A full sample uses the 70/40 cutoffs, including 0% EXIT LIQUIDITY.
+ * The card does not repeat the sample-size sentence.
  */
 export function presentCapper(blended: BlendedWinRate): CapperPresentation {
   if (blended.fill == null) {
@@ -149,7 +150,7 @@ export function presentCapper(blended: BlendedWinRate): CapperPresentation {
     return {
       fill: blended.fill,
       grade: { key: "provisional", name: "PROVISIONAL" },
-      note: PROVISIONAL_SAMPLE_NOTE,
+      note: null,
     };
   }
   return { fill: blended.fill, grade: gradeForFill(blended.fill), note: null };

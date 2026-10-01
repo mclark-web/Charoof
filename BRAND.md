@@ -12,7 +12,7 @@ Scientific, lab / journal / metrology. It should read as trust and transparency,
 
 ## 3. GC tubes and the GC Scale
 - The label is exactly "GC Scale" (GC = Grade Calibration). Don't add a qualifier inside the label ("GC Scale · Amplifier"). Put context in a heading above it instead. Don't redefine the letters (for example, "G = Graded, C = Calibrated").
-- Boards use horizontal GC tubes. The GC Scale page uses vertical vials.
+- Boards use horizontal GC tubes.
 - The liquid is neon orange #eb6505 with a bloom and a pale meniscus, inside glass with a highlight. Liquid is always orange; no grey or other colours inside a tube. If a breakdown is needed, use orange-family bands only (#ee9a44, #eb6505, #d15202, #7a3402).
 - A graded 0% shows an empty glass with the EXIT LIQUIDITY pill.
 

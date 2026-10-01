@@ -12,8 +12,8 @@ export default function DisclaimerPage() {
       <p>GradedCalls is not investment advice, not betting advice, and not a solicitation to trade or wager.</p>
       <p>
         The hub counts are taken from the books on this site. Verified sports picks are public cards graded on recorded
-        finals. Analyst, FinTwit, and GCBot previews are the seeded or fixture books from those earlier boards, and each
-        page links to the live ledger for the full interactive view. Demo rows are fiction and are labeled Demo.
+        finals. Analyst, FinTwit, and GCBot counts are the seeded or fixture books, and the home cards link to the live
+        ledgers. Demo rows are fiction, labeled Demo.
       </p>
       <p>
         Sports does not use a paid odds API. A verified sports row is a public pick graded on an official result.

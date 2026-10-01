@@ -4,13 +4,11 @@ type Variant = "default" | "hero" | "mini" | "inline" | "sidebar" | "card";
 
 type GcTubeProps = {
   fill: number;
-  orientation?: "horizontal" | "vertical";
   variant?: Variant;
   label?: string;
   rich?: boolean;
   centered?: boolean;
   metaInline?: boolean;
-  live?: boolean;
   className?: string;
   /** Overrides the fill cutoff. A short capper sample stays PROVISIONAL while the tube still shows the percentage. */
   grade?: Grade;
@@ -58,13 +56,11 @@ function Liquid({ rich }: { rich: boolean }) {
 
 export function GcTube({
   fill,
-  orientation = "horizontal",
   variant = "default",
   label = "GC Scale",
   rich = false,
   centered = false,
   metaInline = false,
-  live = false,
   className,
   grade: gradeOverride,
   ungraded = false,
@@ -79,7 +75,6 @@ export function GcTube({
     <div
       className={join(
         "gc-scale",
-        orientation === "vertical" && "is-vertical",
         variant === "hero" && "is-hero",
         variant === "mini" && "is-mini",
         variant === "inline" && "is-inline",
@@ -88,7 +83,6 @@ export function GcTube({
         centered && "is-centered",
         empty && "is-empty",
         n === 100 && "is-full",
-        live && "is-live",
         className,
       )}
       style={{ ["--gc-fill" as string]: `${n}%` }}

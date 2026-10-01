@@ -11,7 +11,6 @@ import {
   newYorkToday,
   postedDay,
   presentCapper,
-  PROVISIONAL_SAMPLE_NOTE,
 } from "@/lib/recency";
 import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
 import { boardPrice } from "@/lib/sports-grade";
@@ -416,7 +415,7 @@ function demoSection(sector: Sector): BoardSection {
   return {
     id: `${sector.key}-demo`,
     label: "Demo fixtures",
-    note: "Fiction for the tube, the sample size, and the empty glass. These rows are not the verified or seeded book above.",
+    note: "Demo rows are fiction, labeled Demo.",
     rows: sector.fixtures.map(fixtureRow),
   };
 }
@@ -454,7 +453,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "open-picks",
         label: "Open picks",
-        note: `${open.length} picks whose games are not final, newest game date first. The pill says Pending. That is a status, not a grade, so these rows stay charcoal: no green, no rose, no GC tube, no 0% fill, and no EXIT LIQUIDITY. They stay out of the win rate until an official final is on the card.`,
+        note: `${open.length} picks whose games are not final, newest game date first. Pending is a status, not a grade; open picks stay out of the win rate.`,
         rows: open,
       },
       {
@@ -478,7 +477,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "public-cappers",
         label: "Public cappers",
-        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. ${PROVISIONAL_SAMPLE_NOTE} STRONG is ${GRADE_BANDS.strongAt}% and above; below ${GRADE_BANDS.weakAt}% is WEAK. The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
+        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. If every window is empty, the card is PROVISIONAL with no score. PROVISIONAL until 10 graded picks in 90 days. STRONG is ${GRADE_BANDS.strongAt}% and above; below ${GRADE_BANDS.weakAt}% is WEAK. The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
         rows: publicCapperRows(asOfDate),
       },
       demoSection(sector),
