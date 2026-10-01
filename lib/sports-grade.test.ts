@@ -14,6 +14,7 @@ type StoredPick = {
   result: string;
   game_final: boolean;
   final_score: string;
+  box_score_url: string;
   posted_at: string;
   source_url: string;
   game_date?: string;
@@ -32,14 +33,14 @@ describe("board price rule", () => {
 });
 
 describe("Sep 19–30 verified finals", () => {
-  it("keeps 198 graded cards, 111 wins and 87 losses, after the one-hour cutoff", () => {
+  it("keeps 206 graded cards, 124 wins and 96 losses, after the one-hour cutoff", () => {
     assert.equal(picks.length, 250);
     const pending = picks.filter((pick) => pick.result === "pending").length;
     const added = picks.length - 14 - pending;
-    assert.equal(pending, 38);
-    assert.equal(added, 198);
-    assert.equal(picks.filter((pick) => pick.result === "win").length, 120);
-    assert.equal(picks.filter((pick) => pick.result === "loss").length, 92);
+    assert.equal(pending, 30);
+    assert.equal(added, 206);
+    assert.equal(picks.filter((pick) => pick.result === "win").length, 124);
+    assert.equal(picks.filter((pick) => pick.result === "loss").length, 96);
     const titles = picks.map((pick) => `${pick.event} ${pick.side} ${pick.number ?? ""} ${pick.market}`);
     assert.equal(titles.some((title) => title.includes("South Dakota") && title.includes("58.5")), false);
     assert.equal(titles.some((title) => title.includes("Baylor") && title.includes("55.5")), false);
@@ -70,6 +71,34 @@ describe("Sep 19–30 verified finals", () => {
     assert.ok(checked >= 180);
   });
 
+  it("grades the eight Sep 30 MLB finals that are no longer pending", () => {
+    const settled = [
+      ["Quinn Allen (Covers)", "Houston Astros", "Chicago White Sox @ Houston Astros", "loss", "Chicago White Sox 7, Houston Astros 3"],
+      ["Quinn Allen (Covers)", "New York Yankees", "Boston Red Sox @ New York Yankees", "win", "Boston Red Sox 2, New York Yankees 9"],
+      ["Quinn Allen (Covers)", "Chicago Cubs", "Chicago Cubs @ San Diego Padres", "loss", "Chicago Cubs 1, San Diego Padres 4"],
+      ["Joe Osborne (Covers)", "Over", "Boston Red Sox @ New York Yankees", "win", "Boston Red Sox 2, New York Yankees 9"],
+      ["Dustin Saracini (Covers)", "San Diego Padres", "Chicago Cubs @ San Diego Padres", "win", "Chicago Cubs 1, San Diego Padres 4"],
+      ["Todd Cordell (Covers)", "Houston Astros", "Chicago White Sox @ Houston Astros", "loss", "Chicago White Sox 7, Houston Astros 3"],
+      ["Chris Hatfield (Covers)", "Under", "Boston Red Sox @ New York Yankees", "loss", "Boston Red Sox 2, New York Yankees 9"],
+      ["Chris Hatfield (Covers)", "Philadelphia Phillies", "Philadelphia Phillies @ Atlanta Braves", "win", "Philadelphia Phillies 4, Atlanta Braves 3 (10 innings)"],
+    ] as const;
+    for (const [tipster, side, event, result, finalScore] of settled) {
+      const pick = picks.find((item) => item.tipster === tipster && item.side === side && item.event === event && item.game_date === "2026-09-30");
+      assert.ok(pick, `${tipster} ${side}`);
+      assert.equal(pick.game_final, true);
+      assert.equal(pick.result, result);
+      assert.equal(pick.final_score, finalScore);
+      assert.notEqual(pick.box_score_url, "");
+      const again = gradeFullGame({
+        market: pick.market,
+        side: pick.side,
+        number: pick.number,
+        finalScore: pick.final_score,
+      });
+      if (again != null) assert.equal(again, result);
+    }
+  });
+
   it("shows a stated price and the even-money unit price on the card", () => {
     const rows = verifiedPickRows();
     const rice = rows.find((row) => row.title.includes("Rice Owls moneyline"));
@@ -91,7 +120,7 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 38);
+    assert.equal(open.length, 30);
     const falcons = open.filter((pick) => pick.event.includes("Falcons") && pick.event.includes("Saints"));
     assert.equal(falcons.length, 2);
     assert.ok(falcons.every((pick) => pick.game_date === "2026-10-05"));
@@ -101,7 +130,7 @@ describe("open picks stay pending", () => {
     );
     assert.ok(open.every((pick) => pick.game_final === false && pick.final_score === "Not final"));
     const rows = openPickRows();
-    assert.equal(rows.length, 38);
+    assert.equal(rows.length, 30);
     assert.equal(verifiedPickRows().some((row) => row.result === "PENDING"), false);
     for (const row of rows) {
       assert.equal(row.sample, "Open");
@@ -110,12 +139,9 @@ describe("open picks stay pending", () => {
       assert.doesNotMatch(row.detail, /Final /);
       assert.notEqual(row.result, "LOSS");
     }
-    const hatfield = open.find((pick) => pick.source_url.includes("red-sox-vs-yankees"));
-    assert.equal(hatfield?.posted_at, "2026-09-30 14:23 ET");
-    assert.equal(hatfield?.number, 6.5);
-    const cordell = open.find((pick) => pick.source_url.includes("white-sox-vs-astros"));
-    assert.equal(cordell?.posted_at, "2026-09-30 14:48 ET");
-    assert.equal(cordell?.side, "Houston Astros");
+    assert.equal(open.some((pick) => pick.game_date === "2026-09-30"), false);
+    assert.equal(open.some((pick) => pick.source_url.includes("red-sox-vs-yankees")), false);
+    assert.equal(open.some((pick) => pick.source_url.includes("white-sox-vs-astros")), false);
     const logan = open.filter(
       (pick) => pick.tipster.startsWith("Jason Logan") && pick.source_url.includes("picks-and-predictions-week-4"),
     );
