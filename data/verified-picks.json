@@ -3403,10 +3403,10 @@
     "posted_at": "2026-09-30 14:57 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/moneyline-picks-wednesday-sept-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907897",
+    "final_score": "Chicago White Sox 7, Houston Astros 3"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3419,10 +3419,10 @@
     "posted_at": "2026-09-30 14:57 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/moneyline-picks-wednesday-sept-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907963",
+    "final_score": "Boston Red Sox 2, New York Yankees 9"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3435,10 +3435,10 @@
     "posted_at": "2026-09-30 14:57 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/moneyline-picks-wednesday-sept-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907975",
+    "final_score": "Chicago Cubs 1, San Diego Padres 4"
   },
   {
     "tipster": "Chris Hatfield (Covers)",
@@ -3451,10 +3451,10 @@
     "posted_at": "2026-09-30 11:43 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/phillies-vs-braves-prediction-picks-odds-wednesday-9-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907972",
+    "final_score": "Philadelphia Phillies 4, Atlanta Braves 3 (10 innings)"
   },
   {
     "tipster": "Chris Hatfield (Covers)",
@@ -3467,10 +3467,10 @@
     "posted_at": "2026-09-30 14:23 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/red-sox-vs-yankees-prediction-picks-odds-wednesday-9-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907963",
+    "final_score": "Boston Red Sox 2, New York Yankees 9"
   },
   {
     "tipster": "Todd Cordell (Covers)",
@@ -3483,10 +3483,10 @@
     "posted_at": "2026-09-30 14:48 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/white-sox-vs-astros-prediction-picks-odds-wednesday-9-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907897",
+    "final_score": "Chicago White Sox 7, Houston Astros 3"
   },
   {
     "tipster": "Joe Osborne (Covers)",
@@ -3499,10 +3499,10 @@
     "posted_at": "2026-09-30 14:50 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/expert-picks-best-bets-wednesday-sept-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907963",
+    "final_score": "Boston Red Sox 2, New York Yankees 9"
   },
   {
     "tipster": "Dustin Saracini (Covers)",
@@ -3515,10 +3515,10 @@
     "posted_at": "2026-09-30 14:50 ET",
     "game_date": "2026-09-30",
     "source_url": "https://www.covers.com/mlb/expert-picks-best-bets-wednesday-sept-30-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401907975",
+    "final_score": "Chicago Cubs 1, San Diego Padres 4"
   },
   {
     "tipster": "Joe Osborne (Covers)",
