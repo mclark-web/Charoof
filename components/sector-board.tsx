@@ -98,7 +98,18 @@ function BoardTable({ section }: { section: BoardSection }) {
   return (
     <>
       <div className="section-label">{section.label}</div>
-      <p className="board-note">{section.note}</p>
+      <p className="board-note">
+        {section.note}
+        {section.id === "public-cappers" ? (
+          <>
+            {" "}
+            <Link className="hit-44" href="/method#sports-score">
+              How capper scores are built
+            </Link>
+            .
+          </>
+        ) : null}
+      </p>
       <div className="panel table-scroll">
         <table className="board-table">
           <thead>

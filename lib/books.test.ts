@@ -163,6 +163,7 @@ describe("sector books", () => {
     assert.match(cappers?.note ?? "", new RegExp(`as of ${formatNewYorkDate(newYorkToday())}`));
     assert.match(cappers?.note ?? "", /PROVISIONAL until 10 graded picks in 90 days\./);
     assert.doesNotMatch(cappers?.note ?? "", /Cappers show PROVISIONAL until they have 10 graded picks/);
+    assert.doesNotMatch(cappers?.note ?? "", /40\/30\/20\/10|40 \/ 30 \/ 20 \/ 10/);
     const provisionalFootnotes = (cappers?.note ?? "").split("PROVISIONAL until 10 graded picks in 90 days.").length - 1;
     assert.equal(provisionalFootnotes, 1);
     assert.doesNotMatch(cappers?.note ?? "", /newest public card/);

@@ -477,7 +477,7 @@ function sportsBook(sector: Sector): SectorBook {
       {
         id: "public-cappers",
         label: "Public cappers",
-        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. The tube is the recency-blended win percentage: last 7, 14, 30, and 90 days, weighted 40/30/20/10, pushes excluded. An empty window is dropped and the remaining weights are renormalized. If every window is empty, the card is PROVISIONAL with no score. PROVISIONAL until 10 graded picks in 90 days. STRONG is ${GRADE_BANDS.strongAt}% and above; below ${GRADE_BANDS.weakAt}% is WEAK. The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
+        note: `Combined record for each name across the timed verified cards and the Friday archive. Cards with no publish time are excluded from these scores and records. If every window is empty, the card is PROVISIONAL with no score. PROVISIONAL until 10 graded picks in 90 days. STRONG is ${GRADE_BANDS.strongAt}% and above; below ${GRADE_BANDS.weakAt}% is WEAK. The card still shows the percentage. Windows count back from today in America/New_York, as of ${asOfLabel}.`,
         rows: publicCapperRows(asOfDate),
       },
       demoSection(sector),

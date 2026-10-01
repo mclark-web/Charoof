@@ -68,39 +68,43 @@ export default function MethodPage() {
           </li>
         </ul>
         <p className="board-note">An ungraded result reads Not graded yet.</p>
+        <p className="board-note">Scores are rounded only for display; 69.5% stays PROVISIONAL.</p>
+        <p className="board-note">A sample of 10 or more graded picks uses the same cutoffs.</p>
       </section>
 
-      <div className="section-label">Sports</div>
-      <div className="panel method">
-        <div>
-          <h2>Picks show a result. Cappers carry GC.</h2>
-          <p>Same rules on every board. A single sports pick is a result, not a tube.</p>
+      <section id="sports-score">
+        <div className="section-label">Sports</div>
+        <div className="panel method">
+          <div>
+            <h2>Picks show a result. Cappers carry GC.</h2>
+            <p>Same rules on every board. A single sports pick is a result, not a tube.</p>
+          </div>
+          <div className="step">
+            <div className="n">01</div>
+            <h4>Result</h4>
+            <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or Pending. None of those fills a GC tube.</p>
+          </div>
+          <div className="step">
+            <div className="n">02</div>
+            <h4>Blend</h4>
+            <p>
+              A capper’s score is the win percentage over the last 7, 14, 30, and 90 days, labeled 1W, 2W, 1M, and 3M,
+              weighted 40 / 30 / 20 / 10. Pushes stay out of the rate. A window with no decided picks is dropped and the
+              remaining weights are renormalized.
+            </p>
+          </div>
+          <div className="step">
+            <div className="n">03</div>
+            <h4>Grade</h4>
+            <p>
+              The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.{" "}
+              {PROVISIONAL_SAMPLE_NOTE} The card still shows that percentage and the window records. Windows count back
+              from today’s date in America/New_York, shown on the capper section as “as of” that date. A card whose
+              source has a publish date but no clock time stays out of the capper score and record.
+            </p>
+          </div>
         </div>
-        <div className="step">
-          <div className="n">01</div>
-          <h4>Result</h4>
-          <p>A result word is not a grade. The pick is WIN, LOSS, PUSH, VOID, or Pending. None of those fills a GC tube.</p>
-        </div>
-        <div className="step">
-          <div className="n">02</div>
-          <h4>Blend</h4>
-          <p>
-            A capper’s score is the win percentage over the last 7, 14, 30, and 90 days, labeled 1W, 2W, 1M, and 3M,
-            weighted 40 / 30 / 20 / 10. Pushes stay out of the rate. A window with no decided picks is dropped and the
-            remaining weights are renormalized.
-          </p>
-        </div>
-        <div className="step">
-          <div className="n">03</div>
-          <h4>Grade</h4>
-          <p>
-            The blend uses the cutoffs above. If every window is empty, the card is PROVISIONAL and shows no score.{" "}
-            {PROVISIONAL_SAMPLE_NOTE} The card still shows that percentage and the window records. Windows count back
-            from today’s date in America/New_York, shown on the capper section as “as of” that date. A card whose
-            source has a publish date but no clock time stays out of the capper score and record.
-          </p>
-        </div>
-      </div>
+      </section>
     </>
   );
 }

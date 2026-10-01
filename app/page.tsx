@@ -5,6 +5,8 @@ import { GcTube } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
 import { hubStats, sectorBooks } from "@/lib/books";
 
+const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days";
+
 export default function HubPage() {
   const stats = hubStats();
   const books = sectorBooks();
@@ -133,6 +135,7 @@ export default function HubPage() {
         </div>
         <div className="method-example">
           <GcTube fill={72} rich centered label="GC Scale" className="method-tube" />
+          <p className="tube-example">{EXAMPLE_STRONG}</p>
         </div>
       </div>
     </>

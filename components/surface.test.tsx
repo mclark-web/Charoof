@@ -97,7 +97,8 @@ describe("hub copy", () => {
     assert.match(home, /Compared to real closes, Monday opens, or final scores and graded on the GC Scale\./);
     assert.match(home, /How the four grades work — same rules on every board\./);
     assert.match(home, /GC Scale: how closely outcomes matched the call — STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY\./);
-    assert.doesNotMatch(home, /Example: 72%|vertical vial|href="\/gc-scale"|href="\/analysts"|href="\/fintwit"|href="\/gcbot"|--gc-fill/);
+    assert.equal((home.match(/Example: 72%/g) || []).length, 1);
+    assert.doesNotMatch(home, /vertical vial|href="\/gc-scale"|href="\/analysts"|href="\/fintwit"|href="\/gcbot"|--gc-fill/);
     assert.match(method, /id="gc-scale"/);
     assert.match(method, /GC Scale is Grade Calibration: how much of the stated direction held\./);
     assert.match(method, /GC Scale grades how closely a call’s outcome matched its stated direction\./);
@@ -108,6 +109,12 @@ describe("hub copy", () => {
     assert.match(method, /EXIT LIQUIDITY/);
     assert.match(method, /with empty glass/);
     assert.match(method, /An ungraded result reads Not graded yet\./);
+    assert.match(method, /Scores are rounded only for display; 69\.5% stays PROVISIONAL\./);
+    assert.match(method, /A sample of 10 or more graded picks uses the same cutoffs\./);
+    assert.match(method, /id="sports-score"/);
+    const board = readFileSync(new URL("./sector-board.tsx", import.meta.url), "utf8");
+    assert.match(board, /href="\/method#sports-score"/);
+    assert.match(board, /How capper scores are built/);
     assert.match(method, /weighted 40 \/ 30 \/ 20 \/ 10/);
     assert.match(method, /\{PROVISIONAL_SAMPLE_NOTE\}/);
     const recency = readFileSync(new URL("../lib/recency.ts", import.meta.url), "utf8");
