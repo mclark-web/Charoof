@@ -5,13 +5,16 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import { renderVerifiedJson, type PickRow } from "./picks-ledger";
+import { parsePickCsv, PICKS_CSV_PATH } from "./picks-ledger";
 import {
   commitSettledCsv,
   etWallTime,
   gameStartEt,
   gamesFromScoreboard,
   hasPartialMarker,
+  hasPlayerStat,
   linescoresAgree,
+  manualSettleReason,
   namesMatch,
   scoreboardDates,
   settleRow,
@@ -441,12 +444,11 @@ describe("ESPN settle", () => {
     assert.equal(teamTotal.action, "flagged");
     assert.equal(teamTotal.row.status, "PENDING");
     assert.equal(teamTotal.row.final_score, "Not final");
-    assert.match(teamTotal.detail, /team total/);
+    assert.match(teamTotal.detail, /partial-game|team total/);
 
     const statSides = [
       "Travis Kelce Over 60.5 receiving yards",
       "Over 8.5 rebounds",
-      "Over 22.5 points",
       "Over 6.5 strikeouts",
       "Over 1.5 hits",
       "Over 0.5 TD",
@@ -510,11 +512,169 @@ describe("ESPN settle", () => {
     assert.equal(houston.row.final_score, "Houston Astros 2, Atlanta Braves 5");
 
     for (const side of ["Q1ford", "BF5", "first down", "firstborn"]) {
-      const graded = settleRow(row({ market: "total", side, number: "41.5" }), [steelers], "football/nfl", GRADED_AT);
-      assert.equal(graded.action, "graded", side);
-      assert.notEqual(graded.row.status, "PENDING", side);
-      assert.doesNotMatch(graded.row.notes, /not auto-graded/);
+      assert.equal(hasPartialMarker(side), false, side);
+      assert.equal(hasPlayerStat(side), false, side);
+      const unknownTotal = settleRow(row({ market: "total", side, number: "41.5" }), [steelers], "football/nfl", GRADED_AT);
+      assert.equal(unknownTotal.action, "flagged", side);
+      assert.equal(unknownTotal.row.status, "PENDING", side);
+      assert.doesNotMatch(unknownTotal.detail, /partial-game/);
+      assert.doesNotMatch(unknownTotal.detail, /player stat/);
     }
+  });
+
+  it("fails closed on unknown total, spread, and moneyline wording", () => {
+    const wording = [
+      "2Q",
+      "3Q",
+      "4Q",
+      "H2",
+      "2ndhalf",
+      "half time",
+      "halftime",
+      "innings 1-3",
+      "period 1",
+      "alternate total",
+      "alt spread",
+      "alt total",
+      "TT over",
+      "to score first",
+      "first basket",
+      "Judge Over 1.5 total bases",
+      "double double",
+      "first scorer",
+      "team total",
+      "Chiefs team total over 24.5",
+      "home team total",
+      "away team total",
+      "Travis Kelce Over 60.5 receiving yards",
+      "Mahomes passing yards",
+      "rebounds",
+      "strikeouts",
+      "Ohtani to hit a HR",
+      "anytime TD",
+      "first touchdown",
+      "team points",
+      "first-half",
+      "1st-quarter",
+      "first-inning",
+      "1st-period",
+      "alt-line",
+      "second-half",
+      "1st_half",
+      "1stquarter",
+      "alternate-spread",
+      "1 H",
+      "1 Q",
+      "1 P",
+    ];
+    for (const side of wording) {
+      for (const market of ["total", "spread", "moneyline"] as const) {
+        const result = settleRow(row({ market, side, number: "24.5" }), [steelers], "football/nfl", GRADED_AT);
+        assert.equal(result.action, "flagged", `${market} ${side}`);
+        assert.equal(result.row.status, "PENDING", `${market} ${side}`);
+        assert.equal(result.row.final_score, "Not final", `${market} ${side}`);
+      }
+    }
+
+    const parenthetical = settleRow(
+      row({ market: "total (1H)", side: "Over", number: "24.5" }),
+      [steelers],
+      "football/nfl",
+      GRADED_AT,
+    );
+    assert.equal(parenthetical.action, "flagged");
+    assert.equal(parenthetical.row.status, "PENDING");
+    assert.equal(parenthetical.row.final_score, "Not final");
+  });
+
+  it("still grades full-game totals and team sides, including lookalikes", () => {
+    const totals = [
+      ["Over 6.5", "6.5", "WIN"],
+      ["Over 37.5", "37.5", "WIN"],
+      ["Under 57.5", "57.5", "WIN"],
+      ["Over 37.5 total points", "37.5", "WIN"],
+      ["Over 5.5 goals", "5.5", "WIN"],
+      ["Over\u00a06.5", "6.5", "WIN"],
+      ["Over\u22126.5", "6.5", "WIN"],
+    ] as const;
+    for (const [side, number, status] of totals) {
+      const graded = settleRow(row({ market: "total", side, number }), [steelers], "football/nfl", GRADED_AT);
+      assert.equal(graded.action, "graded", side);
+      assert.equal(graded.row.status, status, side);
+    }
+
+    const withNumber = settleRow(
+      row({ market: "spread", side: "Pittsburgh Steelers -2.5", number: "-2.5" }),
+      [steelers],
+      "football/nfl",
+      GRADED_AT,
+    );
+    assert.equal(withNumber.action, "graded");
+    assert.equal(withNumber.row.status, "LOSS");
+    assert.equal(withNumber.row.final_score, "Pittsburgh Steelers 24, Cleveland Browns 27");
+
+    const points = settleRow(
+      row({ market: "spread", side: "Pittsburgh Steelers +2.5 points", number: "2.5" }),
+      [steelers],
+      "football/nfl",
+      GRADED_AT,
+    );
+    assert.equal(points.action, "graded");
+    assert.equal(points.row.status, "LOSS");
+
+    const lookalikes = [
+      "Houston Astros",
+      "Q1ford",
+      "BF5",
+      "first down",
+      "firstborn",
+      "Sacramento",
+      "Whitehaven",
+      "Brunswick",
+      "Pointe",
+      "Point University",
+      "High Point",
+    ];
+    for (const name of lookalikes) {
+      assert.equal(hasPartialMarker(name), false, name);
+      assert.equal(hasPlayerStat(name), false, name);
+      const game: EspnGame = {
+        id: `look-${name}`,
+        awayName: name,
+        homeName: "Cleveland Browns",
+        awayScore: 10,
+        homeScore: 7,
+        startIso: "2026-10-02T00:15Z",
+        statusName: "STATUS_FINAL",
+        detail: "Final",
+        completed: true,
+      };
+      const graded = settleRow(
+        row({
+          event: `${name} @ Cleveland Browns`,
+          market: "moneyline",
+          side: name,
+          number: "",
+        }),
+        [game],
+        "football/nfl",
+        GRADED_AT,
+      );
+      assert.equal(graded.action, "graded", name);
+      assert.equal(graded.row.status, "WIN", name);
+      assert.equal(graded.row.final_score, `${name} 10, Cleveland Browns 7`);
+    }
+  });
+
+  it("does not newly flag any of the 250 committed full-game rows", () => {
+    const rows = parsePickCsv(readFileSync(PICKS_CSV_PATH, "utf8"));
+    assert.equal(rows.length, 250);
+    const fullGame = new Set(["total", "spread", "moneyline", "run_line", "team_total"]);
+    const flagged = rows.filter((pick) => fullGame.has(pick.market) && manualSettleReason(pick) != null);
+    assert.deepEqual(
+      flagged.map((pick) => `${pick.market} | ${pick.side} | ${pick.event}`),
+      [],
+    );
   });
 
   it("does not match Texas to Texas A&M", () => {

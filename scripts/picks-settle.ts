@@ -150,12 +150,52 @@ const TEAM_ALIASES: Readonly<Record<string, string>> = {
 /** Extra tokens that make a longer school a different team, not a mascot. */
 const SCHOOL_QUALIFIERS = new Set(["state", "tech", "college", "oh"]);
 
-const PARTIAL_MARKER =
-  /\((?:1H|1Q|F5)\)|\b(?:1H|2H|H1|1Q|F5|Q[1-4]|P[1-3]|[1-3]P)\b|\b1sthalf\b|\b(?:1st|2nd|3rd|4th)-half\b|\b(?:first|1st|second|2nd)\s+half\b|\b(?:1st|2nd|3rd|4th|first|second|third|fourth)\s+quarter\b|\b(?:1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)\s+innings?\b|\b(?:five|5)\s+innings\b|\b(?:first|1st)\s+(?:5|five)(?:\s+innings)?\b|\b(?:1st|2nd|3rd|first|second|third)\s+period\b|\balt\s+line\b|\balternate\s+(?:spread|line)\b|\b(?:nrfi|yrfi|dnb)\b|\bprop\b/i;
+/** Spaces, hyphens, underscores, and unicode dashes may separate marker words. Empty is allowed, so `1stquarter` matches. */
+const MARKER_GAP = String.raw`[\s\-_\u2010-\u2015]*`;
 
-/** Stat words that mean a player or team prop, not the game score. */
+const PARTIAL_MARKER = new RegExp(
+  [
+    String.raw`\((?:1H|1Q|F5)\)`,
+    String.raw`\b(?:[1-4]Q|Q[1-4]|H[12]|[12]H|F5|P[1-3]|[1-3]P)\b`,
+    String.raw`\b1${MARKER_GAP}[HQP]\b`,
+    String.raw`\b(?:1st|2nd|3rd|4th|first|second)${MARKER_GAP}half\b`,
+    String.raw`\bhalf${MARKER_GAP}time\b`,
+    String.raw`\b(?:1st|2nd|3rd|4th|first|second|third|fourth)${MARKER_GAP}quarter\b`,
+    String.raw`\b(?:1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)${MARKER_GAP}innings?\b`,
+    String.raw`\binnings?${MARKER_GAP}\d+\b`,
+    String.raw`\b(?:five|5)${MARKER_GAP}innings\b`,
+    String.raw`\b(?:first|1st)${MARKER_GAP}(?:5|five)(?:${MARKER_GAP}innings)?\b`,
+    String.raw`\b(?:1st|2nd|3rd|first|second|third)${MARKER_GAP}period\b`,
+    String.raw`\bperiod${MARKER_GAP}\d+\b`,
+    String.raw`\balt(?:ernate)?${MARKER_GAP}(?:spread|total|line)\b`,
+    String.raw`\bTT\b`,
+    String.raw`\b(?:home|away)${MARKER_GAP}team${MARKER_GAP}total\b`,
+    String.raw`\bteam${MARKER_GAP}total\b`,
+    String.raw`\bto${MARKER_GAP}score${MARKER_GAP}first\b`,
+    String.raw`\bfirst${MARKER_GAP}(?:basket|scorer|td|touchdown)\b`,
+    String.raw`\banytime${MARKER_GAP}(?:td|touchdown)\b`,
+    String.raw`\bdouble${MARKER_GAP}double\b`,
+    String.raw`\btotal${MARKER_GAP}bases\b`,
+    String.raw`\bteam${MARKER_GAP}points\b`,
+    String.raw`\b(?:nrfi|yrfi|dnb)\b`,
+    String.raw`\bprop\b`,
+  ].join("|"),
+  "i",
+);
+
+/**
+ * Player-prop words. `points`, `runs`, and `goals` are intentionally absent:
+ * a full-game total may say them, and Point / High Point / Pointe are team names.
+ * Word boundaries keep Q1ford, BF5, firstborn, and Whitehaven from matching.
+ */
 const PLAYER_STAT =
-  /\b(?:yards?|rebounds?|points?|strikeouts?|hits?|touchdowns?|tds?|receptions?|assists?|steals?|blocks?|sacks?|goals?|saves?|shots?|homers?|home\s+runs?|rbis?|passing|rushing|receiving|interceptions?)\b/i;
+  /\b(?:yards?|rebounds?|strikeouts?|hits?|touchdowns?|tds?|receptions?|assists?|steals?|blocks?|sacks?|saves?|shots?|homers?|hrs?|rbis?|passing|rushing|receiving|interceptions?)\b/i;
+
+/** Full-game total sides. Anything else stays pending. */
+const TOTAL_SIDE = /^(?:over|under)(?:\s*[+-]?\d+(?:\.\d+)?)?(?:\s+(?:total\s+)?(?:points|runs|goals))?$/i;
+
+/** What may follow a matched team on a spread, moneyline, or run line. */
+const TEAM_SIDE_REST = /^(?:\s*[+-]?\d+(?:\.\d+)?)?(?:\s*[+-]\d{3})?(?:\s*(?:ml|pts|points))?\s*$/i;
 
 function canonicalize(value: string): string {
   const normal = normalizeName(value);
@@ -170,21 +210,95 @@ function hasSchoolQualifier(tokens: string[]): boolean {
   return false;
 }
 
-/** Partial-game, alt-line, and inning markers. Used on both the market and the side. */
+/** Collapse nbsp and unicode dashes so whitelist checks see ordinary spaces and hyphens. */
+export function normalizePickText(value: string): string {
+  return value
+    .replace(/[\u00a0\u202f\u2007]/g, " ")
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Partial-game, alt-line, and prop markers. Used on both the market and the side. */
 export function hasPartialMarker(value: string): boolean {
-  return PARTIAL_MARKER.test(value);
+  return PARTIAL_MARKER.test(normalizePickText(value));
+}
+
+/** Stat words on a side. Bare `points` is not a stat, so Point University is not a prop. */
+export function hasPlayerStat(value: string): boolean {
+  return PLAYER_STAT.test(normalizePickText(value));
+}
+
+function teamNameMatches(head: string, team: string): boolean {
+  if (namesMatch(head, team)) return true;
+  const headTokens = normalizeName(head).split(" ").filter(Boolean);
+  const teamTokens = canonicalize(team).split(" ").filter(Boolean);
+  if (headTokens.length === 0 || headTokens.length >= teamTokens.length) return false;
+  const start = teamTokens.length - headTokens.length;
+  for (let i = 0; i < headTokens.length; i++) {
+    if (headTokens[i] !== teamTokens[start + i]) return false;
+  }
+  if (headTokens.every((token) => SCHOOL_QUALIFIERS.has(token))) return false;
+  return true;
+}
+
+/** Remainder after the event team named by the side, or null when no team matches. */
+function stripMatchedTeam(side: string, event: string): string | null {
+  const teams = eventTeams(event);
+  if (!teams) return null;
+  const words = normalizePickText(side).split(" ").filter(Boolean);
+  let bestLen = -1;
+  let bestRest: string | null = null;
+  for (const team of [teams.away, teams.home]) {
+    for (let count = words.length; count >= 1; count--) {
+      const head = words.slice(0, count).join(" ");
+      if (!teamNameMatches(head, team)) continue;
+      if (count > bestLen) {
+        bestLen = count;
+        bestRest = words.slice(count).join(" ");
+      }
+      break;
+    }
+  }
+  return bestRest;
+}
+
+function isWhitelistedTotalSide(side: string): boolean {
+  return TOTAL_SIDE.test(normalizePickText(side));
+}
+
+function isWhitelistedTeamSide(row: PickRow): boolean {
+  const side = normalizePickText(row.side);
+  if (TEAM_SIDE_REST.test(side)) return true;
+  const rest = stripMatchedTeam(side, row.event);
+  return rest != null && TEAM_SIDE_REST.test(rest);
 }
 
 /**
- * Why a total or spread must stay manual, or null when the full-game score can grade it.
- * A team-total phrase counts only inside a total market, so a real team_total row still grades.
+ * Null when the row is a full-game total, spread, moneyline, run line, or team total.
+ * Unknown side wording fails closed. Parentheses in the market never auto-grade.
  */
 export function manualSettleReason(row: PickRow): string | null {
-  const partial = hasPartialMarker(row.side) || hasPartialMarker(row.market);
-  if (!isAutoGradeMarket(row.market)) return partial ? "partial-game side" : `ambiguous market ${row.market}`;
-  if (partial) return "partial-game side";
-  if (row.market === "total" && /\bteam\s+total\b/i.test(row.side)) return "team total inside a total market";
-  if ((row.market === "total" || row.market === "spread") && PLAYER_STAT.test(row.side)) return "player stat side";
+  if (/[()]/.test(row.market)) return "partial-game side";
+  const side = normalizePickText(row.side);
+  const market = normalizePickText(row.market);
+  if (!isAutoGradeMarket(row.market)) {
+    return hasPartialMarker(side) || hasPartialMarker(market) ? "partial-game side" : `ambiguous market ${row.market}`;
+  }
+  if (row.market !== "team_total" && hasPartialMarker(market)) return "partial-game side";
+  if (row.market === "team_total") {
+    const withoutTeamTotal = side.replace(/\b(?:home|away)?[\s\-_]*team[\s\-_]*total\b/gi, " ");
+    if (hasPartialMarker(withoutTeamTotal) || hasPlayerStat(side)) return "partial-game side";
+    if (!/\bteam[\s\-_]*total[\s\-_]*(?:over|under)\b/i.test(side)) return "side is not a full-game team total";
+    return null;
+  }
+  const teamMarket = row.market === "spread" || row.market === "moneyline" || row.market === "run_line";
+  if (row.market === "total" || teamMarket) {
+    if (hasPartialMarker(side)) return "partial-game side";
+    if (hasPlayerStat(side)) return "player stat side";
+  }
+  if (row.market === "total") return isWhitelistedTotalSide(side) ? null : "side is not a full-game total";
+  if (teamMarket) return isWhitelistedTeamSide(row) ? null : "side is not a full-game team side";
   return null;
 }
 
