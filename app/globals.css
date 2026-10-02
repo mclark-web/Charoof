@@ -1277,6 +1277,7 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 
 .sector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .sector {
+  min-width: 0;
   padding: 22px; border-radius: var(--radius);
   background: linear-gradient(160deg, rgba(26,29,38,0.95), rgba(14,16,22,0.95));
   border: 1px solid var(--line); position: relative; overflow: hidden;
@@ -1357,7 +1358,7 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
   background: linear-gradient(160deg, rgba(26, 29, 38, 0.95), rgba(14, 16, 22, 0.95));
   border: 1px solid var(--line);
 }
-.record-banner .section-label { margin: 0 0 10px; }
+.record-banner .section-label { margin: 0 0 10px; font-weight: 400; }
 .record-banner .label {
   font-size: 12px;
   letter-spacing: 0.08em;
@@ -1448,7 +1449,8 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 }
 .roster-meter { padding: 8px 2px; background: transparent; border: 0; }
 .roster-meter .value { font-size: 28px; }
-.sector .roster-meter .hint { text-align: left; }
+.sector .roster-meter .hint { text-align: left; overflow-wrap: anywhere; }
+.sector .roster-meter .value { overflow-wrap: anywhere; }
 .prose-panel { margin-top: 36px; padding: 28px 24px 32px; }
 .prose-panel h1 { font-size: 36px; margin: 12px 0; max-width: 16ch; }
 .prose-panel p { color: var(--muted); line-height: 1.55; max-width: 62ch; margin-top: 12px; }

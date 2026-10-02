@@ -2,16 +2,29 @@ import Link from "next/link";
 
 export const revalidate = 300;
 import { GcTube } from "@/components/gc-tube";
-import { SectorBoard, SectorCard } from "@/components/sector-board";
-import { sectorBooks } from "@/lib/books";
+import { SectorCard } from "@/components/sector-board";
+import { sectorBooks, type SectorBook } from "@/lib/books";
 
 const EXAMPLE_STRONG = "Example: 72% with 10+ graded picks in 90 days";
 
+/** Card stat only. The sports page still reads the tube hero from the book. */
+function sportsBoardCard(book: SectorBook): SectorBook {
+  if (book.hero.kind !== "tube") return book;
+  const headline = book.hero.card.replace(/^\d+ public picks · /, "");
+  const record = headline.split(" · ")[0] || headline;
+  return {
+    ...book,
+    hero: {
+      kind: "count",
+      value: record,
+      card: headline,
+      hint: book.hero.hint,
+    },
+  };
+}
+
 export default function HubPage() {
   const books = sectorBooks();
-  const sports = books.find((book) => book.sector.key === "sports");
-  if (!sports) throw new Error("Missing sports book");
-  const others = books.filter((book) => book.sector.key !== "sports");
   return (
     <>
       <section className="hero hero-solo">
@@ -23,20 +36,18 @@ export default function HubPage() {
             <em>Graded</em> after the outcome.
           </h1>
           <p className="hero-lead">
-            Sports picks are the record on this hub. We freeze what people said in public, then grade it against real
-            prices, tape, and final scores.
+            Sports, Analysts, FinTwit, and GCBot boards in one place. We freeze what people said in public, then grade it
+            against real prices, tape, and final scores.
           </p>
         </div>
       </section>
-
-      <SectorBoard book={sports} />
 
       <div className="section-label" id="sectors">
         Sectors
       </div>
       <div className="sector-grid">
-        {others.map((book) => (
-          <SectorCard key={book.sector.key} book={book} />
+        {books.map((book) => (
+          <SectorCard key={book.sector.key} book={book.sector.key === "sports" ? sportsBoardCard(book) : book} />
         ))}
         <Link className="sector sector-copy" href="/method#gc-scale">
           <div className="kicker">Trust · Calibration</div>

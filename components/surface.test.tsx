@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import HubPage from "@/app/page";
+import SportsPage from "@/app/sports/page";
 import { SectorBoard } from "./sector-board";
 import { SiteFooter } from "./site-footer";
 import { sectorBook } from "@/lib/books";
@@ -128,13 +130,15 @@ describe("hub copy", () => {
     assert.match(disclaimer, /the home cards link to the live ledgers/);
     assert.match(disclaimer, /Demo rows are fiction, labeled Demo\./);
     assert.doesNotMatch(disclaimer, /each page links to the live ledger/);
-    assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale|label: "Sports"|href: "\/sports"/);
+    assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale/);
     assert.doesNotMatch(header, /href: "\/analysts"|href: "\/fintwit"|href: "\/gcbot"/);
     assert.match(header, /label: "Hub"/);
+    assert.match(header, /href: "\/sports", label: "Sports"/);
     assert.match(header, /LIVE_BOARDS/);
     assert.match(header, /label: "Method"/);
     const nav = header.slice(header.indexOf("const NAV"));
-    assert.ok(nav.indexOf('label: "Hub"') < nav.indexOf("LIVE_BOARDS"));
+    assert.ok(nav.indexOf('label: "Hub"') < nav.indexOf('label: "Sports"'));
+    assert.ok(nav.indexOf('label: "Sports"') < nav.indexOf("LIVE_BOARDS"));
     assert.ok(nav.indexOf("LIVE_BOARDS") < nav.indexOf('label: "Method"'));
     assert.deepEqual(
       LIVE_BOARDS.map((board) => board.label),
@@ -156,14 +160,19 @@ describe("hub copy", () => {
     assert.ok(footerHtml.indexOf("Analysts") < footerHtml.indexOf("FinTwit"));
     assert.ok(footerHtml.indexOf("FinTwit") < footerHtml.indexOf("GCBot"));
     assert.ok(footerHtml.indexOf("GCBot") < footerHtml.indexOf("Method"));
-    assert.doesNotMatch(sitemap, /\/analysts|\/fintwit|\/gcbot|\/gc-scale|\/sign-in|\/sports/);
-    assert.match(home, /SectorBoard/);
-    assert.match(home, /book\.sector\.key !== "sports"/);
-    assert.match(config, /source: "\/sports", destination: "\/", permanent: true/);
+    assert.match(sitemap, /"\/sports"/);
+    assert.doesNotMatch(sitemap, /\/analysts|\/fintwit|\/gcbot|\/gc-scale|\/sign-in/);
+    assert.doesNotMatch(home, /SectorBoard/);
+    assert.match(home, /SectorCard/);
+    assert.match(home, /book\.sector\.key === "sports"/);
+    assert.doesNotMatch(config, /source: "\/sports"/);
     assert.match(config, /source: "\/analysts"/);
     assert.match(config, /source: "\/fintwit"/);
     assert.match(config, /source: "\/gcbot"/);
-    assert.equal(existsSync(new URL("../app/sports/page.tsx", import.meta.url)), false);
+    const sportsPage = readFileSync(new URL("../app/sports/page.tsx", import.meta.url), "utf8");
+    assert.match(sportsPage, /SectorBoard/);
+    assert.match(sportsPage, /canonical: "https:\/\/charoof\.vercel\.app\/sports"/);
+    assert.equal(existsSync(new URL("../app/sports/page.tsx", import.meta.url)), true);
     assert.equal(existsSync(new URL("../components/gc-scale-view.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/gc-scale/page.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/analysts/page.tsx", import.meta.url)), false);
@@ -176,6 +185,33 @@ describe("hub copy", () => {
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+describe("hub board cards", () => {
+  it("links four boards from the hub and keeps the ledger on /sports", () => {
+    const home = renderToStaticMarkup(<HubPage />);
+    const sports = renderToStaticMarkup(<SportsPage />);
+    const analysts = home.indexOf(">Analysts<");
+    const fintwit = home.indexOf(">FinTwit<");
+    const sportsCard = home.indexOf(">Sports<");
+    const gcbot = home.indexOf(">GCBot<");
+    assert.ok(analysts > -1 && analysts < fintwit && fintwit < sportsCard && sportsCard < gcbot);
+    const sportsLink = home.slice(home.indexOf('href="/sports"'), home.indexOf('href="/sports"') + 1500);
+    assert.match(sportsLink, /<h3>Sports<\/h3>/);
+    assert.match(sportsLink, /133–105 · 2 void · 26 pending/);
+    assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
+    const record = sports.indexOf("266 public picks · 133–105 · 2 void · 26 pending");
+    const cappers = sports.indexOf("Public cappers");
+    const open = sports.indexOf("Open picks");
+    assert.ok(record > -1 && record < cappers && cappers < open);
+    assert.match(sports, />Total record</);
+    assert.equal((sports.match(/<h1[ >]/g) ?? []).length, 1);
+    assert.match(sports, /<h1 class="section-label" id="sports">Sports<\/h1>/);
+    assert.doesNotMatch(home, /Sports picks are the record on this hub/);
+    assert.match(home, /href="https:\/\/bank-troof\.vercel\.app"/);
+    assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
+    assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);
+  });
+});
 
 describe("hub sports ledger", () => {
   it("puts the total record and capper cards above the pick rows", () => {
