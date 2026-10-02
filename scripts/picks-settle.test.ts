@@ -1,12 +1,19 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { renderVerifiedJson, type PickRow } from "./picks-ledger";
 import {
+  commitSettledCsv,
   etWallTime,
+  gameStartEt,
   gamesFromScoreboard,
   linescoresAgree,
+  namesMatch,
   scoreboardDates,
   settleRow,
+  settleWriteMode,
   type EspnGame,
 } from "./picks-settle";
 
@@ -172,6 +179,239 @@ describe("ESPN settle", () => {
     assert.equal(ambiguous.action, "flagged");
     assert.equal(ambiguous.row.status, "PENDING");
     assert.match(ambiguous.detail, /more than one/);
+  });
+
+  it("does not grade a doubleheader from the only final game when the start is blank", () => {
+    const early = "2026-10-01T17:05Z";
+    const late = "2026-10-01T23:10Z";
+    const game1: EspnGame = {
+      id: "dh1",
+      awayName: "New York Yankees",
+      homeName: "Boston Red Sox",
+      awayScore: 3,
+      homeScore: 1,
+      startIso: early,
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+      awayPeriods: 9,
+      homePeriods: 9,
+    };
+    const game2: EspnGame = {
+      ...game1,
+      id: "dh2",
+      awayScore: 9,
+      homeScore: 0,
+      startIso: late,
+      statusName: "STATUS_SCHEDULED",
+      detail: "Scheduled",
+      completed: false,
+      awayPeriods: undefined,
+      homePeriods: undefined,
+    };
+    const pick = row({
+      sport: "MLB",
+      event: "New York Yankees @ Boston Red Sox",
+      market: "total",
+      side: "Under",
+      number: "8.5",
+      game_date: "2026-10-01",
+      game_start_et: "",
+      espn_game_id: "",
+    });
+    const blank = settleRow(pick, [game1, game2], "baseball/mlb", GRADED_AT);
+    assert.equal(blank.action, "flagged");
+    assert.equal(blank.row.status, "PENDING");
+    assert.equal(blank.row.final_score, "Not final");
+    assert.match(blank.detail, /more than one/);
+    assert.match(blank.row.notes, /ambiguous/);
+
+    const byLateStart = settleRow(row({ ...pick, game_start_et: gameStartEt(late) }), [game1, game2], "baseball/mlb", GRADED_AT);
+    assert.equal(byLateStart.action, "pending");
+    assert.equal(byLateStart.row.status, "PENDING");
+    assert.equal(byLateStart.row.final_score, "Not final");
+
+    const byLateId = settleRow(row({ ...pick, espn_game_id: "dh2" }), [game1, game2], "baseball/mlb", GRADED_AT);
+    assert.equal(byLateId.action, "pending");
+    assert.equal(byLateId.row.final_score, "Not final");
+
+    const byEarlyId = settleRow(row({ ...pick, espn_game_id: "dh1" }), [game1, game2], "baseball/mlb", GRADED_AT);
+    assert.equal(byEarlyId.action, "graded");
+    assert.equal(byEarlyId.row.status, "WIN");
+    assert.equal(byEarlyId.row.final_score, "New York Yankees 3, Boston Red Sox 1");
+    assert.equal(byEarlyId.row.espn_game_id, "dh1");
+  });
+
+  it("does not match Michigan to Michigan State", () => {
+    assert.equal(namesMatch("Michigan", "Michigan State"), false);
+    assert.equal(namesMatch("Michigan", "Michigan State Spartans"), false);
+    assert.equal(namesMatch("Michigan", "Michigan Wolverines"), true);
+    assert.equal(namesMatch("Michigan State", "Michigan State Spartans"), true);
+    assert.equal(namesMatch("North Carolina", "North Carolina State Wolfpack"), false);
+    assert.equal(namesMatch("North Carolina", "North Carolina Tar Heels"), true);
+    assert.equal(namesMatch("Braves", "Atlanta Braves"), true);
+    assert.equal(namesMatch("FIU", "Florida International Panthers"), true);
+
+    const spartans: EspnGame = {
+      id: "msu",
+      awayName: "Michigan State Spartans",
+      homeName: "Ohio State Buckeyes",
+      awayScore: 21,
+      homeScore: 24,
+      startIso: "2026-10-02T00:15Z",
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+    };
+    const wrong = settleRow(
+      row({
+        sport: "CFB",
+        event: "Michigan State Spartans @ Ohio State Buckeyes",
+        market: "spread",
+        side: "Michigan",
+        number: "-3.5",
+        game_date: "2026-10-01",
+      }),
+      [spartans],
+      "football/college-football",
+      GRADED_AT,
+    );
+    assert.equal(wrong.action, "flagged");
+    assert.equal(wrong.row.status, "PENDING");
+    assert.equal(wrong.row.final_score, "Not final");
+    assert.match(wrong.detail, /side/);
+
+    const right = settleRow(
+      row({
+        sport: "CFB",
+        event: "Michigan State Spartans @ Ohio State Buckeyes",
+        market: "spread",
+        side: "Michigan State",
+        number: "-3.5",
+        game_date: "2026-10-01",
+      }),
+      [spartans],
+      "football/college-football",
+      GRADED_AT,
+    );
+    assert.equal(right.action, "graded");
+    assert.equal(right.row.status, "LOSS");
+    assert.equal(right.row.final_score, "Michigan State Spartans 21, Ohio State Buckeyes 24");
+
+    const both: EspnGame = {
+      id: "subway",
+      awayName: "New York Yankees",
+      homeName: "New York Mets",
+      awayScore: 5,
+      homeScore: 2,
+      startIso: "2026-10-02T00:15Z",
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+    };
+    const ambiguous = settleRow(
+      row({
+        sport: "MLB",
+        event: "New York Yankees @ New York Mets",
+        market: "moneyline",
+        side: "New York",
+        number: "",
+        game_date: "2026-10-01",
+      }),
+      [both],
+      "baseball/mlb",
+      GRADED_AT,
+    );
+    assert.equal(ambiguous.action, "flagged");
+    assert.equal(ambiguous.row.status, "PENDING");
+    assert.equal(ambiguous.row.final_score, "Not final");
+    assert.match(ambiguous.detail, /ambiguous side/);
+  });
+
+  it("flags partial-game markers in the side field", () => {
+    for (const side of ["1H Over", "F5", "first half", "Q1"]) {
+      const partial = settleRow(row({ market: "total", side, number: "41.5" }), [steelers], "football/nfl", GRADED_AT);
+      assert.equal(partial.action, "flagged", side);
+      assert.equal(partial.row.status, "PENDING", side);
+      assert.equal(partial.row.final_score, "Not final", side);
+      assert.match(partial.row.notes, /not auto-graded/);
+    }
+  });
+
+  it("does not grade a rain-shortened MLB game as a full game", () => {
+    const shortened: EspnGame = {
+      id: "rain",
+      awayName: "Atlanta Braves",
+      homeName: "New York Mets",
+      awayScore: 2,
+      homeScore: 1,
+      startIso: "2026-10-01T23:10Z",
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+      awayPeriods: 7,
+      homePeriods: 6,
+    };
+    const pick = row({
+      sport: "MLB",
+      event: "Atlanta Braves @ New York Mets",
+      market: "total",
+      side: "Under",
+      number: "7.5",
+      game_date: "2026-10-01",
+    });
+    const short = settleRow(pick, [shortened], "baseball/mlb", GRADED_AT);
+    assert.equal(short.action, "flagged");
+    assert.equal(short.row.status, "PENDING");
+    assert.equal(short.row.final_score, "Not final");
+    assert.match(short.detail, /regulation/);
+    assert.match(short.row.notes, /regulation/);
+
+    const marked = settleRow(
+      pick,
+      [{ ...shortened, id: "marked", awayPeriods: undefined, homePeriods: undefined, detail: "Final/7" }],
+      "baseball/mlb",
+      GRADED_AT,
+    );
+    assert.equal(marked.action, "flagged");
+    assert.equal(marked.row.status, "PENDING");
+
+    const suspended = settleRow(
+      pick,
+      [{ ...shortened, id: "sus", completed: true, statusName: "STATUS_SUSPENDED", detail: "Suspended", awayPeriods: 5, homePeriods: 5 }],
+      "baseball/mlb",
+      GRADED_AT,
+    );
+    assert.equal(suspended.action, "flagged");
+    assert.equal(suspended.row.status, "PENDING");
+    assert.equal(suspended.row.final_score, "Not final");
+
+    const regulation = settleRow(
+      pick,
+      [{ ...shortened, id: "reg", awayScore: 4, homeScore: 2, awayPeriods: 9, homePeriods: 8, detail: "Final" }],
+      "baseball/mlb",
+      GRADED_AT,
+    );
+    assert.equal(regulation.action, "graded");
+    assert.equal(regulation.row.status, "WIN");
+    assert.equal(regulation.row.final_score, "Atlanta Braves 4, New York Mets 2");
+  });
+
+  it("dry-run writes nothing", () => {
+    assert.equal(settleWriteMode(["node", "scripts/picks-settle.ts"]), "dry-run");
+    assert.equal(settleWriteMode(["node", "scripts/picks-settle.ts", "--dry-run"]), "dry-run");
+    assert.equal(settleWriteMode(["node", "scripts/picks-settle.ts", "--write"]), "write");
+    assert.throws(() => settleWriteMode(["--write", "--dry-run"]), /only one/);
+
+    const dir = mkdtempSync(join(tmpdir(), "settle-"));
+    const path = join(dir, "picks.csv");
+    writeFileSync(path, "before\n");
+    assert.equal(commitSettledCsv(path, "before\n", "after\n", "dry-run"), false);
+    assert.equal(readFileSync(path, "utf8"), "before\n");
+    assert.equal(commitSettledCsv(path, "before\n", "before\n", "write"), false);
+    assert.equal(readFileSync(path, "utf8"), "before\n");
+    assert.equal(commitSettledCsv(path, "before\n", "after\n", "write"), true);
+    assert.equal(readFileSync(path, "utf8"), "after\n");
   });
 
   it("keeps bookkeeping columns out of the exported JSON", () => {
