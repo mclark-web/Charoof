@@ -1,4 +1,4 @@
-import { clampFill, displayFill, gradeForFill, type Grade, type GradeKey } from "@/lib/grade";
+import { clampFill, displayFill, formatFillTenths, gradeForFill, type Grade, type GradeKey } from "@/lib/grade";
 
 type Variant = "default" | "hero" | "mini" | "inline" | "sidebar" | "card";
 
@@ -12,6 +12,8 @@ type GcTubeProps = {
   className?: string;
   /** Overrides the fill cutoff. A short capper sample stays PROVISIONAL while the tube still shows the percentage. */
   grade?: Grade;
+  /** Hub capper rows. Floor the label to one decimal. The liquid still uses the raw fill. */
+  tenths?: boolean;
   /** No decided grades. Empty glass, never 0% or EXIT LIQUIDITY. */
   ungraded?: boolean;
 };
@@ -64,10 +66,11 @@ export function GcTube({
   className,
   grade: gradeOverride,
   ungraded = false,
+  tenths = false,
 }: GcTubeProps) {
   const caption = label === "GC" || label === "GC · Grade Calibration" ? "GC Scale" : label;
   const n = ungraded ? 0 : clampFill(fill);
-  const shown = displayFill(n);
+  const shown = tenths ? formatFillTenths(n) : String(displayFill(n));
   const grade = gradeOverride ?? gradeForFill(n);
   const empty = ungraded || (n === 0 && grade.key === "exit");
 
