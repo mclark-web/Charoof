@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +10,7 @@ import {
   etWallTime,
   gameStartEt,
   gamesFromScoreboard,
+  hasPartialMarker,
   linescoresAgree,
   namesMatch,
   scoreboardDates,
@@ -397,6 +399,156 @@ describe("ESPN settle", () => {
     assert.equal(regulation.row.final_score, "Atlanta Braves 4, New York Mets 2");
   });
 
+  it("flags partial wording on total and spread sides and markets", () => {
+    const patterns = [
+      "1st quarter",
+      "First Quarter",
+      "3rd quarter",
+      "4th quarter",
+      "2H",
+      "2nd half",
+      "second half",
+      "H1",
+      "1st-half",
+      "1sthalf",
+      "1st inning",
+      "first inning",
+      "fifth inning",
+      "five innings",
+      "1st period",
+      "P1",
+      "1P",
+      "alt line",
+      "alternate spread",
+    ];
+    for (const pattern of patterns) {
+      assert.equal(hasPartialMarker(pattern), true, pattern);
+      assert.equal(hasPartialMarker(`listed ${pattern} market`), true, `market ${pattern}`);
+      const market = pattern === "alt line" || pattern === "alternate spread" ? "spread" : "total";
+      const partial = settleRow(row({ market, side: pattern, number: "41.5" }), [steelers], "football/nfl", GRADED_AT);
+      assert.equal(partial.action, "flagged", pattern);
+      assert.equal(partial.row.status, "PENDING", pattern);
+      assert.equal(partial.row.final_score, "Not final", pattern);
+      assert.match(partial.row.notes, /not auto-graded/);
+    }
+
+    const teamTotal = settleRow(
+      row({ market: "total", side: "Houston Astros team total Over", number: "3.5" }),
+      [steelers],
+      "football/nfl",
+      GRADED_AT,
+    );
+    assert.equal(teamTotal.action, "flagged");
+    assert.equal(teamTotal.row.status, "PENDING");
+    assert.equal(teamTotal.row.final_score, "Not final");
+    assert.match(teamTotal.detail, /team total/);
+
+    const statSides = [
+      "Travis Kelce Over 60.5 receiving yards",
+      "Over 8.5 rebounds",
+      "Over 22.5 points",
+      "Over 6.5 strikeouts",
+      "Over 1.5 hits",
+      "Over 0.5 TD",
+      "Over 4.5 receptions",
+      "Over 6.5 assists",
+    ];
+    for (const side of statSides) {
+      for (const market of ["total", "spread"] as const) {
+        const prop = settleRow(row({ market, side, number: "60.5" }), [steelers], "football/nfl", GRADED_AT);
+        assert.equal(prop.action, "flagged", `${market} ${side}`);
+        assert.equal(prop.row.status, "PENDING", side);
+        assert.equal(prop.row.final_score, "Not final", side);
+        assert.match(prop.detail, /player stat/);
+      }
+    }
+  });
+
+  it("does not flag ordinary totals, team names, or lookalike tokens", () => {
+    for (const side of ["Over 6.5", "Q1ford", "BF5", "first down", "firstborn", "Pittsburgh Steelers"]) {
+      assert.equal(hasPartialMarker(side), false, side);
+      assert.equal(hasPartialMarker(`spread ${side}`), false, side);
+    }
+    assert.equal(hasPartialMarker("Houston Astros"), false);
+
+    const over = settleRow(row({ market: "total", side: "Over 6.5", number: "6.5" }), [steelers], "football/nfl", GRADED_AT);
+    assert.equal(over.action, "graded");
+    assert.equal(over.row.status, "WIN");
+
+    const steelersSide = settleRow(row({ market: "spread", side: "Pittsburgh Steelers", number: "-2.5" }), [steelers], "football/nfl", GRADED_AT);
+    assert.equal(steelersSide.action, "graded");
+    assert.equal(steelersSide.row.status, "LOSS");
+
+    const astros: EspnGame = {
+      id: "hou",
+      awayName: "Houston Astros",
+      homeName: "Atlanta Braves",
+      awayScore: 2,
+      homeScore: 5,
+      startIso: "2026-10-01T23:10Z",
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+      awayPeriods: 9,
+      homePeriods: 9,
+    };
+    const houston = settleRow(
+      row({
+        sport: "MLB",
+        event: "Houston Astros @ Atlanta Braves",
+        market: "spread",
+        side: "Houston Astros",
+        number: "-1.5",
+        game_date: "2026-10-01",
+      }),
+      [astros],
+      "baseball/mlb",
+      GRADED_AT,
+    );
+    assert.equal(houston.action, "graded");
+    assert.equal(houston.row.status, "LOSS");
+    assert.equal(houston.row.final_score, "Houston Astros 2, Atlanta Braves 5");
+
+    for (const side of ["Q1ford", "BF5", "first down", "firstborn"]) {
+      const graded = settleRow(row({ market: "total", side, number: "41.5" }), [steelers], "football/nfl", GRADED_AT);
+      assert.equal(graded.action, "graded", side);
+      assert.notEqual(graded.row.status, "PENDING", side);
+      assert.doesNotMatch(graded.row.notes, /not auto-graded/);
+    }
+  });
+
+  it("does not match Texas to Texas A&M", () => {
+    assert.equal(namesMatch("Texas", "Texas A&M Aggies"), false);
+    assert.equal(namesMatch("Texas A&M", "Texas A&M Aggies"), true);
+    const aggies: EspnGame = {
+      id: "tamu",
+      awayName: "Texas A&M Aggies",
+      homeName: "Ohio State Buckeyes",
+      awayScore: 17,
+      homeScore: 21,
+      startIso: "2026-10-02T00:15Z",
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+    };
+    const texas = settleRow(
+      row({
+        sport: "CFB",
+        event: "Texas A&M Aggies @ Ohio State Buckeyes",
+        market: "spread",
+        side: "Texas",
+        number: "-3.5",
+        game_date: "2026-10-01",
+      }),
+      [aggies],
+      "football/college-football",
+      GRADED_AT,
+    );
+    assert.equal(texas.action, "flagged");
+    assert.equal(texas.row.status, "PENDING");
+    assert.equal(texas.row.final_score, "Not final");
+  });
+
   it("dry-run writes nothing", () => {
     assert.equal(settleWriteMode(["node", "scripts/picks-settle.ts"]), "dry-run");
     assert.equal(settleWriteMode(["node", "scripts/picks-settle.ts", "--dry-run"]), "dry-run");
@@ -412,6 +564,41 @@ describe("ESPN settle", () => {
     assert.equal(readFileSync(path, "utf8"), "before\n");
     assert.equal(commitSettledCsv(path, "before\n", "after\n", "write"), true);
     assert.equal(readFileSync(path, "utf8"), "after\n");
+  });
+
+  it("rejects a mistyped flag with exit 1 and prints usage for --help", { timeout: 20000 }, () => {
+    assert.throws(() => settleWriteMode(["node", "scripts/picks-settle.ts", "--writ"]), /Unknown flag --writ/);
+    assert.throws(() => settleWriteMode(["--dryrun"]), /Unknown flag --dryrun/);
+    let usage = "";
+    try {
+      settleWriteMode(["--writ"]);
+    } catch (error) {
+      usage = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(usage, /--write/);
+    assert.match(usage, /dry-run/);
+
+    const csvPath = new URL("../data/picks/picks.csv", import.meta.url);
+    const jsonPath = new URL("../data/verified-picks.json", import.meta.url);
+    const csvBefore = readFileSync(csvPath);
+    const jsonBefore = readFileSync(jsonPath);
+    const mistyped = spawnSync(process.execPath, ["--import", "tsx", "scripts/picks-settle.ts", "--writ"], {
+      encoding: "utf8",
+      cwd: new URL("..", import.meta.url).pathname,
+    });
+    assert.equal(mistyped.status, 1);
+    assert.match(mistyped.stderr, /Unknown flag --writ/);
+    assert.match(mistyped.stderr, /--dry-run/);
+    const help = spawnSync(process.execPath, ["--import", "tsx", "scripts/picks-settle.ts", "--help"], {
+      encoding: "utf8",
+      cwd: new URL("..", import.meta.url).pathname,
+    });
+    assert.equal(help.status, 0);
+    assert.match(help.stdout, /--write/);
+    assert.match(help.stdout, /--dry-run/);
+    assert.match(help.stdout, /Dry-run is the default/);
+    assert.equal(readFileSync(csvPath).equals(csvBefore), true);
+    assert.equal(readFileSync(jsonPath).equals(jsonBefore), true);
   });
 
   it("keeps bookkeeping columns out of the exported JSON", () => {

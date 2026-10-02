@@ -151,7 +151,11 @@ const TEAM_ALIASES: Readonly<Record<string, string>> = {
 const SCHOOL_QUALIFIERS = new Set(["state", "tech", "college", "oh"]);
 
 const PARTIAL_MARKER =
-  /\((?:1H|1Q|F5)\)|\b(?:1H|1Q|F5|Q[1-4])\b|\b(?:first|1st)\s+half\b|\b(?:first|1st)\s+(?:5|five)(?:\s+innings)?\b|\b(?:nrfi|yrfi|dnb)\b|\bprop\b/i;
+  /\((?:1H|1Q|F5)\)|\b(?:1H|2H|H1|1Q|F5|Q[1-4]|P[1-3]|[1-3]P)\b|\b1sthalf\b|\b(?:1st|2nd|3rd|4th)-half\b|\b(?:first|1st|second|2nd)\s+half\b|\b(?:1st|2nd|3rd|4th|first|second|third|fourth)\s+quarter\b|\b(?:1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)\s+innings?\b|\b(?:five|5)\s+innings\b|\b(?:first|1st)\s+(?:5|five)(?:\s+innings)?\b|\b(?:1st|2nd|3rd|first|second|third)\s+period\b|\balt\s+line\b|\balternate\s+(?:spread|line)\b|\b(?:nrfi|yrfi|dnb)\b|\bprop\b/i;
+
+/** Stat words that mean a player or team prop, not the game score. */
+const PLAYER_STAT =
+  /\b(?:yards?|rebounds?|points?|strikeouts?|hits?|touchdowns?|tds?|receptions?|assists?|steals?|blocks?|sacks?|goals?|saves?|shots?|homers?|home\s+runs?|rbis?|passing|rushing|receiving|interceptions?)\b/i;
 
 function canonicalize(value: string): string {
   const normal = normalizeName(value);
@@ -166,9 +170,22 @@ function hasSchoolQualifier(tokens: string[]): boolean {
   return false;
 }
 
-/** 1H, F5, Q1, first half, and the other partial-game markers, in the market or the side. */
+/** Partial-game, alt-line, and inning markers. Used on both the market and the side. */
 export function hasPartialMarker(value: string): boolean {
   return PARTIAL_MARKER.test(value);
+}
+
+/**
+ * Why a total or spread must stay manual, or null when the full-game score can grade it.
+ * A team-total phrase counts only inside a total market, so a real team_total row still grades.
+ */
+export function manualSettleReason(row: PickRow): string | null {
+  const partial = hasPartialMarker(row.side) || hasPartialMarker(row.market);
+  if (!isAutoGradeMarket(row.market)) return partial ? "partial-game side" : `ambiguous market ${row.market}`;
+  if (partial) return "partial-game side";
+  if (row.market === "total" && /\bteam\s+total\b/i.test(row.side)) return "team total inside a total market";
+  if ((row.market === "total" || row.market === "spread") && PLAYER_STAT.test(row.side)) return "player stat side";
+  return null;
 }
 
 export function eventTeams(event: string): { away: string; home: string } | null {
@@ -353,14 +370,11 @@ export function settleRow(row: PickRow, games: EspnGame[], sportPath: string | n
 
   const finals = matched.filter(isFinalStatus);
   const postponed = matched.filter(isPostponedStatus);
-  const auto = isAutoGradeMarket(row.market) && !hasPartialMarker(row.side) && !hasPartialMarker(row.market);
+  const manual = manualSettleReason(row);
 
-  if (!auto) {
+  if (manual) {
     if (finals.length > 1) return flagged(row, "more than one final game");
-    if (finals.length === 1) {
-      const why = hasPartialMarker(row.side) && isAutoGradeMarket(row.market) ? "partial-game side" : `ambiguous market ${row.market}`;
-      return flagged(row, why, "ESPN final; not auto-graded");
-    }
+    if (finals.length === 1) return flagged(row, manual, "ESPN final; not auto-graded");
     if (postponed.length > 0) return flagged(row, "postponed", "ESPN postponed");
     return { row, action: "pending", detail: matched[0]?.statusName || "no ESPN game" };
   }
@@ -446,12 +460,30 @@ async function boxScoreProblem(sportPath: string, game: EspnGame): Promise<strin
   return null;
 }
 
-/** Dry-run unless --write is present. --dry-run is explicit and cannot be combined with --write. */
+export const SETTLE_USAGE = [
+  "Usage: npm run picks:settle -- [--write | --dry-run | --help]",
+  "Grade pending CSV rows from ESPN scoreboards.",
+  "Dry-run is the default and does not write the CSV.",
+  "  --write     Write the updated CSV",
+  "  --dry-run   Show what would change and leave the CSV untouched",
+  "  --help      Show this help",
+].join("\n");
+
+const SETTLE_FLAGS = new Set(["--write", "--dry-run", "--help", "-h"]);
+
+/** Dry-run unless --write is present. Unknown flags throw. --write and --dry-run together throw. */
 export function settleWriteMode(argv: readonly string[]): SettleWriteMode {
-  const write = argv.includes("--write");
-  const dry = argv.includes("--dry-run");
-  if (write && dry) throw new Error("Pass only one of --write or --dry-run");
+  const flags = argv.filter((arg) => arg.startsWith("-"));
+  const unknown = flags.filter((flag) => !SETTLE_FLAGS.has(flag));
+  if (unknown.length > 0) throw new Error(`Unknown flag ${unknown.join(" ")}\n${SETTLE_USAGE}`);
+  const write = flags.includes("--write");
+  const dry = flags.includes("--dry-run");
+  if (write && dry) throw new Error(`Pass only one of --write or --dry-run\n${SETTLE_USAGE}`);
   return write ? "write" : "dry-run";
+}
+
+export function wantsSettleHelp(argv: readonly string[]): boolean {
+  return argv.includes("--help") || argv.includes("-h");
 }
 
 /** Persists a changed CSV only in write mode. Dry-run leaves the file untouched. */
@@ -469,6 +501,10 @@ function isDirectRun(): boolean {
 
 async function main() {
   const mode = settleWriteMode(process.argv);
+  if (wantsSettleHelp(process.argv)) {
+    console.log(SETTLE_USAGE);
+    return;
+  }
   const rows = parsePickCsv(readFileSync(PICKS_CSV_PATH, "utf8"));
   const gradedAt = gradedAtEt();
   const cache = new Map<string, EspnGame[]>();
