@@ -204,6 +204,9 @@ describe("hub board cards", () => {
     const open = sports.indexOf("Open picks");
     assert.ok(record > -1 && record < cappers && cappers < open);
     assert.match(sports, />Total record</);
+    assert.equal((sports.match(/<h1[ >]/g) ?? []).length, 1);
+    assert.match(sports, /<h1 class="section-label" id="sports">Sports<\/h1>/);
+    assert.doesNotMatch(home, /Sports picks are the record on this hub/);
     assert.match(home, /href="https:\/\/bank-troof\.vercel\.app"/);
     assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
     assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);

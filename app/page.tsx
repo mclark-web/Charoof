@@ -36,8 +36,8 @@ export default function HubPage() {
             <em>Graded</em> after the outcome.
           </h1>
           <p className="hero-lead">
-            Sports picks are the record on this hub. We freeze what people said in public, then grade it against real
-            prices, tape, and final scores.
+            Sports, Analysts, FinTwit, and GCBot boards in one place. We freeze what people said in public, then grade it
+            against real prices, tape, and final scores.
           </p>
         </div>
       </section>

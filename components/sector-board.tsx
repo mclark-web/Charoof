@@ -51,9 +51,9 @@ export function SectorBoard({ book }: { book: SectorBook }) {
       {recordFirst ? (
         <section className="record-layout" id="record" aria-label="Total record">
           <div className="record-banner">
-            <div className="section-label" id="sports">
+            <h1 className="section-label" id="sports">
               Sports
-            </div>
+            </h1>
             <p className="label">Total record</p>
             <h2 className="ledger-line">{hero.card}</h2>
             <p className="hint record-hint">{hero.hint}</p>

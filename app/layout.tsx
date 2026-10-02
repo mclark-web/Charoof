@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const description =
-  "The GradedCalls hub shows the public sports ledger, with links to the Analysts, FinTwit, and GCBot boards. Grade Calibration, shown as a liquid gauge: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
+  "The GradedCalls hub links the Sports, Analysts, FinTwit, and GCBot boards. Grade Calibration, shown as a liquid gauge: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
 
 export const metadata: Metadata = {
   applicationName: "GradedCalls",
