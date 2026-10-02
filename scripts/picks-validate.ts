@@ -25,7 +25,7 @@ import {
  * Public record for this ledger: timed verified rows plus the frozen Friday archive.
  * A later data change updates this line in the same commit.
  */
-const PUBLIC_RECORD_LINE = "266 public picks \u00b7 133\u2013101 \u00b7 2 void \u00b7 30 pending";
+const PUBLIC_RECORD_LINE = "266 public picks \u00b7 133\u2013105 \u00b7 2 void \u00b7 26 pending";
 
 const OUTCOMES: Outcome[] = ["win", "loss", "push", "void", "pending"];
 
@@ -153,9 +153,19 @@ function main() {
   if (rendered !== renderedAgain) errors.push("exporting the CSV twice was not byte-identical");
   if (rendered !== jsonText) errors.push("data/verified-picks.json is not the export of picks.csv");
 
+  const wiped = rows.map((row) => ({
+    ...row,
+    notes: "",
+    graded_at: "",
+    game_start_et: "",
+    grade_method: row.status === "PENDING" ? "" : "manual",
+  }));
+  if (renderVerifiedJson(wiped) !== rendered) {
+    errors.push("bookkeeping columns notes, graded_at, game_start_et, or grade_method changed the exported JSON");
+  }
+
   const fromDisk = rowsFromVerified(readVerifiedJson());
-  if (serializePickCsv(fromDisk) !== csvText) errors.push("picks.csv is not the ledger generated from verified-picks.json");
-  if (renderVerifiedJson(fromDisk) !== jsonText) errors.push("verified JSON did not round-trip byte-identical through the CSV");
+  if (renderVerifiedJson(fromDisk) !== jsonText) errors.push("verified JSON fields did not round-trip");
 
   const parsed = JSON.parse(rendered) as Array<Record<string, unknown>>;
   for (const pick of parsed) {
@@ -188,7 +198,8 @@ function main() {
   console.log(`record (csv + frozen Friday archive): ${csvLine}`);
   console.log(`record (site publicLedgerLine): ${siteLine}`);
   console.log(`hit rate unrounded: ${rate}`);
-  console.log(`round trip: ${renderVerifiedJson(fromDisk) === jsonText ? "byte-identical" : "MISMATCH"}`);
+  console.log(`json derived from csv: ${rendered === jsonText ? "byte-identical" : "MISMATCH"}`);
+  console.log(`bookkeeping stays csv-only: ${renderVerifiedJson(wiped) === rendered ? "yes" : "MISMATCH"}`);
   console.log(`idempotent export: ${rendered === renderedAgain ? "byte-identical" : "MISMATCH"}`);
   for (const warning of issues.warnings) console.log(`WARN ${warning}`);
   if (errors.length > 0) {

@@ -181,7 +181,7 @@ describe("hub sports ledger", () => {
   it("puts the total record and capper cards above the pick rows", () => {
     const book = sectorBook("sports");
     const html = renderToStaticMarkup(<SectorBoard book={book} />);
-    const record = html.indexOf("266 public picks · 133–101 · 2 void · 30 pending");
+    const record = html.indexOf("266 public picks · 133–105 · 2 void · 26 pending");
     const cappers = html.indexOf("Public cappers");
     const open = html.indexOf("Open picks");
     const verified = html.indexOf("Verified lane");

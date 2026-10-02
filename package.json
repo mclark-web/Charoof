@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test lib/*.test.ts components/*.test.tsx",
+    "test": "tsx --test lib/*.test.ts components/*.test.tsx scripts/*.test.ts && tsx scripts/picks-validate.ts",
     "picks:export": "tsx scripts/picks-export.ts",
+    "picks:settle": "tsx scripts/picks-settle.ts",
     "picks:validate": "tsx scripts/picks-validate.ts",
     "test:contrast": "node scripts/pill-contrast.mjs"
   },

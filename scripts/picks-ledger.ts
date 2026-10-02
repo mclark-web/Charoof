@@ -118,6 +118,13 @@ function isPartialMarket(market: string): boolean {
   return PARTIAL_MARKET.test(market);
 }
 
+const FULL_GAME_MARKETS = new Set(["spread", "run_line", "total", "moneyline", "team_total"]);
+
+/** Full-game lines `gradeFullGame` can settle. Partials, props, and other markets stay manual. */
+export function isAutoGradeMarket(market: string): boolean {
+  return FULL_GAME_MARKETS.has(market) && !isPartialMarket(market);
+}
+
 function leanWithoutNumber(row: PickRow): boolean {
   if (row.number !== "") return false;
   if (row.market === "moneyline" || row.market.startsWith("moneyline")) return false;
