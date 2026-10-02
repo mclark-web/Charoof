@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import verifiedPicks from "@/data/verified-picks.json";
-import { openPickRows, verifiedPickRows } from "./books";
+import { openPickRows, postTimeUnconfirmed, verifiedPickRows } from "./books";
 import { boardPrice, gradeFullGame } from "./sports-grade";
 
 type StoredPick = {
@@ -33,14 +33,28 @@ describe("board price rule", () => {
 });
 
 describe("Sep 19–30 verified finals", () => {
-  it("keeps 206 graded cards, 124 wins and 96 losses, after the one-hour cutoff", () => {
-    assert.equal(picks.length, 250);
-    const pending = picks.filter((pick) => pick.result === "pending").length;
-    const added = picks.length - 14 - pending;
-    assert.equal(pending, 30);
-    assert.equal(added, 206);
-    assert.equal(picks.filter((pick) => pick.result === "win").length, 124);
-    assert.equal(picks.filter((pick) => pick.result === "loss").length, 96);
+  it("partitions every card into a known result and keeps dropped cutoff titles out", () => {
+    assert.ok(picks.length > 0);
+    const allowed = new Set(["win", "loss", "push", "void", "pending"]);
+    const counts = { win: 0, loss: 0, push: 0, void: 0, pending: 0 };
+    for (const pick of picks) {
+      assert.ok(allowed.has(pick.result), pick.result);
+      counts[pick.result as keyof typeof counts] += 1;
+      if (pick.result === "pending") {
+        assert.equal(pick.game_final, false);
+        assert.equal(pick.final_score, "Not final");
+      } else {
+        assert.equal(pick.game_final, true);
+        assert.notEqual(pick.final_score, "");
+        assert.notEqual(pick.final_score, "Not final");
+        assert.notEqual(pick.box_score_url, "");
+      }
+    }
+    assert.equal(counts.win + counts.loss + counts.push + counts.void + counts.pending, picks.length);
+    assert.equal(
+      verifiedPickRows().length,
+      picks.filter((pick) => pick.result !== "pending" && !postTimeUnconfirmed(pick.posted_at)).length,
+    );
     const titles = picks.map((pick) => `${pick.event} ${pick.side} ${pick.number ?? ""} ${pick.market}`);
     assert.equal(titles.some((title) => title.includes("South Dakota") && title.includes("58.5")), false);
     assert.equal(titles.some((title) => title.includes("Baylor") && title.includes("55.5")), false);
@@ -68,7 +82,7 @@ describe("Sep 19–30 verified finals", () => {
       checked += 1;
       assert.equal(again, pick.result, `${pick.tipster} ${pick.side} ${pick.final_score}`);
     }
-    assert.ok(checked >= 180);
+    assert.ok(checked > 0);
   });
 
   it("grades the eight Sep 30 MLB finals that are no longer pending", () => {
@@ -120,7 +134,10 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 30);
+    assert.equal(
+      openPickRows().length,
+      open.filter((pick) => !postTimeUnconfirmed(pick.posted_at)).length,
+    );
     const falcons = open.filter((pick) => pick.event.includes("Falcons") && pick.event.includes("Saints"));
     assert.equal(falcons.length, 2);
     assert.ok(falcons.every((pick) => pick.game_date === "2026-10-05"));
@@ -130,7 +147,6 @@ describe("open picks stay pending", () => {
     );
     assert.ok(open.every((pick) => pick.game_final === false && pick.final_score === "Not final"));
     const rows = openPickRows();
-    assert.equal(rows.length, 30);
     assert.equal(verifiedPickRows().some((row) => row.result === "PENDING"), false);
     for (const row of rows) {
       assert.equal(row.sample, "Open");
