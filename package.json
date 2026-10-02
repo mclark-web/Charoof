@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test lib/*.test.ts components/*.test.tsx",
+    "picks:export": "tsx scripts/picks-export.ts",
+    "picks:validate": "tsx scripts/picks-validate.ts",
     "test:contrast": "node scripts/pill-contrast.mjs"
   },
   "dependencies": {
