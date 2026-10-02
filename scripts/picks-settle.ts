@@ -1,9 +1,12 @@
 /**
  * Settle pending rows in data/picks/picks.csv from ESPN scoreboards.
  * Each game date is queried with the UTC day on either side. A row is graded only when
- * one FINAL game matches its teams and start time and the box score agrees.
- * Partial-game markets, props, postponements, and ambiguous matches are flagged, not graded.
- * This writes the CSV only. data/friday-archive.json is not touched.
+ * one FINAL regulation game matches its teams and the box score agrees.
+ * A blank game_start_et does not choose between same-day games: a doubleheader stays
+ * pending unless game_start_et or espn_game_id selects one game.
+ * Partial-game markets and sides, props, postponements, shortened games, and ambiguous
+ * matches are flagged, not graded.
+ * The default is a dry run. The CSV is written only with --write. data/friday-archive.json is not touched.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -28,6 +31,9 @@ export type EspnGame = {
   statusName: string;
   detail: string;
   completed: boolean;
+  /** Linescore length. MLB uses this as the inning count when ESPN sends one. */
+  awayPeriods?: number;
+  homePeriods?: number;
 };
 
 export type SettleAction = "graded" | "flagged" | "pending";
@@ -37,6 +43,8 @@ export type SettleResult = {
   action: SettleAction;
   detail: string;
 };
+
+export type SettleWriteMode = "dry-run" | "write";
 
 const SPORT_PATH: Record<string, string> = {
   NFL: "football/nfl",
@@ -128,6 +136,197 @@ function normalizeName(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+/**
+ * Exact short names that are not a token prefix of the ESPN display name.
+ * Lookup is the whole normalized string, so "michigan" cannot resolve to "michigan state".
+ */
+const TEAM_ALIASES: Readonly<Record<string, string>> = {
+  michigan: "michigan wolverines",
+  "michigan state": "michigan state spartans",
+  fiu: "florida international panthers",
+  braves: "atlanta braves",
+};
+
+/** Extra tokens that make a longer school a different team, not a mascot. */
+const SCHOOL_QUALIFIERS = new Set(["state", "tech", "college", "oh"]);
+
+/** Spaces, hyphens, underscores, and unicode dashes may separate marker words. Empty is allowed, so `1stquarter` matches. */
+const MARKER_GAP = String.raw`[\s\-_\u2010-\u2015]*`;
+
+/** `1st` and `1 st` both count. A gap may sit between the digit and st/nd/rd/th. */
+const ORDINAL = String.raw`(?:1${MARKER_GAP}st|2${MARKER_GAP}nd|3${MARKER_GAP}rd|(?:4|5)${MARKER_GAP}th|first|second|third|fourth|fifth)`;
+
+const PARTIAL_MARKER = new RegExp(
+  [
+    String.raw`\((?:1H|1Q|F5)\)`,
+    String.raw`\b(?:[1-4]${MARKER_GAP}Q|Q${MARKER_GAP}[1-4]|H${MARKER_GAP}[12]|[12]${MARKER_GAP}H|F5|P${MARKER_GAP}[1-3]|[1-3]${MARKER_GAP}P)\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}half\b`,
+    String.raw`\bhalf${MARKER_GAP}time\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}quarter\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}innings?\b`,
+    String.raw`\binnings?${MARKER_GAP}\d+\b`,
+    String.raw`\b(?:five|5)${MARKER_GAP}innings\b`,
+    String.raw`\b(?:first|1${MARKER_GAP}st)${MARKER_GAP}(?:5|five)(?:${MARKER_GAP}innings)?\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}period\b`,
+    String.raw`\bperiod${MARKER_GAP}\d+\b`,
+    String.raw`\balt(?:ernate)?${MARKER_GAP}(?:spread|total|line)\b`,
+    String.raw`\bTT\b`,
+    String.raw`\b(?:home|away)${MARKER_GAP}team${MARKER_GAP}total\b`,
+    String.raw`\bteam${MARKER_GAP}total\b`,
+    String.raw`\bto${MARKER_GAP}score${MARKER_GAP}first\b`,
+    String.raw`\bfirst${MARKER_GAP}(?:basket|scorer|td|touchdown)\b`,
+    String.raw`\banytime${MARKER_GAP}(?:td|touchdown)\b`,
+    String.raw`\bdouble${MARKER_GAP}double\b`,
+    String.raw`\btotal${MARKER_GAP}bases\b`,
+    String.raw`\bteam${MARKER_GAP}points\b`,
+    String.raw`\b(?:nrfi|yrfi|dnb)\b`,
+    String.raw`\bprop\b`,
+  ].join("|"),
+  "i",
+);
+
+/**
+ * Player-prop words. `points`, `runs`, and `goals` are intentionally absent:
+ * a full-game total may say them, and Point / High Point / Pointe are team names.
+ * Word boundaries keep Q1ford, BF5, firstborn, and Whitehaven from matching.
+ */
+const PLAYER_STAT =
+  /\b(?:yards?|rebounds?|strikeouts?|hits?|touchdowns?|tds?|receptions?|assists?|steals?|blocks?|sacks?|saves?|shots?|homers?|hrs?|rbis?|passing|rushing|receiving|interceptions?)\b/i;
+
+/** Full-game total sides. Anything else stays pending. */
+const TOTAL_SIDE = /^(?:over|under)(?:\s*[+-]?\d+(?:\.\d+)?)?(?:\s+(?:total\s+)?(?:points|runs|goals))?$/i;
+
+/** What may follow a matched team on a spread, moneyline, or run line. Nothing else. */
+const TEAM_SIDE_REST = /^(?:\s*[+-]?\d+(?:\.\d+)?)?(?:\s*[+-]\d{3})?(?:\s*(?:ml|pts|points))?\s*$/i;
+
+/** Team total side after the team name: "team total" plus Over or Under. The number stays in the number column. */
+const TEAM_TOTAL_REST = /^team total (?:over|under)$/i;
+
+function canonicalize(value: string): string {
+  const normal = normalizeName(value);
+  return TEAM_ALIASES[normal] ?? normal;
+}
+
+function hasSchoolQualifier(tokens: string[]): boolean {
+  if (tokens.some((token) => SCHOOL_QUALIFIERS.has(token))) return true;
+  for (let i = 0; i < tokens.length - 1; i++) {
+    if (tokens[i] === "a" && tokens[i + 1] === "m") return true;
+  }
+  return false;
+}
+
+/** Collapse nbsp, underscores, and unicode dashes so checks see ordinary spaces and hyphens. */
+export function normalizePickText(value: string): string {
+  return value
+    .replace(/[\u00a0\u202f\u2007]/g, " ")
+    .replace(/_/g, " ")
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Partial-game, alt-line, and prop markers. Used on both the market and the side. */
+export function hasPartialMarker(value: string): boolean {
+  return PARTIAL_MARKER.test(normalizePickText(value));
+}
+
+/** Stat words on a side. Bare `points` is not a stat, so Point University is not a prop. */
+export function hasPlayerStat(value: string): boolean {
+  return PLAYER_STAT.test(normalizePickText(value));
+}
+
+function tokensEqual(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) return false;
+  for (let i = 0; i < left.length; i++) if (left[i] !== right[i]) return false;
+  return true;
+}
+
+/**
+ * Whitelist head only. Extra words are not a mascot: the head must be the ESPN name,
+ * an alias, or a contiguous token prefix or suffix of it, and no longer than that name.
+ * namesMatch stays on the grading path and is not used here.
+ */
+function isStrictTeamHead(headTokens: string[], teamTokens: string[]): boolean {
+  if (headTokens.length === 0 || teamTokens.length === 0 || headTokens.length > teamTokens.length) return false;
+  const headKey = headTokens.join(" ");
+  const teamKey = teamTokens.join(" ");
+  if (headKey === teamKey) return true;
+  if (TEAM_ALIASES[headKey] === teamKey) return true;
+  if (headTokens.length === teamTokens.length) return false;
+  const prefixed = tokensEqual(headTokens, teamTokens.slice(0, headTokens.length));
+  if (prefixed && !hasSchoolQualifier(teamTokens.slice(headTokens.length))) return true;
+  const start = teamTokens.length - headTokens.length;
+  const suffixed = tokensEqual(headTokens, teamTokens.slice(start));
+  if (suffixed && !headTokens.every((token) => SCHOOL_QUALIFIERS.has(token))) return true;
+  return false;
+}
+
+/**
+ * Text after the longest strict team head, or null when the side does not start
+ * with one event team. A tie still returns the remainder so canonicalSide can flag it.
+ */
+function strictTeamRemainder(side: string, event: string): string | null {
+  const teams = eventTeams(event);
+  if (!teams) return null;
+  const words = normalizePickText(side).split(" ").filter(Boolean);
+  let bestLen = -1;
+  let bestRest: string | null = null;
+  for (const team of [teams.away, teams.home]) {
+    const teamTokens = canonicalize(team).split(" ").filter(Boolean);
+    for (let count = words.length; count >= 1; count--) {
+      const headTokens = normalizeName(words.slice(0, count).join(" ")).split(" ").filter(Boolean);
+      if (!isStrictTeamHead(headTokens, teamTokens)) continue;
+      if (count > bestLen) {
+        bestLen = count;
+        bestRest = words.slice(count).join(" ");
+      }
+      break;
+    }
+  }
+  return bestRest;
+}
+
+function isWhitelistedTotalSide(side: string): boolean {
+  return TOTAL_SIDE.test(normalizePickText(side));
+}
+
+function isWhitelistedTeamSide(row: PickRow): boolean {
+  const rest = strictTeamRemainder(row.side, row.event);
+  return rest != null && TEAM_SIDE_REST.test(rest);
+}
+
+function isWhitelistedTeamTotal(row: PickRow): boolean {
+  const rest = strictTeamRemainder(row.side, row.event);
+  return rest != null && TEAM_TOTAL_REST.test(rest);
+}
+
+/**
+ * Null when the row is a full-game total, spread, moneyline, run line, or team total.
+ * Unknown side wording fails closed. Parentheses in the market never auto-grade.
+ */
+export function manualSettleReason(row: PickRow): string | null {
+  if (/[()]/.test(row.market)) return "partial-game side";
+  const side = normalizePickText(row.side);
+  const market = normalizePickText(row.market);
+  if (row.market !== "team_total" && hasPartialMarker(market)) return "partial-game side";
+  if (!isAutoGradeMarket(row.market)) {
+    return hasPartialMarker(side) ? "partial-game side" : `ambiguous market ${row.market}`;
+  }
+  if (row.market === "team_total") {
+    const withoutTeamTotal = side.replace(/\b(?:home|away)?[\s\-_\u2010-\u2015]*team[\s\-_\u2010-\u2015]*total\b/gi, " ");
+    if (hasPartialMarker(withoutTeamTotal) || hasPlayerStat(side)) return "partial-game side";
+    return isWhitelistedTeamTotal(row) ? null : "side is not a full-game team total";
+  }
+  const teamMarket = row.market === "spread" || row.market === "moneyline" || row.market === "run_line";
+  if (row.market === "total" || teamMarket) {
+    if (hasPartialMarker(side)) return "partial-game side";
+    if (hasPlayerStat(side)) return "player stat side";
+  }
+  if (row.market === "total") return isWhitelistedTotalSide(side) ? null : "side is not a full-game total";
+  if (teamMarket) return isWhitelistedTeamSide(row) ? null : "side is not a full-game team side";
+  return null;
+}
+
 export function eventTeams(event: string): { away: string; home: string } | null {
   const core = event.replace(/\s*\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
   const at = core.split(/\s+@\s+/);
@@ -137,14 +336,23 @@ export function eventTeams(event: string): { away: string; home: string } | null
   return null;
 }
 
+/**
+ * Exact normalized names, an alias, or a token-boundary prefix.
+ * A shorter name matches a longer one only when the extra tokens are a mascot.
+ * "Michigan" matches "Michigan Wolverines" and does not match "Michigan State".
+ */
 export function namesMatch(left: string, right: string): boolean {
-  const a = normalizeName(left);
-  const b = normalizeName(right);
+  const a = canonicalize(left);
+  const b = canonicalize(right);
   if (!a || !b) return false;
   if (a === b) return true;
-  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
-  if (shorter.split(" ").length < 2) return false;
-  return longer.includes(shorter);
+  const ta = a.split(" ");
+  const tb = b.split(" ");
+  const [shorter, longer] = ta.length <= tb.length ? [ta, tb] : [tb, ta];
+  for (let i = 0; i < shorter.length; i++) {
+    if (shorter[i] !== longer[i]) return false;
+  }
+  return !hasSchoolQualifier(longer.slice(shorter.length));
 }
 
 export function gamesFromScoreboard(payload: unknown): EspnGame[] {
@@ -176,6 +384,8 @@ export function gamesFromScoreboard(payload: unknown): EspnGame[] {
       statusName: competition?.status?.type?.name ?? "",
       detail: competition?.status?.type?.detail ?? "",
       completed: competition?.status?.type?.completed === true,
+      awayPeriods: away.linescores?.length,
+      homePeriods: home.linescores?.length,
     });
   }
   return games;
@@ -197,10 +407,25 @@ function isPostponedStatus(game: EspnGame): boolean {
 }
 
 function startMatches(row: PickRow, game: EspnGame): boolean {
-  if (!game.startIso) return false;
+  if (!row.game_start_et || !game.startIso) return false;
   const wall = etWallTime(game.startIso);
-  if (!row.game_start_et) return wall.date === row.game_date;
   return row.game_start_et.includes(wall.date) && row.game_start_et.includes(wall.time);
+}
+
+function onGameDate(row: PickRow, game: EspnGame): boolean {
+  if (!game.startIso) return false;
+  return etWallTime(game.startIso).date === row.game_date;
+}
+
+/** A finished MLB game is regulation length only after the visitor has batted nine innings. */
+export function isUnderRegulation(sportPath: string | null, game: EspnGame): boolean {
+  if (sportPath !== "baseball/mlb") return false;
+  const status = `${game.statusName} ${game.detail}`;
+  if (/SUSPEND|RAIN|SHORTENED|CALLED/i.test(status)) return true;
+  const marked = /(?:final|suspended|called)\s*(?:\/|\()\s*(\d+)/i.exec(game.detail);
+  if (marked && Number(marked[1]) < 9) return true;
+  if (game.awayPeriods == null && game.homePeriods == null) return false;
+  return (game.awayPeriods ?? 0) < 9;
 }
 
 function withNote(row: PickRow, note: string): PickRow {
@@ -208,19 +433,106 @@ function withNote(row: PickRow, note: string): PickRow {
   return { ...row, notes: row.notes ? `${row.notes}; ${note}` : note };
 }
 
+type TeamSlot = "away" | "home" | "both" | "none";
+
+function teamSlot(name: string, game: EspnGame): TeamSlot {
+  const away = namesMatch(name, game.awayName);
+  const home = namesMatch(name, game.homeName);
+  if (away && home) return "both";
+  if (away) return "away";
+  if (home) return "home";
+  return "none";
+}
+
 function teamCandidates(row: PickRow, games: EspnGame[]): EspnGame[] {
   const teams = eventTeams(row.event);
   if (!teams) return [];
   return games.filter((game) => {
-    const names = [game.awayName, game.homeName];
-    return names.some((name) => namesMatch(teams.away, name)) && names.some((name) => namesMatch(teams.home, name));
+    const away = teamSlot(teams.away, game);
+    const home = teamSlot(teams.home, game);
+    if (away === "both" || home === "both" || away === "none" || home === "none") return false;
+    return away !== home;
   });
 }
 
-function scoreFor(side: string, game: EspnGame): { name: string; score: number } | null {
-  if (namesMatch(side, game.awayName)) return { name: game.awayName, score: game.awayScore };
-  if (namesMatch(side, game.homeName)) return { name: game.homeName, score: game.homeScore };
+function resolveMatched(row: PickRow, games: EspnGame[]): { matched: EspnGame[]; ambiguous: string | null } {
+  const dated = teamCandidates(row, games).filter((game) => onGameDate(row, game));
+  if (row.espn_game_id) {
+    const byId = teamCandidates(row, games).filter((game) => game.id === row.espn_game_id);
+    if (byId.length === 1) return { matched: byId, ambiguous: null };
+    return {
+      matched: [],
+      ambiguous: byId.length > 1 ? "more than one game for espn_game_id" : "espn_game_id did not match",
+    };
+  }
+  if (row.game_start_et) {
+    const byStart = dated.filter((game) => startMatches(row, game));
+    if (byStart.length > 1) return { matched: [], ambiguous: "more than one game at that start" };
+    return { matched: byStart, ambiguous: null };
+  }
+  if (dated.length > 1) return { matched: [], ambiguous: "more than one same-day game" };
+  return { matched: dated, ambiguous: null };
+}
+
+function scoreFor(side: string, game: EspnGame): { name: string; score: number } | "ambiguous" | null {
+  const slot = teamSlot(side, game);
+  if (slot === "both") return "ambiguous";
+  if (slot === "away") return { name: game.awayName, score: game.awayScore };
+  if (slot === "home") return { name: game.homeName, score: game.homeScore };
   return null;
+}
+
+/** Longest strict head against the two ESPN names. Extra side words are not consumed. */
+function strictGameHead(side: string, game: EspnGame): { name: string; rest: string } | "ambiguous" | null {
+  const words = normalizePickText(side).split(" ").filter(Boolean);
+  let bestLen = -1;
+  let best: { name: string; rest: string } | null = null;
+  let ties = 0;
+  for (const team of [game.awayName, game.homeName]) {
+    const teamTokens = canonicalize(team).split(" ").filter(Boolean);
+    for (let count = words.length; count >= 1; count--) {
+      const headTokens = normalizeName(words.slice(0, count).join(" ")).split(" ").filter(Boolean);
+      if (!isStrictTeamHead(headTokens, teamTokens)) continue;
+      if (count > bestLen) {
+        bestLen = count;
+        best = { name: team, rest: words.slice(count).join(" ") };
+        ties = 1;
+      } else if (count === bestLen) {
+        ties += 1;
+      }
+      break;
+    }
+  }
+  if (!best) return null;
+  if (ties > 1) return "ambiguous";
+  return best;
+}
+
+/** Full ESPN name for the picked side, so grading cannot substring-match the other team. */
+function canonicalSide(row: PickRow, game: EspnGame): string | null | "ambiguous" {
+  if (row.market === "total") return row.side;
+  const strict = strictGameHead(row.side, game);
+  if (strict === "ambiguous") return "ambiguous";
+  if (strict && row.market === "team_total" && TEAM_TOTAL_REST.test(strict.rest)) {
+    return `${strict.name} team total ${/over/i.test(strict.rest) ? "Over" : "Under"}`;
+  }
+  const teamMarket = row.market === "spread" || row.market === "moneyline" || row.market === "run_line";
+  if (strict && teamMarket && TEAM_SIDE_REST.test(strict.rest)) return strict.name;
+
+  // namesMatch still treats trailing words as a mascot. The whitelist rejects those
+  // sides first. This fallback stays so turning the whitelist off would grade them.
+  const teamTotal = /^(.*)\s+team total\s+(over|under)$/i.exec(row.side.trim());
+  const raw = (teamTotal ? teamTotal[1] : row.side).trim();
+  const slot = teamSlot(raw, game);
+  if (slot === "both") return "ambiguous";
+  if (slot === "none") return null;
+  const name = slot === "away" ? game.awayName : game.homeName;
+  if (!teamTotal) return name;
+  return `${name} team total ${teamTotal[2]}`;
+}
+
+function flagged(row: PickRow, detail: string, note = "ambiguous ESPN match"): SettleResult {
+  return { row: withNote(row, note), action: "flagged", detail };
 }
 
 export function settleRow(row: PickRow, games: EspnGame[], sportPath: string | null, gradedAt: string): SettleResult {
@@ -228,42 +540,47 @@ export function settleRow(row: PickRow, games: EspnGame[], sportPath: string | n
   if (!sportPath) return { row, action: "flagged", detail: `no ESPN path for ${row.sport}` };
   if (!eventTeams(row.event)) return { row, action: "flagged", detail: "event is not Away @ Home" };
 
-  const matched = teamCandidates(row, games).filter((game) => startMatches(row, game));
+  const { matched, ambiguous } = resolveMatched(row, games);
+  if (ambiguous) return flagged(row, ambiguous);
+
   const finals = matched.filter(isFinalStatus);
   const postponed = matched.filter(isPostponedStatus);
+  const manual = manualSettleReason(row);
 
-  if (!isAutoGradeMarket(row.market)) {
-    if (finals.length > 1) return { row: withNote(row, "ambiguous ESPN match"), action: "flagged", detail: "more than one final game" };
-    if (finals.length === 1) {
-      return { row: withNote(row, "ESPN final; not auto-graded"), action: "flagged", detail: `ambiguous market ${row.market}` };
-    }
-    if (postponed.length > 0) return { row: withNote(row, "ESPN postponed"), action: "flagged", detail: "postponed" };
+  if (manual) {
+    if (finals.length > 1) return flagged(row, "more than one final game");
+    if (finals.length === 1) return flagged(row, manual, "ESPN final; not auto-graded");
+    if (postponed.length > 0) return flagged(row, "postponed", "ESPN postponed");
     return { row, action: "pending", detail: matched[0]?.statusName || "no ESPN game" };
   }
 
-  if (finals.length > 1) {
-    return { row: withNote(row, "ambiguous ESPN match"), action: "flagged", detail: "more than one final game" };
-  }
+  if (finals.length > 1) return flagged(row, "more than one final game");
   if (finals.length === 0) {
-    if (postponed.length > 0) return { row: withNote(row, "ESPN postponed"), action: "flagged", detail: "postponed" };
+    if (postponed.length > 0) return flagged(row, "postponed", "ESPN postponed");
     return { row, action: "pending", detail: matched[0]?.statusName || "no ESPN game" };
   }
 
   const game = finals[0];
+  if (!game) return flagged(row, "missing score");
+  if (isUnderRegulation(sportPath, game)) return flagged(row, "under regulation length", "under regulation length; not auto-graded");
+
   const teams = eventTeams(row.event);
   const away = teams ? scoreFor(teams.away, game) : null;
   const home = teams ? scoreFor(teams.home, game) : null;
-  if (!game || !away || !home || !Number.isFinite(away.score) || !Number.isFinite(home.score)) {
-    return { row: withNote(row, "ambiguous ESPN match"), action: "flagged", detail: "missing score" };
+  if (!away || !home || away === "ambiguous" || home === "ambiguous" || !Number.isFinite(away.score) || !Number.isFinite(home.score)) {
+    return flagged(row, "missing score");
   }
+  const side = canonicalSide(row, game);
+  if (side === "ambiguous") return flagged(row, "ambiguous side");
+  if (!side) return flagged(row, "side did not match a team");
   const finalScore = `${away.name} ${away.score}, ${home.name} ${home.score}`;
   const grade = gradeFullGame({
     market: row.market,
-    side: row.side,
+    side,
     number: parseNumber(row.number),
     finalScore,
   });
-  if (!grade) return { row: withNote(row, "ambiguous ESPN match"), action: "flagged", detail: "gradeFullGame returned null" };
+  if (!grade) return flagged(row, "gradeFullGame returned null");
 
   const next: PickRow = {
     ...row,
@@ -318,6 +635,39 @@ async function boxScoreProblem(sportPath: string, game: EspnGame): Promise<strin
   return null;
 }
 
+export const SETTLE_USAGE = [
+  "Usage: npm run picks:settle -- [--write | --dry-run | --help]",
+  "Grade pending CSV rows from ESPN scoreboards.",
+  "Dry-run is the default and does not write the CSV.",
+  "  --write     Write the updated CSV",
+  "  --dry-run   Show what would change and leave the CSV untouched",
+  "  --help      Show this help",
+].join("\n");
+
+const SETTLE_FLAGS = new Set(["--write", "--dry-run", "--help", "-h"]);
+
+/** Dry-run unless --write is present. Unknown flags throw. --write and --dry-run together throw. */
+export function settleWriteMode(argv: readonly string[]): SettleWriteMode {
+  const flags = argv.filter((arg) => arg.startsWith("-"));
+  const unknown = flags.filter((flag) => !SETTLE_FLAGS.has(flag));
+  if (unknown.length > 0) throw new Error(`Unknown flag ${unknown.join(" ")}\n${SETTLE_USAGE}`);
+  const write = flags.includes("--write");
+  const dry = flags.includes("--dry-run");
+  if (write && dry) throw new Error(`Pass only one of --write or --dry-run\n${SETTLE_USAGE}`);
+  return write ? "write" : "dry-run";
+}
+
+export function wantsSettleHelp(argv: readonly string[]): boolean {
+  return argv.includes("--help") || argv.includes("-h");
+}
+
+/** Persists a changed CSV only in write mode. Dry-run leaves the file untouched. */
+export function commitSettledCsv(path: string, before: string, after: string, mode: SettleWriteMode): boolean {
+  if (mode !== "write" || before === after) return false;
+  writeFileSync(path, after);
+  return true;
+}
+
 function isDirectRun(): boolean {
   const entry = process.argv[1];
   if (!entry) return false;
@@ -325,6 +675,11 @@ function isDirectRun(): boolean {
 }
 
 async function main() {
+  const mode = settleWriteMode(process.argv);
+  if (wantsSettleHelp(process.argv)) {
+    console.log(SETTLE_USAGE);
+    return;
+  }
   const rows = parsePickCsv(readFileSync(PICKS_CSV_PATH, "utf8"));
   const gradedAt = gradedAtEt();
   const cache = new Map<string, EspnGame[]>();
@@ -377,9 +732,10 @@ async function main() {
 
   const before = serializePickCsv(rows);
   const after = serializePickCsv(next);
-  if (before !== after) writeFileSync(PICKS_CSV_PATH, after);
+  const wrote = commitSettledCsv(PICKS_CSV_PATH, before, after, mode);
+  if (!wrote && before !== after) console.log("dry-run: CSV not written");
   for (const line of lines) console.log(line);
-  console.log(`${graded} graded, ${flagged} flagged, ${pending} still pending`);
+  console.log(`${graded} graded, ${flagged} flagged, ${pending} still pending${mode === "write" ? "" : " (dry-run)"}`);
 }
 
 if (isDirectRun()) {
