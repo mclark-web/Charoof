@@ -153,19 +153,21 @@ const SCHOOL_QUALIFIERS = new Set(["state", "tech", "college", "oh"]);
 /** Spaces, hyphens, underscores, and unicode dashes may separate marker words. Empty is allowed, so `1stquarter` matches. */
 const MARKER_GAP = String.raw`[\s\-_\u2010-\u2015]*`;
 
+/** `1st` and `1 st` both count. A gap may sit between the digit and st/nd/rd/th. */
+const ORDINAL = String.raw`(?:1${MARKER_GAP}st|2${MARKER_GAP}nd|3${MARKER_GAP}rd|(?:4|5)${MARKER_GAP}th|first|second|third|fourth|fifth)`;
+
 const PARTIAL_MARKER = new RegExp(
   [
     String.raw`\((?:1H|1Q|F5)\)`,
-    String.raw`\b(?:[1-4]Q|Q[1-4]|H[12]|[12]H|F5|P[1-3]|[1-3]P)\b`,
-    String.raw`\b1${MARKER_GAP}[HQP]\b`,
-    String.raw`\b(?:1st|2nd|3rd|4th|first|second)${MARKER_GAP}half\b`,
+    String.raw`\b(?:[1-4]${MARKER_GAP}Q|Q${MARKER_GAP}[1-4]|H${MARKER_GAP}[12]|[12]${MARKER_GAP}H|F5|P${MARKER_GAP}[1-3]|[1-3]${MARKER_GAP}P)\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}half\b`,
     String.raw`\bhalf${MARKER_GAP}time\b`,
-    String.raw`\b(?:1st|2nd|3rd|4th|first|second|third|fourth)${MARKER_GAP}quarter\b`,
-    String.raw`\b(?:1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth)${MARKER_GAP}innings?\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}quarter\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}innings?\b`,
     String.raw`\binnings?${MARKER_GAP}\d+\b`,
     String.raw`\b(?:five|5)${MARKER_GAP}innings\b`,
-    String.raw`\b(?:first|1st)${MARKER_GAP}(?:5|five)(?:${MARKER_GAP}innings)?\b`,
-    String.raw`\b(?:1st|2nd|3rd|first|second|third)${MARKER_GAP}period\b`,
+    String.raw`\b(?:first|1${MARKER_GAP}st)${MARKER_GAP}(?:5|five)(?:${MARKER_GAP}innings)?\b`,
+    String.raw`\b${ORDINAL}${MARKER_GAP}period\b`,
     String.raw`\bperiod${MARKER_GAP}\d+\b`,
     String.raw`\balt(?:ernate)?${MARKER_GAP}(?:spread|total|line)\b`,
     String.raw`\bTT\b`,
@@ -194,8 +196,11 @@ const PLAYER_STAT =
 /** Full-game total sides. Anything else stays pending. */
 const TOTAL_SIDE = /^(?:over|under)(?:\s*[+-]?\d+(?:\.\d+)?)?(?:\s+(?:total\s+)?(?:points|runs|goals))?$/i;
 
-/** What may follow a matched team on a spread, moneyline, or run line. */
+/** What may follow a matched team on a spread, moneyline, or run line. Nothing else. */
 const TEAM_SIDE_REST = /^(?:\s*[+-]?\d+(?:\.\d+)?)?(?:\s*[+-]\d{3})?(?:\s*(?:ml|pts|points))?\s*$/i;
+
+/** Team total side after the team name: "team total" plus Over or Under. The number stays in the number column. */
+const TEAM_TOTAL_REST = /^team total (?:over|under)$/i;
 
 function canonicalize(value: string): string {
   const normal = normalizeName(value);
@@ -210,10 +215,11 @@ function hasSchoolQualifier(tokens: string[]): boolean {
   return false;
 }
 
-/** Collapse nbsp and unicode dashes so whitelist checks see ordinary spaces and hyphens. */
+/** Collapse nbsp, underscores, and unicode dashes so checks see ordinary spaces and hyphens. */
 export function normalizePickText(value: string): string {
   return value
     .replace(/[\u00a0\u202f\u2007]/g, " ")
+    .replace(/_/g, " ")
     .replace(/[\u2010-\u2015\u2212]/g, "-")
     .replace(/\s+/g, " ")
     .trim();
@@ -229,30 +235,47 @@ export function hasPlayerStat(value: string): boolean {
   return PLAYER_STAT.test(normalizePickText(value));
 }
 
-function teamNameMatches(head: string, team: string): boolean {
-  if (namesMatch(head, team)) return true;
-  const headTokens = normalizeName(head).split(" ").filter(Boolean);
-  const teamTokens = canonicalize(team).split(" ").filter(Boolean);
-  if (headTokens.length === 0 || headTokens.length >= teamTokens.length) return false;
-  const start = teamTokens.length - headTokens.length;
-  for (let i = 0; i < headTokens.length; i++) {
-    if (headTokens[i] !== teamTokens[start + i]) return false;
-  }
-  if (headTokens.every((token) => SCHOOL_QUALIFIERS.has(token))) return false;
+function tokensEqual(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) return false;
+  for (let i = 0; i < left.length; i++) if (left[i] !== right[i]) return false;
   return true;
 }
 
-/** Remainder after the event team named by the side, or null when no team matches. */
-function stripMatchedTeam(side: string, event: string): string | null {
+/**
+ * Whitelist head only. Extra words are not a mascot: the head must be the ESPN name,
+ * an alias, or a contiguous token prefix or suffix of it, and no longer than that name.
+ * namesMatch stays on the grading path and is not used here.
+ */
+function isStrictTeamHead(headTokens: string[], teamTokens: string[]): boolean {
+  if (headTokens.length === 0 || teamTokens.length === 0 || headTokens.length > teamTokens.length) return false;
+  const headKey = headTokens.join(" ");
+  const teamKey = teamTokens.join(" ");
+  if (headKey === teamKey) return true;
+  if (TEAM_ALIASES[headKey] === teamKey) return true;
+  if (headTokens.length === teamTokens.length) return false;
+  const prefixed = tokensEqual(headTokens, teamTokens.slice(0, headTokens.length));
+  if (prefixed && !hasSchoolQualifier(teamTokens.slice(headTokens.length))) return true;
+  const start = teamTokens.length - headTokens.length;
+  const suffixed = tokensEqual(headTokens, teamTokens.slice(start));
+  if (suffixed && !headTokens.every((token) => SCHOOL_QUALIFIERS.has(token))) return true;
+  return false;
+}
+
+/**
+ * Text after the longest strict team head, or null when the side does not start
+ * with one event team. A tie still returns the remainder so canonicalSide can flag it.
+ */
+function strictTeamRemainder(side: string, event: string): string | null {
   const teams = eventTeams(event);
   if (!teams) return null;
   const words = normalizePickText(side).split(" ").filter(Boolean);
   let bestLen = -1;
   let bestRest: string | null = null;
   for (const team of [teams.away, teams.home]) {
+    const teamTokens = canonicalize(team).split(" ").filter(Boolean);
     for (let count = words.length; count >= 1; count--) {
-      const head = words.slice(0, count).join(" ");
-      if (!teamNameMatches(head, team)) continue;
+      const headTokens = normalizeName(words.slice(0, count).join(" ")).split(" ").filter(Boolean);
+      if (!isStrictTeamHead(headTokens, teamTokens)) continue;
       if (count > bestLen) {
         bestLen = count;
         bestRest = words.slice(count).join(" ");
@@ -268,10 +291,13 @@ function isWhitelistedTotalSide(side: string): boolean {
 }
 
 function isWhitelistedTeamSide(row: PickRow): boolean {
-  const side = normalizePickText(row.side);
-  if (TEAM_SIDE_REST.test(side)) return true;
-  const rest = stripMatchedTeam(side, row.event);
+  const rest = strictTeamRemainder(row.side, row.event);
   return rest != null && TEAM_SIDE_REST.test(rest);
+}
+
+function isWhitelistedTeamTotal(row: PickRow): boolean {
+  const rest = strictTeamRemainder(row.side, row.event);
+  return rest != null && TEAM_TOTAL_REST.test(rest);
 }
 
 /**
@@ -282,15 +308,14 @@ export function manualSettleReason(row: PickRow): string | null {
   if (/[()]/.test(row.market)) return "partial-game side";
   const side = normalizePickText(row.side);
   const market = normalizePickText(row.market);
-  if (!isAutoGradeMarket(row.market)) {
-    return hasPartialMarker(side) || hasPartialMarker(market) ? "partial-game side" : `ambiguous market ${row.market}`;
-  }
   if (row.market !== "team_total" && hasPartialMarker(market)) return "partial-game side";
+  if (!isAutoGradeMarket(row.market)) {
+    return hasPartialMarker(side) ? "partial-game side" : `ambiguous market ${row.market}`;
+  }
   if (row.market === "team_total") {
-    const withoutTeamTotal = side.replace(/\b(?:home|away)?[\s\-_]*team[\s\-_]*total\b/gi, " ");
+    const withoutTeamTotal = side.replace(/\b(?:home|away)?[\s\-_\u2010-\u2015]*team[\s\-_\u2010-\u2015]*total\b/gi, " ");
     if (hasPartialMarker(withoutTeamTotal) || hasPlayerStat(side)) return "partial-game side";
-    if (!/\bteam[\s\-_]*total[\s\-_]*(?:over|under)\b/i.test(side)) return "side is not a full-game team total";
-    return null;
+    return isWhitelistedTeamTotal(row) ? null : "side is not a full-game team total";
   }
   const teamMarket = row.market === "spread" || row.market === "moneyline" || row.market === "run_line";
   if (row.market === "total" || teamMarket) {
@@ -457,9 +482,45 @@ function scoreFor(side: string, game: EspnGame): { name: string; score: number }
   return null;
 }
 
+/** Longest strict head against the two ESPN names. Extra side words are not consumed. */
+function strictGameHead(side: string, game: EspnGame): { name: string; rest: string } | "ambiguous" | null {
+  const words = normalizePickText(side).split(" ").filter(Boolean);
+  let bestLen = -1;
+  let best: { name: string; rest: string } | null = null;
+  let ties = 0;
+  for (const team of [game.awayName, game.homeName]) {
+    const teamTokens = canonicalize(team).split(" ").filter(Boolean);
+    for (let count = words.length; count >= 1; count--) {
+      const headTokens = normalizeName(words.slice(0, count).join(" ")).split(" ").filter(Boolean);
+      if (!isStrictTeamHead(headTokens, teamTokens)) continue;
+      if (count > bestLen) {
+        bestLen = count;
+        best = { name: team, rest: words.slice(count).join(" ") };
+        ties = 1;
+      } else if (count === bestLen) {
+        ties += 1;
+      }
+      break;
+    }
+  }
+  if (!best) return null;
+  if (ties > 1) return "ambiguous";
+  return best;
+}
+
 /** Full ESPN name for the picked side, so grading cannot substring-match the other team. */
 function canonicalSide(row: PickRow, game: EspnGame): string | null | "ambiguous" {
   if (row.market === "total") return row.side;
+  const strict = strictGameHead(row.side, game);
+  if (strict === "ambiguous") return "ambiguous";
+  if (strict && row.market === "team_total" && TEAM_TOTAL_REST.test(strict.rest)) {
+    return `${strict.name} team total ${/over/i.test(strict.rest) ? "Over" : "Under"}`;
+  }
+  const teamMarket = row.market === "spread" || row.market === "moneyline" || row.market === "run_line";
+  if (strict && teamMarket && TEAM_SIDE_REST.test(strict.rest)) return strict.name;
+
+  // namesMatch still treats trailing words as a mascot. The whitelist rejects those
+  // sides first. This fallback stays so turning the whitelist off would grade them.
   const teamTotal = /^(.*)\s+team total\s+(over|under)$/i.exec(row.side.trim());
   const raw = (teamTotal ? teamTotal[1] : row.side).trim();
   const slot = teamSlot(raw, game);

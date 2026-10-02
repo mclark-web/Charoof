@@ -622,6 +622,22 @@ describe("ESPN settle", () => {
     assert.equal(points.action, "graded");
     assert.equal(points.row.status, "LOSS");
 
+    const legalTeamSides = [
+      ["spread", "Pittsburgh Steelers -2.5", "-2.5"],
+      ["spread", "Pittsburgh Steelers +2.5 points", "2.5"],
+      ["spread", "Pittsburgh -2.5", "-2.5"],
+      ["moneyline", "Pittsburgh Steelers ML", ""],
+      ["spread", "Pittsburgh Steelers -110", "-2.5"],
+      ["run_line", "Pittsburgh Steelers -2.5", "-2.5"],
+      ["moneyline", "Steelers", ""],
+      ["team_total", "Pittsburgh Steelers team total Over", "20.5"],
+    ] as const;
+    for (const [market, side, number] of legalTeamSides) {
+      const graded = settleRow(row({ market, side, number }), [steelers], "football/nfl", GRADED_AT);
+      assert.equal(graded.action, "graded", `${market} ${side}`);
+      assert.notEqual(graded.row.status, "PENDING", `${market} ${side}`);
+    }
+
     const lookalikes = [
       "Houston Astros",
       "Q1ford",
@@ -629,6 +645,7 @@ describe("ESPN settle", () => {
       "first down",
       "firstborn",
       "Sacramento",
+      "Sacramento State",
       "Whitehaven",
       "Brunswick",
       "Pointe",
@@ -664,6 +681,182 @@ describe("ESPN settle", () => {
       assert.equal(graded.row.status, "WIN", name);
       assert.equal(graded.row.final_score, `${name} 10, Cleveland Browns 7`);
     }
+  });
+
+  it("flags extra words after a full team name on spread, moneyline, run line, and team total", () => {
+    const tails = [
+      "live",
+      "alt",
+      "player",
+      "OT",
+      "overtime",
+      "overtime only",
+      "bonus",
+      "spread",
+      "🔥",
+      "✅",
+      "reg only",
+      "regulation",
+      "player props",
+      "Over 22.5 points LeBron",
+      "first drive",
+      "3rd drive",
+      "to win",
+      "lean",
+      "best bet",
+      "parlay",
+      "teaser",
+      "Over 37.5",
+      "Under",
+      "+ Under 37.5",
+      "and Cleveland Browns",
+      "vs Cleveland Browns",
+      "wins by 3 or more",
+      "-2.5 or -3.5",
+    ];
+    const teamTotalTails = ["live", "alt", "OT", "player", "🔥", "20.5", "lean"];
+    const sides = [
+      ...tails.map((tail) => `Pittsburgh Steelers -2.5 ${tail}`),
+      "Cleveland Browns +2.5 live",
+      "Cleveland Browns Over",
+      ...teamTotalTails.map((tail) => `Pittsburgh Steelers team total Over ${tail}`),
+      "Pittsburgh Steelers alt team total Over",
+      "Pittsburgh Steelers first drive team total Over",
+      "Pittsburgh Steelers 1 st quarter",
+      "Pittsburgh Steelers 2 nd half",
+      "Pittsburgh Steelers 2 Q",
+      "Pittsburgh Steelers 2 H",
+      "Pittsburgh Steelers 2 P",
+      "Pittsburgh Steelers Chiefs_team_total_over_24.5",
+      "Pittsburgh Steelers TT_over",
+      "Pittsburgh Steelers Kelce_receiving_yards",
+      "Pittsburgh Steelers Ohtani_to_hit_a_HR",
+    ];
+    for (const pattern of ["1 st quarter", "2 nd half", "2 Q", "2 H", "2 P", "Chiefs_team_total_over_24.5", "TT_over"]) {
+      assert.equal(hasPartialMarker(pattern), true, pattern);
+    }
+    assert.equal(hasPlayerStat("Kelce_receiving_yards"), true);
+    assert.equal(hasPlayerStat("Ohtani_to_hit_a_HR"), true);
+    assert.equal(hasPlayerStat("Whitehaven"), false);
+    assert.equal(hasPartialMarker("Whitehaven"), false);
+
+    for (const side of sides) {
+      for (const market of ["spread", "moneyline", "run_line", "team_total"] as const) {
+        const reason = manualSettleReason(row({ market, side, number: "-2.5" }));
+        assert.notEqual(reason, null, `${market} ${side}`);
+        const result = settleRow(row({ market, side, number: "-2.5" }), [steelers], "football/nfl", GRADED_AT);
+        assert.equal(result.action, "flagged", `${market} ${side}`);
+        assert.equal(result.row.status, "PENDING", `${market} ${side}`);
+        assert.equal(result.row.final_score, "Not final", `${market} ${side}`);
+      }
+    }
+  });
+
+  it("keeps the whitelist and the second-layer checks from being widened", () => {
+    const live = row({ market: "spread", side: "Pittsburgh Steelers -2.5 live", number: "-2.5" });
+    assert.equal(manualSettleReason(live), "side is not a full-game team side");
+    const gradedIfWhitelistOff = settleRow(live, [steelers], "football/nfl", GRADED_AT);
+    assert.equal(gradedIfWhitelistOff.action, "flagged");
+    assert.equal(gradedIfWhitelistOff.row.final_score, "Not final");
+
+    for (const market of ["moneyline", "run_line"] as const) {
+      const stat = row({ market, side: "Mahomes passing yards", number: "" });
+      assert.equal(manualSettleReason(stat), "player stat side");
+      const kelce = row({ market, side: "Travis Kelce Over 60.5 receiving yards", number: "60.5" });
+      assert.equal(manualSettleReason(kelce), "player stat side");
+    }
+
+    const openTail = row({ market: "total", side: "Over 6.5 live", number: "6.5" });
+    assert.equal(manualSettleReason(openTail), "side is not a full-game total");
+    const openGraded = settleRow(openTail, [steelers], "football/nfl", GRADED_AT);
+    assert.equal(openGraded.action, "flagged");
+    assert.equal(openGraded.row.status, "PENDING");
+
+    const pointsTail = row({ market: "total", side: "Over 37.5 total points tonight", number: "37.5" });
+    assert.equal(manualSettleReason(pointsTail), "side is not a full-game total");
+
+    const paren = row({ market: "total (live)", side: "Over 6.5", number: "6.5" });
+    assert.equal(manualSettleReason(paren), "partial-game side");
+    const parenSettled = settleRow(paren, [steelers], "football/nfl", GRADED_AT);
+    assert.equal(parenSettled.action, "flagged");
+    assert.equal(parenSettled.row.status, "PENDING");
+
+    const marketPartial = row({ market: "2nd half", side: "Over 6.5", number: "6.5" });
+    assert.equal(manualSettleReason(marketPartial), "partial-game side");
+
+    const altTeamTotal = row({
+      market: "team_total",
+      side: "Pittsburgh Steelers alt team total Over",
+      number: "20.5",
+    });
+    assert.equal(manualSettleReason(altTeamTotal), "side is not a full-game team total");
+    const altSettled = settleRow(altTeamTotal, [steelers], "football/nfl", GRADED_AT);
+    assert.equal(altSettled.action, "flagged");
+    assert.equal(altSettled.row.status, "PENDING");
+    assert.equal(altSettled.row.final_score, "Not final");
+  });
+
+  it("grades league display names, prefixes, suffixes, and aliases", () => {
+    const samples: Array<[string, string, string]> = [
+      ["Pittsburgh Steelers", "Pittsburgh Steelers", "Cleveland Browns"],
+      ["49ers", "San Francisco 49ers", "Dallas Cowboys"],
+      ["St. Louis Cardinals", "St. Louis Cardinals", "Chicago Cubs"],
+      ["Red Sox", "Boston Red Sox", "New York Yankees"],
+      ["Boston Celtics", "Boston Celtics", "Los Angeles Lakers"],
+      ["Maple Leafs", "Toronto Maple Leafs", "Montreal Canadiens"],
+      ["Notre Dame", "Notre Dame Fighting Irish", "Purdue Boilermakers"],
+      ["Ohio State", "Ohio State Buckeyes", "Michigan Wolverines"],
+      ["Texas A&M", "Texas A&M Aggies", "LSU Tigers"],
+      ["Sacramento State", "Sacramento State Hornets", "Idaho Vandals"],
+      ["Braves", "Atlanta Braves", "New York Mets"],
+      ["FIU", "Florida International Panthers", "Florida Atlantic Owls"],
+    ];
+    for (const [side, away, home] of samples) {
+      const game: EspnGame = {
+        id: `name-${away}`,
+        awayName: away,
+        homeName: home,
+        awayScore: 10,
+        homeScore: 7,
+        startIso: "2026-10-02T00:15Z",
+        statusName: "STATUS_FINAL",
+        detail: "Final",
+        completed: true,
+      };
+      const graded = settleRow(
+        row({ event: `${away} @ ${home}`, market: "moneyline", side, number: "" }),
+        [game],
+        "football/nfl",
+        GRADED_AT,
+      );
+      assert.equal(graded.action, "graded", side);
+      assert.equal(graded.row.status, "WIN", side);
+    }
+
+    const ohio: EspnGame = {
+      id: "ohio",
+      awayName: "Ohio State Buckeyes",
+      homeName: "Michigan Wolverines",
+      awayScore: 10,
+      homeScore: 7,
+      startIso: "2026-10-02T00:15Z",
+      statusName: "STATUS_FINAL",
+      detail: "Final",
+      completed: true,
+    };
+    const ohioShort = settleRow(
+      row({
+        event: "Ohio State Buckeyes @ Michigan Wolverines",
+        market: "spread",
+        side: "Ohio -3.5",
+        number: "-3.5",
+      }),
+      [ohio],
+      "football/college-football",
+      GRADED_AT,
+    );
+    assert.equal(ohioShort.action, "flagged");
+    assert.equal(ohioShort.row.status, "PENDING");
   });
 
   it("does not newly flag any of the 250 committed full-game rows", () => {
