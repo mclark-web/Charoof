@@ -198,3 +198,8 @@ export function sectorByKey(key: SectorKey): Sector {
   if (!sector) throw new Error(`Unknown sector ${key}`);
   return sector;
 }
+
+/** Sibling boards. Sports lives on the Hub, so it is not in this list. */
+export const LIVE_BOARDS = sectors
+  .filter((sector) => sector.href.startsWith("http"))
+  .map((sector) => ({ label: sector.title, href: sector.href }));

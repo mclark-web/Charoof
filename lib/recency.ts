@@ -133,7 +133,7 @@ export function gradedPickCount(blended: BlendedWinRate): number {
 export type CapperPresentation = {
   fill: number | null;
   grade: Grade;
-  /** Unused on the card. The short-sample rule is stated once on /method and once on /sports. */
+  /** Unused on the card. The short-sample rule is stated once on /method and once on the Hub. */
   note: string | null;
 };
 

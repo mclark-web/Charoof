@@ -4,18 +4,48 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LogoLink } from "@/components/logo-link";
+import { LIVE_BOARDS } from "@/lib/sectors";
 
-const NAV = [
+type NavItem = { href: string; label: string; external?: boolean };
+
+const NAV: NavItem[] = [
   { href: "/", label: "Hub" },
-  { href: "/sports", label: "Sports" },
+  ...LIVE_BOARDS.map((board) => ({ href: board.href, label: board.label, external: true })),
   { href: "/method", label: "Method" },
 ];
 
 const COMPACT_QUERY = "(max-width: 820px)";
 
-function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+function isActive(pathname: string, item: NavItem) {
+  if (item.external) return false;
+  if (item.href === "/") return pathname === "/";
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+function NavLink({
+  item,
+  className,
+  hidden,
+  current,
+}: {
+  item: NavItem;
+  className?: string;
+  hidden?: boolean;
+  current?: boolean;
+}) {
+  const ariaCurrent = current ? "page" : undefined;
+  if (item.external) {
+    return (
+      <a href={item.href} className={className} hidden={hidden} aria-current={ariaCurrent}>
+        {item.label}
+      </a>
+    );
+  }
+  return (
+    <Link href={item.href} className={className} hidden={hidden} aria-current={ariaCurrent}>
+      {item.label}
+    </Link>
+  );
 }
 
 export function SiteHeader() {
@@ -74,7 +104,10 @@ export function SiteHeader() {
       if (menu && event.target instanceof Node && !menu.contains(event.target)) setOpen(false);
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        moreRef.current?.querySelector<HTMLButtonElement>("button.nav-more")?.focus();
+      }
     };
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", onKey);
@@ -100,16 +133,15 @@ export function SiteHeader() {
           </div>
           {NAV.map((item, index) => {
             const hidden = index >= shownCount;
+            const current = isActive(pathname, item);
             return (
-              <Link
+              <NavLink
                 key={item.href}
-                href={item.href}
-                data-nav-item
+                item={item}
                 hidden={hidden}
-                className={isActive(pathname, item.href) ? "active" : undefined}
-              >
-                {item.label}
-              </Link>
+                current={current}
+                className={current ? "active" : undefined}
+              />
             );
           })}
         </nav>
@@ -126,11 +158,10 @@ export function SiteHeader() {
           </button>
           {open ? (
             <div id="nav-more-menu" className="nav-menu">
-              {overflow.map((item) => (
-                <Link key={item.href} href={item.href} className={isActive(pathname, item.href) ? "active" : undefined}>
-                  {item.label}
-                </Link>
-              ))}
+              {overflow.map((item) => {
+                const current = isActive(pathname, item);
+                return <NavLink key={item.href} item={item} current={current} className={current ? "active" : undefined} />;
+              })}
               <Link href="/#sectors">Browse grades</Link>
             </div>
           ) : null}
