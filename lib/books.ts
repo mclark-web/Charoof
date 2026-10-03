@@ -3,11 +3,13 @@ import fridayArchive from "@/data/friday-archive.json";
 import fintwitBook from "@/data/fintwit-book.json";
 import gcbotCorpus from "@/data/gcbot-corpus.json";
 import verifiedPicks from "@/data/verified-picks.json";
+import { compareCappers } from "@/lib/capper-pack";
 import { GRADE_BANDS, type GradeKey } from "@/lib/grade";
 import { hitFill, outcomeLabel, recordLabel, resultPill, type Outcome, type ResultPill } from "@/lib/outcome";
 import {
   blendWinRate,
   formatNewYorkDate,
+  gradedPickCount,
   newYorkToday,
   postedDay,
   presentCapper,
@@ -25,6 +27,8 @@ export type BoardRow = {
   fill: number | null;
   /** Decided grades in this score. 0 means nothing is graded yet. */
   graded?: number;
+  /** Decided picks in the last 90 days. Under 10, the capper is still building a record. */
+  graded90?: number;
   sample: string;
   href?: string;
   /** Plain result on a single pick. This is not a GC grade. */
@@ -290,6 +294,7 @@ export function publicCapperRows(asOfDate = newYorkToday()): BoardRow[] {
         detail: `${capper.picks.length} public ${capper.picks.length === 1 ? "pick" : "picks"} · ${recordLabel(counts.win, counts.loss, counts.push)}${counts.void ? ` · ${counts.void} void` : ""}`,
         fill: presented.fill,
         graded: decisive,
+        graded90: gradedPickCount(blended),
         sample: decisive ? `n = ${decisive}` : "n = 0",
         windows: blended.label,
         gradeKey: presented.grade.key,
@@ -297,7 +302,12 @@ export function publicCapperRows(asOfDate = newYorkToday()): BoardRow[] {
         sampleNote: presented.note ?? undefined,
       };
     })
-    .sort((a, b) => (b.fill ?? -1) - (a.fill ?? -1) || a.title.localeCompare(b.title));
+    .sort((a, b) =>
+      compareCappers(
+        { title: a.title, fill: a.fill, graded90: a.graded90 ?? 0 },
+        { title: b.title, fill: b.fill, graded90: b.graded90 ?? 0 },
+      ),
+    );
 }
 
 export function sportsOutcomes(): Outcome[] {
