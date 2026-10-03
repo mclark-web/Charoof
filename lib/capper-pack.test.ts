@@ -16,11 +16,27 @@ function sizes(count: number) {
 }
 
 describe("splitCapperPacks", () => {
-  it("gives the locked 30% sizes", () => {
-    assert.equal(rankedEdge(14), 4);
-    assert.equal(rankedEdge(10), 3);
-    assert.deepEqual(sizes(14), { best: 4, worst: 4, middle: 6 });
-    assert.deepEqual(sizes(10), { best: 3, worst: 3, middle: 4 });
+  it("ceilings the 30% bands", () => {
+    const expected: Array<[number, { best: number; worst: number; middle: number }]> = [
+      [0, { best: 0, worst: 0, middle: 0 }],
+      [1, { best: 1, worst: 0, middle: 0 }],
+      [2, { best: 1, worst: 1, middle: 0 }],
+      [3, { best: 1, worst: 1, middle: 1 }],
+      [4, { best: 2, worst: 2, middle: 0 }],
+      [5, { best: 2, worst: 2, middle: 1 }],
+      [6, { best: 2, worst: 2, middle: 2 }],
+      [7, { best: 3, worst: 3, middle: 1 }],
+      [10, { best: 3, worst: 3, middle: 4 }],
+      [13, { best: 4, worst: 4, middle: 5 }],
+      [14, { best: 5, worst: 5, middle: 4 }],
+      [15, { best: 5, worst: 5, middle: 5 }],
+      [20, { best: 6, worst: 6, middle: 8 }],
+      [100, { best: 30, worst: 30, middle: 40 }],
+    ];
+    for (const [count, pack] of expected) {
+      assert.equal(rankedEdge(count), pack.best, `edge ${count}`);
+      assert.deepEqual(sizes(count), pack, `sizes ${count}`);
+    }
   });
 
   it("covers an empty book and the one- and two-capper lists", () => {
@@ -46,10 +62,10 @@ describe("splitCapperPacks", () => {
       row("Bea", 80, 12),
       row("Dee", 10, 40),
     ]);
-    assert.deepEqual(packs.best.map((item) => item.title), ["Bea"]);
-    assert.deepEqual(packs.middle.map((item) => item.title), ["Cam", "Ann"]);
-    assert.deepEqual(packs.worst.map((item) => item.title), ["Dee"]);
-    assert.equal(rankedEdge(4), 1);
+    assert.deepEqual(packs.best.map((item) => item.title), ["Bea", "Cam"]);
+    assert.deepEqual(packs.middle.map((item) => item.title), []);
+    assert.deepEqual(packs.worst.map((item) => item.title), ["Ann", "Dee"]);
+    assert.equal(rankedEdge(4), 2);
   });
 
   it("keeps a short sample out of best and worst even when the score is extreme", () => {
@@ -60,10 +76,10 @@ describe("splitCapperPacks", () => {
       row("Cold sample", 0, 9),
       row("No score", null, 40),
     ]);
-    assert.deepEqual(sizes(14), { best: 4, worst: 4, middle: 6 });
-    assert.equal(packs.best.length, 4);
-    assert.equal(packs.worst.length, 4);
-    assert.equal(packs.middle.length, 6);
+    assert.deepEqual(sizes(14), { best: 5, worst: 5, middle: 4 });
+    assert.equal(packs.best.length, 5);
+    assert.equal(packs.worst.length, 5);
+    assert.equal(packs.middle.length, 4);
     assert.deepEqual(
       packs.building.map((item) => item.title).sort(),
       ["Cold sample", "Hot sample", "No score"],

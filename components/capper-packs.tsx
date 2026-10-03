@@ -2,12 +2,17 @@ import Link from "next/link";
 import { CapperTable } from "@/components/board-row";
 import { splitCapperPacks } from "@/lib/capper-pack";
 import type { BoardRow } from "@/lib/books";
+import { formatNewYorkDate, newYorkToday } from "@/lib/recency";
 import type { Sector } from "@/lib/sectors";
 
-function PackHeading({ title, rows }: { title: string; rows: BoardRow[] }) {
+const RANK_RULE =
+  "Ranked = 10+ graded picks in the last 90 days. PROVISIONAL = score 40–69.9 or a short sample.";
+
+function PackHeading({ title, rows, rule }: { title: string; rows: BoardRow[]; rule?: string }) {
   return (
     <>
       <h2 className="section-label">{title}</h2>
+      {rule ? <p className="board-note pack-rule">{rule}</p> : null}
       {rows.length === 0 ? <p className="board-note">None ranked on this book yet.</p> : <CapperTable rows={rows} />}
     </>
   );
@@ -25,9 +30,10 @@ export function CapperPacks({
   hint: string;
 }) {
   const packs = splitCapperPacks(rows.map((row) => ({ ...row, graded90: row.graded90 ?? 0 })));
+  const asOf = formatNewYorkDate(newYorkToday());
   return (
     <>
-      <PackHeading title="Best" rows={packs.best} />
+      <PackHeading title="Best" rows={packs.best} rule={`${RANK_RULE} As of ${asOf}.`} />
       <PackHeading title="Worst" rows={packs.worst} />
       {packs.middle.length > 0 ? (
         <details className="pack-details">

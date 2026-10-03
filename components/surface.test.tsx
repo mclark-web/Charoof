@@ -237,6 +237,10 @@ describe("hub sports ledger", () => {
     assert.ok(record > -1 && record < best && best < worst && worst < middle && middle < less);
     assert.ok(less < building && building < graded && graded < open && open < verified);
     assert.match(html, />Total record</);
+    assert.match(
+      html,
+      /Ranked = 10\+ graded picks in the last 90 days\. PROVISIONAL = score 40–69\.9 or a short sample\. As of /,
+    );
     assert.match(html, /<details class="pack-details">[\s\S]*Show the middle/);
     assert.match(html, /<summary>How this is graded<\/summary>/);
     assert.match(html, /<summary>Still building a record<\/summary>/);

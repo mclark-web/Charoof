@@ -29,15 +29,13 @@ export function compareCappers(a: Rankable, b: Rankable): number {
 
 /**
  * How many ranked cappers sit in Best, and how many sit in Worst.
- * Thirty percent of the ranked list, in whole cappers: 14 → 4 and 10 → 3,
- * so the middle stays 6 and 4. A short list still shows an extreme
- * (1 → Best only, 2 → one Best and one Worst) so the only ranked grades
- * are not hidden behind the middle control.
+ * Thirty percent of the ranked list, rounded up: 14 → 5 and 10 → 3.
+ * The caller caps the two edges so they do not share a person
+ * (1 → Best only, 2 → one Best and one Worst).
  */
 export function rankedEdge(count: number): number {
   if (count <= 0) return 0;
-  const edge = Math.floor((count * 30) / 100);
-  return edge > 0 ? edge : 1;
+  return Math.ceil((count * 30) / 100);
 }
 
 export function splitCapperPacks<T extends Rankable>(rows: readonly T[]): CapperPacks<T> {
