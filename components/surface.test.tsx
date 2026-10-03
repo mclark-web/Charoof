@@ -4,9 +4,10 @@ import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import HubPage from "@/app/page";
 import SportsPage from "@/app/sports/page";
+import { CapperPacks } from "./capper-packs";
 import { SectorBoard } from "./sector-board";
 import { SiteFooter } from "./site-footer";
-import { sectorBook } from "@/lib/books";
+import { sectorBook, type BoardRow } from "@/lib/books";
 import { formatFillTenths } from "@/lib/grade";
 import { LIVE_BOARDS, sectorByKey } from "@/lib/sectors";
 
@@ -204,7 +205,7 @@ describe("hub board cards", () => {
     const gcbot = home.indexOf(">GCBot<");
     assert.ok(analysts > -1 && analysts < fintwit && fintwit < sportsCard && sportsCard < gcbot);
     const sportsLink = home.slice(home.indexOf('href="/sports"'), home.indexOf('href="/sports"') + 1500);
-    assert.match(sportsLink, /<h3>Sports<\/h3>/);
+    assert.match(sportsLink, /<h2>Sports<\/h2>/);
     assert.match(sportsLink, /133–105 · 2 void · 26 pending/);
     assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
     const record = sports.indexOf("266 public picks · 133–105 · 2 void · 26 pending");
@@ -239,7 +240,7 @@ describe("hub sports ledger", () => {
     assert.match(html, />Total record</);
     assert.match(
       html,
-      /Ranked = 10\+ graded picks in the last 90 days\. PROVISIONAL = score 40–69\.9 or a short sample\. As of /,
+      /Best and Worst are the top and bottom 30% of cappers with 10\+ graded picks in the last 90 days\. The pill is the grade: STRONG 70\+, PROVISIONAL 40–69\.9, WEAK under 40\. As of /,
     );
     assert.match(html, /<details class="pack-details">[\s\S]*Show the middle/);
     assert.match(html, /<summary>How this is graded<\/summary>/);
@@ -272,5 +273,53 @@ describe("hub sports ledger", () => {
     const hero = html.slice(html.indexOf('class="gc-scale is-hero'), html.indexOf(">Best<"));
     assert.match(hero, /gc-pct">56%</);
     assert.doesNotMatch(hero, /gc-pct">56\.0%</);
+  });
+});
+
+function capperRow(id: string, title: string, fill: number, graded90: number): BoardRow {
+  return {
+    id,
+    lane: "Verified",
+    title,
+    detail: "record",
+    fill,
+    graded90,
+    sample: `n = ${graded90}`,
+    gradeKey: "provisional",
+    gradeName: "PROVISIONAL",
+  };
+}
+
+describe("capper pack empty state", () => {
+  const sector = sectorByKey("sports");
+  const emptyCopy = "No capper has 10+ graded picks in the last 90 days yet.";
+
+  function html(rows: BoardRow[]) {
+    return renderToStaticMarkup(<CapperPacks rows={rows} note="note" sector={sector} hint="hint" />);
+  }
+
+  it("shows the empty line once and hides Worst until two cappers are ranked", () => {
+    const none = html([]);
+    assert.equal(none.split(emptyCopy).length - 1, 1);
+    assert.doesNotMatch(none, />Worst</);
+    assert.match(none, />Best</);
+
+    const short = html([capperRow("short", "Short sample", 99, 3)]);
+    assert.equal(short.split(emptyCopy).length - 1, 1);
+    assert.doesNotMatch(short, />Worst</);
+    assert.match(short, /Still building a record/);
+    assert.match(short, />Short sample</);
+
+    const only = html([capperRow("only", "Only", 70, 12)]);
+    assert.doesNotMatch(only, /No capper has 10\+/);
+    assert.doesNotMatch(only, />Worst</);
+    assert.match(only, />Only</);
+
+    const pair = html([capperRow("high", "High", 80, 12), capperRow("low", "Low", 20, 12)]);
+    assert.match(pair, />Best</);
+    assert.match(pair, />Worst</);
+    assert.match(pair, />High</);
+    assert.match(pair, />Low</);
+    assert.doesNotMatch(pair, /No capper has 10\+/);
   });
 });

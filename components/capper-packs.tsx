@@ -6,17 +6,9 @@ import { formatNewYorkDate, newYorkToday } from "@/lib/recency";
 import type { Sector } from "@/lib/sectors";
 
 const RANK_RULE =
-  "Ranked = 10+ graded picks in the last 90 days. PROVISIONAL = score 40–69.9 or a short sample.";
+  "Best and Worst are the top and bottom 30% of cappers with 10+ graded picks in the last 90 days. The pill is the grade: STRONG 70+, PROVISIONAL 40–69.9, WEAK under 40.";
 
-function PackHeading({ title, rows, rule }: { title: string; rows: BoardRow[]; rule?: string }) {
-  return (
-    <>
-      <h2 className="section-label">{title}</h2>
-      {rule ? <p className="board-note pack-rule">{rule}</p> : null}
-      {rows.length === 0 ? <p className="board-note">None ranked on this book yet.</p> : <CapperTable rows={rows} />}
-    </>
-  );
-}
+const EMPTY_RANKED = "No capper has 10+ graded picks in the last 90 days yet.";
 
 export function CapperPacks({
   rows,
@@ -30,11 +22,21 @@ export function CapperPacks({
   hint: string;
 }) {
   const packs = splitCapperPacks(rows.map((row) => ({ ...row, graded90: row.graded90 ?? 0 })));
+  const rankedCount = packs.best.length + packs.middle.length + packs.worst.length;
   const asOf = formatNewYorkDate(newYorkToday());
   return (
     <>
-      <PackHeading title="Best" rows={packs.best} rule={`${RANK_RULE} As of ${asOf}.`} />
-      <PackHeading title="Worst" rows={packs.worst} />
+      <h2 className="section-label">Best</h2>
+      <p className="board-note pack-rule">
+        {RANK_RULE} As of {asOf}.
+      </p>
+      {rankedCount === 0 ? <p className="board-note">{EMPTY_RANKED}</p> : <CapperTable rows={packs.best} />}
+      {rankedCount > 1 ? (
+        <>
+          <h2 className="section-label">Worst</h2>
+          <CapperTable rows={packs.worst} />
+        </>
+      ) : null}
       {packs.middle.length > 0 ? (
         <details className="pack-details">
           <summary>

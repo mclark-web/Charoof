@@ -10,7 +10,7 @@ export function SectorCard({ book }: { book: SectorBook }) {
   const body = (
     <>
       <div className="kicker">{sector.kicker}</div>
-      <h3>{sector.title}</h3>
+      <h2>{sector.title}</h2>
       <p>{sector.summary}</p>
       <div className="gc-slot">
         {hero.kind === "tube" ? (

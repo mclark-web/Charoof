@@ -1291,7 +1291,7 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
   pointer-events: none;
 }
 .sector .kicker { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-soft); }
-.sector h3 { font-size: 22px; margin: 8px 0; }
+.sector h2 { font-size: 22px; margin: 8px 0; }
 .sector p { font-size: 14px; color: var(--muted); line-height: 1.5; max-width: 36ch; }
 .sector .gc-slot { margin-top: auto; padding-top: 16px; position: relative; z-index: 1; }
 .sector .foot {
@@ -1521,7 +1521,7 @@ code { color: var(--orange-soft); font-family: var(--mono); font-size: 0.92em; }
 }
 .grade-explainer .trust-list { margin-top: 12px; }
 
-@media (max-width: 820px) {
+@media (max-width: 800px) {
   .board-table thead { display: none; }
   .board-table,
   .board-table tbody,
