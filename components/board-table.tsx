@@ -44,7 +44,7 @@ function RowLinks({ row }: { row: BoardRow }) {
   );
 }
 
-function RowScore({ row }: { row: BoardRow }) {
+function RowScore({ row, tenths = false }: { row: BoardRow; tenths?: boolean }) {
   if (row.result) {
     return <span className={`result-pill ${row.result.toLowerCase()}`}>{RESULT_TEXT[row.result]}</span>;
   }
@@ -56,7 +56,7 @@ function RowScore({ row }: { row: BoardRow }) {
   if (tubeIsUngraded(row)) return <GcTube fill={0} variant="inline" rich label="GC" ungraded />;
   const grade =
     row.gradeKey && row.gradeName ? { key: row.gradeKey, name: row.gradeName } : undefined;
-  return <GcTube fill={row.fill} variant="inline" rich label="GC" grade={grade} />;
+  return <GcTube fill={row.fill} variant="inline" rich label="GC" grade={grade} tenths={tenths} />;
 }
 
 export function BoardTable({ section }: { section: BoardSection }) {
@@ -117,7 +117,7 @@ export function BoardTable({ section }: { section: BoardSection }) {
                   {row.sample}
                 </td>
                 <td className="tube-cell" data-label={scoreLabel}>
-                  <RowScore row={row} />
+                  <RowScore row={row} tenths={section.id === "public-cappers"} />
                 </td>
               </tr>
             ))}

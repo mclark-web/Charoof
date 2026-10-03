@@ -234,5 +234,15 @@ describe("hub sports ledger", () => {
     assert.ok(hidden);
     assert.match(html, new RegExp(escapeRegExp(verifiedRows[0]?.title ?? "missing")));
     assert.doesNotMatch(html, new RegExp(escapeRegExp(hidden?.title ?? "missing")));
+    const jon = capperRows.find((row) => row.title === "Jon Metler");
+    const joe = capperRows.find((row) => row.title === "Joe Osborne");
+    assert.ok(jon?.fill != null && joe?.fill != null);
+    assert.match(html, /Jon Metler[\s\S]*?gc-pct">64\.1%</);
+    assert.match(html, /Joe Osborne[\s\S]*?gc-pct">63\.7%</);
+    assert.doesNotMatch(html, /Jon Metler[\s\S]*?gc-pct">64%</);
+    assert.doesNotMatch(html, /Joe Osborne[\s\S]*?gc-pct">64%</);
+    const hero = html.slice(html.indexOf('class="gc-scale is-hero'), html.indexOf("Public cappers"));
+    assert.match(hero, /gc-pct">56%</);
+    assert.doesNotMatch(hero, /gc-pct">56\.0%</);
   });
 });
