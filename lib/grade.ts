@@ -32,6 +32,20 @@ export function displayFill(fill: number): number {
 }
 
 /**
+ * Capper readout, floored to one decimal.
+ * 69.95 stays 69.9 and 39.95 stays 39.9, so the label cannot cross a grade cutoff.
+ */
+export function displayFillTenths(fill: number): number {
+  const n = clampFill(fill);
+  return Math.floor(n * 10 + 1e-8) / 10;
+}
+
+/** One-decimal label. 100 stays 100.0. */
+export function formatFillTenths(fill: number): string {
+  return displayFillTenths(fill).toFixed(1);
+}
+
+/**
  * 0% is empty glass and EXIT LIQUIDITY.
  * Below 40 is WEAK. From 40 up to but not including 70 is PROVISIONAL. 70 and above is STRONG.
  */

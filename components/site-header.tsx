@@ -10,6 +10,7 @@ type NavItem = { href: string; label: string; external?: boolean };
 
 const NAV: NavItem[] = [
   { href: "/", label: "Hub" },
+  { href: "/sports", label: "Sports" },
   ...LIVE_BOARDS.map((board) => ({ href: board.href, label: board.label, external: true })),
   { href: "/method", label: "Method" },
 ];

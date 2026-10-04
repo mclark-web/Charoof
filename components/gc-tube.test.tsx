@@ -29,6 +29,24 @@ describe("ungraded tubes", () => {
     assert.doesNotMatch(css, /\.gc-range|\.gc-demo-btn|\.is-live/);
   });
 
+  it("floors a capper tube to one decimal and leaves other tubes on whole percents", () => {
+    const capper = renderToStaticMarkup(<GcTube fill={64.16666666666667} tenths label="GC Scale" />);
+    assert.match(capper, /gc-pct">64\.1%</);
+    assert.match(capper, /PROVISIONAL/);
+    assert.match(capper, /--gc-fill:64\.16666666666667%/);
+    const nearStrong = renderToStaticMarkup(<GcTube fill={69.95} tenths label="GC Scale" />);
+    assert.match(nearStrong, /gc-pct">69\.9%</);
+    assert.match(nearStrong, /PROVISIONAL/);
+    assert.doesNotMatch(nearStrong, /70\.0%/);
+    const nearWeak = renderToStaticMarkup(<GcTube fill={39.95} tenths label="GC Scale" />);
+    assert.match(nearWeak, /gc-pct">39\.9%</);
+    assert.match(nearWeak, /WEAK/);
+    assert.doesNotMatch(nearWeak, /40\.0%/);
+    const whole = renderToStaticMarkup(<GcTube fill={72} label="GC Scale" />);
+    assert.match(whole, /gc-pct">72%</);
+    assert.doesNotMatch(whole, /72\.0%/);
+  });
+
   it("keeps a graded 0% as empty glass and EXIT LIQUIDITY", () => {
     const html = renderToStaticMarkup(<GcTube fill={0} label="GC Scale" />);
     assert.match(html, /EXIT LIQUIDITY/);

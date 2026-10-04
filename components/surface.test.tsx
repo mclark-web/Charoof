@@ -2,9 +2,13 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import HubPage from "@/app/page";
+import SportsPage from "@/app/sports/page";
+import { CapperPacks } from "./capper-packs";
 import { SectorBoard } from "./sector-board";
 import { SiteFooter } from "./site-footer";
-import { sectorBook } from "@/lib/books";
+import { sectorBook, type BoardRow } from "@/lib/books";
+import { formatFillTenths } from "@/lib/grade";
 import { LIVE_BOARDS, sectorByKey } from "@/lib/sectors";
 
 describe("sports row chrome", () => {
@@ -96,9 +100,16 @@ describe("hub copy", () => {
     const header = readFileSync(new URL("./site-header.tsx", import.meta.url), "utf8");
     const sitemap = readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
     const config = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
-    assert.match(home, /Compared to real closes, Monday opens, or final scores and graded on the GC Scale\./);
-    assert.match(home, /How the four grades work — same rules on every board\./);
-    assert.match(home, /GC Scale: how closely outcomes matched the call — STRONG, PROVISIONAL, WEAK, or EXIT LIQUIDITY\./);
+    assert.match(home, /GradePill grade="strong" name="STRONG"/);
+    assert.match(home, /is \{GRADE_BANDS\.strongAt\}% and above\./);
+    assert.match(home, /GradePill grade="provisional" name="PROVISIONAL"/);
+    assert.match(home, /is from \{GRADE_BANDS\.weakAt\}% up to/);
+    assert.match(home, /GradePill grade="weak" name="WEAK"/);
+    assert.match(home, /is under \{GRADE_BANDS\.weakAt\}%\./);
+    assert.match(home, /GradePill grade="exit" name="EXIT LIQUIDITY"/);
+    assert.match(home, /label="GC Scale"/);
+    assert.doesNotMatch(home, /How a call becomes a grade/);
+    assert.doesNotMatch(home, /How the four grades work/);
     assert.equal((home.match(/Example: 72%/g) || []).length, 1);
     assert.doesNotMatch(home, /vertical vial|href="\/gc-scale"|href="\/analysts"|href="\/fintwit"|href="\/gcbot"|--gc-fill/);
     assert.match(method, /id="gc-scale"/);
@@ -128,13 +139,15 @@ describe("hub copy", () => {
     assert.match(disclaimer, /the home cards link to the live ledgers/);
     assert.match(disclaimer, /Demo rows are fiction, labeled Demo\./);
     assert.doesNotMatch(disclaimer, /each page links to the live ledger/);
-    assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale|label: "Sports"|href: "\/sports"/);
+    assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale/);
     assert.doesNotMatch(header, /href: "\/analysts"|href: "\/fintwit"|href: "\/gcbot"/);
     assert.match(header, /label: "Hub"/);
+    assert.match(header, /href: "\/sports", label: "Sports"/);
     assert.match(header, /LIVE_BOARDS/);
     assert.match(header, /label: "Method"/);
     const nav = header.slice(header.indexOf("const NAV"));
-    assert.ok(nav.indexOf('label: "Hub"') < nav.indexOf("LIVE_BOARDS"));
+    assert.ok(nav.indexOf('label: "Hub"') < nav.indexOf('label: "Sports"'));
+    assert.ok(nav.indexOf('label: "Sports"') < nav.indexOf("LIVE_BOARDS"));
     assert.ok(nav.indexOf("LIVE_BOARDS") < nav.indexOf('label: "Method"'));
     assert.deepEqual(
       LIVE_BOARDS.map((board) => board.label),
@@ -156,14 +169,19 @@ describe("hub copy", () => {
     assert.ok(footerHtml.indexOf("Analysts") < footerHtml.indexOf("FinTwit"));
     assert.ok(footerHtml.indexOf("FinTwit") < footerHtml.indexOf("GCBot"));
     assert.ok(footerHtml.indexOf("GCBot") < footerHtml.indexOf("Method"));
-    assert.doesNotMatch(sitemap, /\/analysts|\/fintwit|\/gcbot|\/gc-scale|\/sign-in|\/sports/);
-    assert.match(home, /SectorBoard/);
-    assert.match(home, /book\.sector\.key !== "sports"/);
-    assert.match(config, /source: "\/sports", destination: "\/", permanent: true/);
+    assert.match(sitemap, /"\/sports"/);
+    assert.doesNotMatch(sitemap, /\/analysts|\/fintwit|\/gcbot|\/gc-scale|\/sign-in/);
+    assert.doesNotMatch(home, /SectorBoard/);
+    assert.match(home, /SectorCard/);
+    assert.match(home, /book\.sector\.key === "sports"/);
+    assert.doesNotMatch(config, /source: "\/sports"/);
     assert.match(config, /source: "\/analysts"/);
     assert.match(config, /source: "\/fintwit"/);
     assert.match(config, /source: "\/gcbot"/);
-    assert.equal(existsSync(new URL("../app/sports/page.tsx", import.meta.url)), false);
+    const sportsPage = readFileSync(new URL("../app/sports/page.tsx", import.meta.url), "utf8");
+    assert.match(sportsPage, /SectorBoard/);
+    assert.match(sportsPage, /canonical: "https:\/\/charoof\.vercel\.app\/sports"/);
+    assert.equal(existsSync(new URL("../app/sports/page.tsx", import.meta.url)), true);
     assert.equal(existsSync(new URL("../components/gc-scale-view.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/gc-scale/page.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/analysts/page.tsx", import.meta.url)), false);
@@ -177,17 +195,57 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+describe("hub board cards", () => {
+  it("links four boards from the hub and keeps the ledger on /sports", () => {
+    const home = renderToStaticMarkup(<HubPage />);
+    const sports = renderToStaticMarkup(<SportsPage />);
+    const analysts = home.indexOf(">Analysts<");
+    const fintwit = home.indexOf(">FinTwit<");
+    const sportsCard = home.indexOf(">Sports<");
+    const gcbot = home.indexOf(">GCBot<");
+    assert.ok(analysts > -1 && analysts < fintwit && fintwit < sportsCard && sportsCard < gcbot);
+    const sportsLink = home.slice(home.indexOf('href="/sports"'), home.indexOf('href="/sports"') + 1500);
+    assert.match(sportsLink, /<h2>Sports<\/h2>/);
+    assert.match(sportsLink, /133–105 · 2 void · 26 pending/);
+    assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
+    const record = sports.indexOf("266 public picks · 133–105 · 2 void · 26 pending");
+    const cappers = sports.indexOf(">Best<");
+    const open = sports.indexOf("Open picks");
+    assert.ok(record > -1 && record < cappers && cappers < open);
+    assert.match(sports, />Total record</);
+    assert.equal((sports.match(/<h1[ >]/g) ?? []).length, 1);
+    assert.match(sports, /<h1 class="section-label" id="sports">Sports<\/h1>/);
+    assert.doesNotMatch(home, /Sports picks are the record on this hub/);
+    assert.match(home, /href="https:\/\/bank-troof\.vercel\.app"/);
+    assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
+    assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);
+  });
+});
+
 describe("hub sports ledger", () => {
   it("puts the total record and capper cards above the pick rows", () => {
     const book = sectorBook("sports");
     const html = renderToStaticMarkup(<SectorBoard book={book} />);
     const record = html.indexOf("266 public picks · 133–105 · 2 void · 26 pending");
-    const cappers = html.indexOf("Public cappers");
+    const best = html.indexOf(">Best<");
+    const worst = html.indexOf(">Worst<");
+    const middle = html.indexOf("Show the middle");
+    const less = html.indexOf("Show less");
+    const building = html.indexOf("Still building a record");
+    const graded = html.indexOf("How this is graded");
     const open = html.indexOf("Open picks");
     const verified = html.indexOf("Verified lane");
-    assert.ok(record > -1 && record < cappers);
-    assert.ok(cappers < open && open < verified);
+    assert.ok(record > -1 && record < best && best < worst && worst < middle && middle < less);
+    assert.ok(less < building && building < graded && graded < open && open < verified);
     assert.match(html, />Total record</);
+    assert.match(
+      html,
+      /Best and Worst are the top and bottom 30% of cappers with 10\+ graded picks in the last 90 days\. The pill is the grade: STRONG 70\+, PROVISIONAL 40–69\.9, WEAK under 40\. As of /,
+    );
+    assert.match(html, /<details class="pack-details">[\s\S]*Show the middle/);
+    assert.match(html, /<summary>How this is graded<\/summary>/);
+    assert.match(html, /<summary>Still building a record<\/summary>/);
+    assert.match(html, /WIN, LOSS, PUSH, VOID, or Pending/);
     assert.match(html, /Show \d+ more/);
     const capperRows = book.sections.find((section) => section.id === "public-cappers")?.rows ?? [];
     assert.ok(capperRows.length > 8);
@@ -196,7 +254,72 @@ describe("hub sports ledger", () => {
     const shown = new Set(verifiedRows.slice(0, 8).map((row) => row.title));
     const hidden = verifiedRows.slice(8).find((row) => !shown.has(row.title));
     assert.ok(hidden);
+    const hiddenTitle = escapeRegExp(hidden?.title ?? "missing");
     assert.match(html, new RegExp(escapeRegExp(verifiedRows[0]?.title ?? "missing")));
-    assert.doesNotMatch(html, new RegExp(escapeRegExp(hidden?.title ?? "missing")));
+    const visibleHtml = html.replace(/<noscript>[\s\S]*?<\/noscript>/g, "");
+    assert.doesNotMatch(visibleHtml, new RegExp(hiddenTitle));
+    assert.match(html, new RegExp(`<noscript>[\\s\\S]*${hiddenTitle}`));
+    const jon = capperRows.find((row) => row.title === "Jon Metler");
+    const joe = capperRows.find((row) => row.title === "Joe Osborne");
+    assert.ok(jon?.fill != null && joe?.fill != null);
+    const jonShown = formatFillTenths(jon.fill);
+    const joeShown = formatFillTenths(joe.fill);
+    assert.match(jonShown, /^\d+\.\d$/);
+    assert.match(joeShown, /^\d+\.\d$/);
+    assert.match(html, new RegExp(`Jon Metler[\\s\\S]*?gc-pct">${jonShown.replace(".", "\\.")}%</`));
+    assert.match(html, new RegExp(`Joe Osborne[\\s\\S]*?gc-pct">${joeShown.replace(".", "\\.")}%</`));
+    assert.doesNotMatch(html, new RegExp(`Jon Metler[\\s\\S]*?gc-pct">${Math.round(jon.fill)}%</`));
+    assert.doesNotMatch(html, new RegExp(`Joe Osborne[\\s\\S]*?gc-pct">${Math.round(joe.fill)}%</`));
+    const hero = html.slice(html.indexOf('class="gc-scale is-hero'), html.indexOf(">Best<"));
+    assert.match(hero, /gc-pct">56%</);
+    assert.doesNotMatch(hero, /gc-pct">56\.0%</);
+  });
+});
+
+function capperRow(id: string, title: string, fill: number, graded90: number): BoardRow {
+  return {
+    id,
+    lane: "Verified",
+    title,
+    detail: "record",
+    fill,
+    graded90,
+    sample: `n = ${graded90}`,
+    gradeKey: "provisional",
+    gradeName: "PROVISIONAL",
+  };
+}
+
+describe("capper pack empty state", () => {
+  const sector = sectorByKey("sports");
+  const emptyCopy = "No capper has 10+ graded picks in the last 90 days yet.";
+
+  function html(rows: BoardRow[]) {
+    return renderToStaticMarkup(<CapperPacks rows={rows} note="note" sector={sector} hint="hint" />);
+  }
+
+  it("shows the empty line once and hides Worst until two cappers are ranked", () => {
+    const none = html([]);
+    assert.equal(none.split(emptyCopy).length - 1, 1);
+    assert.doesNotMatch(none, />Worst</);
+    assert.match(none, />Best</);
+
+    const short = html([capperRow("short", "Short sample", 99, 3)]);
+    assert.equal(short.split(emptyCopy).length - 1, 1);
+    assert.doesNotMatch(short, />Worst</);
+    assert.match(short, /Still building a record/);
+    assert.match(short, />Short sample</);
+
+    const only = html([capperRow("only", "Only", 70, 12)]);
+    assert.doesNotMatch(only, /No capper has 10\+/);
+    assert.doesNotMatch(only, />Worst</);
+    assert.match(only, />Only</);
+
+    const pair = html([capperRow("high", "High", 80, 12), capperRow("low", "Low", 20, 12)]);
+    assert.match(pair, />Best</);
+    assert.match(pair, />Worst</);
+    assert.match(pair, />High</);
+    assert.match(pair, />Low</);
+    assert.doesNotMatch(pair, /No capper has 10\+/);
   });
 });
