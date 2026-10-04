@@ -2,7 +2,21 @@ import Link from "next/link";
 import { BoardTable } from "@/components/board-table";
 import { CapperPacks } from "@/components/capper-packs";
 import { GcTube } from "@/components/gc-tube";
-import type { SectorBook } from "@/lib/books";
+import type { BoardSection, SectorBook } from "@/lib/books";
+
+const COLLAPSED_PICK_TITLES: Record<string, string> = {
+  "verified-cards": "Graded picks",
+  "friday-archive": "Archive picks",
+};
+
+function collapsedPickTitle(section: BoardSection) {
+  const name = COLLAPSED_PICK_TITLES[section.id] ?? section.label;
+  return `${name} (${section.rows.length})`;
+}
+
+function collapsePickLane(section: BoardSection) {
+  return section.id !== "open-picks";
+}
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
@@ -97,9 +111,18 @@ export function SectorBoard({ book }: { book: SectorBook }) {
         <CapperPacks rows={capperSection.rows} note={capperSection.note} sector={sector} hint={hero.hint} />
       ) : null}
       <div id="picks">
-        {(recordFirst ? picks : book.sections).map((section) => (
-          <BoardTable key={section.id} section={section} />
-        ))}
+        {(recordFirst ? picks : book.sections).map((section) => {
+          const collapsed = recordFirst && collapsePickLane(section);
+          if (!collapsed) {
+            return <BoardTable key={section.id} section={section} />;
+          }
+          return (
+            <details key={section.id} className="pack-details">
+              <summary>{collapsedPickTitle(section)}</summary>
+              <BoardTable section={section} hideLabel />
+            </details>
+          );
+        })}
       </div>
     </>
   );
