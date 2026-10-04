@@ -233,10 +233,11 @@ describe("hub sports ledger", () => {
     const less = html.indexOf("Show less");
     const building = html.indexOf("Still building a record");
     const graded = html.indexOf("How this is graded");
-    const open = html.indexOf("Open picks");
-    const verified = html.indexOf("Verified lane");
+    const open = html.indexOf('<div class="section-label">Open picks</div>');
+    const gradedPicks = html.indexOf("Graded picks (");
+    const archivePicks = html.indexOf("Archive picks (");
     assert.ok(record > -1 && record < best && best < worst && worst < middle && middle < less);
-    assert.ok(less < building && building < graded && graded < open && open < verified);
+    assert.ok(less < building && building < graded && graded < open && open < gradedPicks && gradedPicks < archivePicks);
     assert.match(html, />Total record</);
     assert.match(
       html,
@@ -273,6 +274,50 @@ describe("hub sports ledger", () => {
     const hero = html.slice(html.indexOf('class="gc-scale is-hero'), html.indexOf(">Best<"));
     assert.match(hero, /gc-pct">56%</);
     assert.doesNotMatch(hero, /gc-pct">56\.0%</);
+  });
+
+  it("keeps Open picks visible and collapses other pick lanes in closed details", () => {
+    const book = sectorBook("sports");
+    const html = renderToStaticMarkup(<SectorBoard book={book} />);
+    const verified = book.sections.find((section) => section.id === "verified-cards");
+    const archive = book.sections.find((section) => section.id === "friday-archive");
+    const unconfirmed = book.sections.find((section) => section.id === "post-time-unconfirmed");
+    const demo = book.sections.find((section) => section.id === "sports-demo");
+    assert.ok(verified && archive && unconfirmed && demo);
+
+    assert.match(html, /<div class="section-label">Open picks<\/div>/);
+    assert.doesNotMatch(html, /<summary>[^<]*Open picks/);
+
+    const openIdx = html.indexOf('<div class="section-label">Open picks</div>');
+    const detailsBeforeOpen = html.lastIndexOf("<details", openIdx);
+    const detailsCloseBeforeOpen = html.lastIndexOf("</details>", openIdx);
+    assert.ok(detailsBeforeOpen === -1 || detailsBeforeOpen < detailsCloseBeforeOpen);
+
+    assert.match(
+      html,
+      new RegExp(`<details class="pack-details">\\s*<summary>Graded picks \\(${verified.rows.length}\\)</summary>`),
+    );
+    assert.match(
+      html,
+      new RegExp(`<details class="pack-details">\\s*<summary>Archive picks \\(${archive.rows.length}\\)</summary>`),
+    );
+    assert.match(
+      html,
+      new RegExp(
+        `<details class="pack-details">\\s*<summary>Post time unconfirmed \\(${unconfirmed.rows.length}\\)</summary>`,
+      ),
+    );
+    assert.match(
+      html,
+      new RegExp(`<details class="pack-details">\\s*<summary>Demo fixtures \\(${demo.rows.length}\\)</summary>`),
+    );
+    assert.doesNotMatch(html, /<details[^>]*\sopen[\s>]/);
+
+    assert.match(html, new RegExp(escapeRegExp(verified.rows[0]?.title ?? "missing")));
+    assert.match(html, new RegExp(escapeRegExp(archive.rows[0]?.title ?? "missing")));
+    assert.match(html, new RegExp(escapeRegExp(unconfirmed.rows[0]?.title ?? "missing")));
+    assert.match(html, new RegExp(escapeRegExp(demo.rows[0]?.title ?? "missing")));
+    assert.match(html, /Show \d+ more/);
   });
 });
 
