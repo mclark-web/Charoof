@@ -859,9 +859,9 @@ describe("ESPN settle", () => {
     assert.equal(ohioShort.row.status, "PENDING");
   });
 
-  it("does not newly flag any of the 250 committed full-game rows", () => {
+  it("does not newly flag any of the 327 committed full-game rows", () => {
     const rows = parsePickCsv(readFileSync(PICKS_CSV_PATH, "utf8"));
-    assert.equal(rows.length, 250);
+    assert.equal(rows.length, 327);
     const fullGame = new Set(["total", "spread", "moneyline", "run_line", "team_total"]);
     const flagged = rows.filter((pick) => fullGame.has(pick.market) && manualSettleReason(pick) != null);
     assert.deepEqual(
