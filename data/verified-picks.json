@@ -5163,10 +5163,10 @@
     "posted_at": "2026-10-10 08:09 ET",
     "game_date": "2026-10-10",
     "source_url": "https://www.covers.com/ncaaf/group-of-6-picks-week-6-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401864518",
+    "final_score": "North Dakota State Bison 7, UNLV Rebels 13"
   },
   {
     "tipster": "Rob Paul (Covers)",

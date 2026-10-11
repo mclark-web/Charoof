@@ -25,7 +25,7 @@ import {
  * Public record for this ledger: timed verified rows plus the frozen Friday archive.
  * A later data change updates this line in the same commit.
  */
-const PUBLIC_RECORD_LINE = "343 public picks \u00b7 174\u2013136\u20131 \u00b7 2 void \u00b7 30 pending";
+const PUBLIC_RECORD_LINE = "343 public picks \u00b7 174\u2013137\u20131 \u00b7 2 void \u00b7 29 pending";
 
 const OUTCOMES: Outcome[] = ["win", "loss", "push", "void", "pending"];
 
