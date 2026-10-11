@@ -1,6 +1,8 @@
 /**
  * Check the picks ledger with the same grade, blend, and record code the site uses.
  * data/friday-archive.json is read-only and is included in the public record line.
+ * A second card for the same capper, game, market, and side is an error.
+ * The same matchup on a different game date stays a warning.
  */
 import { readFileSync } from "node:fs";
 import fridayArchive from "@/data/friday-archive.json";
@@ -25,7 +27,7 @@ import {
  * Public record for this ledger: timed verified rows plus the frozen Friday archive.
  * A later data change updates this line in the same commit.
  */
-const PUBLIC_RECORD_LINE = "343 public picks \u00b7 174\u2013137\u20131 \u00b7 2 void \u00b7 29 pending";
+const PUBLIC_RECORD_LINE = "339 public picks \u00b7 175\u2013136\u20131 \u00b7 2 void \u00b7 25 pending";
 
 const OUTCOMES: Outcome[] = ["win", "loss", "push", "void", "pending"];
 

@@ -185,7 +185,7 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 29);
+    assert.equal(open.length, 25);
     assert.equal(
       openPickRows().length,
       open.filter((pick) => !postTimeUnconfirmed(pick.posted_at)).length,

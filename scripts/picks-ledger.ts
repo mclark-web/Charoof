@@ -2,6 +2,12 @@
  * Verified picks ledger. data/picks/picks.csv is the source of truth.
  * The exporter writes data/verified-picks.json in the shape the site reads.
  * Bookkeeping columns stay in the CSV. data/friday-archive.json is never written.
+ *
+ * A capper has one card per game, market, and side. A game is the event on one
+ * game_date. When that capper posts a new number for the same pair before kickoff,
+ * keep the latest card posted before kickoff and delete the earlier row.
+ * Two remaining cards for that pair are an error. The same matchup on another
+ * date is a different game.
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -405,20 +411,35 @@ export function collectIssues(rows: PickRow[]): LedgerIssues {
     if (!indexes.has(index)) errors.push(`export_index is missing ${index}`);
   }
 
-  const groups = new Map<string, PickRow[]>();
+  const detail = (group: PickRow[]) =>
+    group.map((row) => `${row.number || "(no number)"} posted ${row.posted_at}`).join("; ");
+  const sameGame = new Map<string, PickRow[]>();
+  const sameMatchup = new Map<string, PickRow[]>();
   for (const row of rows) {
-    const key = [row.tipster, row.event, row.market, row.side].join("|");
-    const group = groups.get(key) ?? [];
-    group.push(row);
-    groups.set(key, group);
+    const gameKey = [row.tipster, row.event, row.game_date, row.market, row.side].join("|");
+    const gameGroup = sameGame.get(gameKey) ?? [];
+    gameGroup.push(row);
+    sameGame.set(gameKey, gameGroup);
+    const matchupKey = [row.tipster, row.event, row.market, row.side].join("|");
+    const matchupGroup = sameMatchup.get(matchupKey) ?? [];
+    matchupGroup.push(row);
+    sameMatchup.set(matchupKey, matchupGroup);
   }
-  for (const group of groups.values()) {
-    const ids = new Set(group.map((row) => row.pick_id));
-    if (ids.size < 2) continue;
-    const detail = group
-      .map((row) => `${row.number || "(no number)"} posted ${row.posted_at}`)
-      .join("; ");
-    warnings.push(`near-duplicate ${group[0].tipster} · ${group[0].event} · ${group[0].market} · ${group[0].side}: ${detail}`);
+  const duplicateErrors: string[] = [];
+  for (const group of sameGame.values()) {
+    if (new Set(group.map((row) => row.pick_id)).size < 2) continue;
+    const row = group[0];
+    duplicateErrors.push(
+      `near-duplicate ${row.tipster} · ${row.event} · ${row.game_date} · ${row.market} · ${row.side}: ${detail(group)}`,
+    );
+  }
+  duplicateErrors.sort();
+  errors.push(...duplicateErrors);
+  for (const group of sameMatchup.values()) {
+    if (new Set(group.map((row) => row.pick_id)).size < 2) continue;
+    if (new Set(group.map((row) => row.game_date)).size < 2) continue;
+    const row = group[0];
+    warnings.push(`near-duplicate ${row.tipster} · ${row.event} · ${row.market} · ${row.side}: ${detail(group)}`);
   }
   warnings.sort();
 
