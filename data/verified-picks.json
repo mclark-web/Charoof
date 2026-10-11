@@ -3595,10 +3595,10 @@
     "posted_at": "2026-09-28 23:47 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/predictions-to-bet-now-bet-later-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872971",
+    "final_score": "New England Patriots 29, Buffalo Bills 26"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3611,10 +3611,10 @@
     "posted_at": "2026-09-28 23:47 ET",
     "game_date": "2026-10-05",
     "source_url": "https://www.covers.com/nfl/predictions-to-bet-now-bet-later-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872979",
+    "final_score": "Atlanta Falcons 45, New Orleans Saints 24"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3627,10 +3627,10 @@
     "posted_at": "2026-09-30 13:55 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/picks-and-predictions-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872975",
+    "final_score": "Denver Broncos 14, San Francisco 49ers 24"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3643,10 +3643,10 @@
     "posted_at": "2026-09-30 13:55 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/picks-and-predictions-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872966",
+    "final_score": "Arizona Cardinals 24, New York Giants 36"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3659,10 +3659,10 @@
     "posted_at": "2026-09-30 13:55 ET",
     "game_date": "2026-10-05",
     "source_url": "https://www.covers.com/nfl/picks-and-predictions-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872979",
+    "final_score": "Atlanta Falcons 45, New Orleans Saints 24"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3675,10 +3675,10 @@
     "posted_at": "2026-09-28 12:51 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/lions-vs-panthers-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872978",
+    "final_score": "Detroit Lions 26, Carolina Panthers 32"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3691,10 +3691,10 @@
     "posted_at": "2026-09-28 12:51 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/lions-vs-panthers-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872978",
+    "final_score": "Detroit Lions 26, Carolina Panthers 32"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3707,10 +3707,10 @@
     "posted_at": "2026-09-29 13:10 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/rams-vs-eagles-prediction-picks-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872970",
+    "final_score": "Los Angeles Rams 24, Philadelphia Eagles 20"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3723,10 +3723,10 @@
     "posted_at": "2026-09-29 13:10 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/rams-vs-eagles-prediction-picks-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872970",
+    "final_score": "Los Angeles Rams 24, Philadelphia Eagles 20"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3739,10 +3739,10 @@
     "posted_at": "2026-09-29 12:39 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/jets-vs-bears-prediction-picks-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872972",
+    "final_score": "New York Jets 12, Chicago Bears 23"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -3755,10 +3755,10 @@
     "posted_at": "2026-09-29 12:39 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/jets-vs-bears-prediction-picks-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872972",
+    "final_score": "New York Jets 12, Chicago Bears 23"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3771,10 +3771,10 @@
     "posted_at": "2026-09-28 08:52 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/packers-vs-buccaneers-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872968",
+    "final_score": "Green Bay Packers 17, Tampa Bay Buccaneers 14"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3787,10 +3787,10 @@
     "posted_at": "2026-09-28 08:52 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/packers-vs-buccaneers-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872968",
+    "final_score": "Green Bay Packers 17, Tampa Bay Buccaneers 14"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3803,10 +3803,10 @@
     "posted_at": "2026-09-28 08:40 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/colts-vs-commanders-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872965",
+    "final_score": "Indianapolis Colts 30, Washington Commanders 13"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3819,10 +3819,10 @@
     "posted_at": "2026-09-28 08:40 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/colts-vs-commanders-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872965",
+    "final_score": "Indianapolis Colts 30, Washington Commanders 13"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3835,10 +3835,10 @@
     "posted_at": "2026-09-28 11:00 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/cowboys-vs-texans-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872967",
+    "final_score": "Dallas Cowboys 34, Houston Texans 30"
   },
   {
     "tipster": "Quinn Allen (Covers)",
@@ -3851,10 +3851,10 @@
     "posted_at": "2026-09-28 11:00 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/cowboys-vs-texans-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872967",
+    "final_score": "Dallas Cowboys 34, Houston Texans 30"
   },
   {
     "tipster": "Dustin Saracini (Covers)",
@@ -3867,10 +3867,10 @@
     "posted_at": "2026-09-28 14:58 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/patriots-vs-bills-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872971",
+    "final_score": "New England Patriots 29, Buffalo Bills 26"
   },
   {
     "tipster": "Dustin Saracini (Covers)",
@@ -3883,10 +3883,10 @@
     "posted_at": "2026-09-28 14:58 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/patriots-vs-bills-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872971",
+    "final_score": "New England Patriots 29, Buffalo Bills 26"
   },
   {
     "tipster": "Dustin Saracini (Covers)",
@@ -3899,10 +3899,10 @@
     "posted_at": "2026-09-28 17:43 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/broncos-vs-49ers-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872975",
+    "final_score": "Denver Broncos 14, San Francisco 49ers 24"
   },
   {
     "tipster": "Dustin Saracini (Covers)",
@@ -3915,10 +3915,10 @@
     "posted_at": "2026-09-28 17:43 ET",
     "game_date": "2026-10-04",
     "source_url": "https://www.covers.com/nfl/broncos-vs-49ers-predictions-odds-early-leans-week-4-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872975",
+    "final_score": "Denver Broncos 14, San Francisco 49ers 24"
   },
   {
     "tipster": "Rob Paul (Covers)",
@@ -3931,10 +3931,10 @@
     "posted_at": "2026-09-29 11:28 ET",
     "game_date": "2026-10-03",
     "source_url": "https://www.covers.com/ncaaf/michigan-vs-minnesota-prediction-picks-odds-early-leans-week-5-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401858474",
+    "final_score": "Michigan Wolverines 14, Minnesota Golden Gophers 20"
   },
   {
     "tipster": "Rob Paul (Covers)",
@@ -3947,10 +3947,10 @@
     "posted_at": "2026-09-29 11:28 ET",
     "game_date": "2026-10-03",
     "source_url": "https://www.covers.com/ncaaf/michigan-vs-minnesota-prediction-picks-odds-early-leans-week-5-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401858474",
+    "final_score": "Michigan Wolverines 14, Minnesota Golden Gophers 20"
   },
   {
     "tipster": "Rob Paul (Covers)",
@@ -3963,10 +3963,10 @@
     "posted_at": "2026-09-29 12:44 ET",
     "game_date": "2026-10-03",
     "source_url": "https://www.covers.com/ncaaf/ohio-state-vs-iowa-prediction-picks-odds-early-leans-week-5-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401858473",
+    "final_score": "Ohio State Buckeyes 31, Iowa Hawkeyes 14"
   },
   {
     "tipster": "Rob Paul (Covers)",
@@ -3979,10 +3979,10 @@
     "posted_at": "2026-09-29 12:44 ET",
     "game_date": "2026-10-03",
     "source_url": "https://www.covers.com/ncaaf/ohio-state-vs-iowa-prediction-picks-odds-early-leans-week-5-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401858473",
+    "final_score": "Ohio State Buckeyes 31, Iowa Hawkeyes 14"
   },
   {
     "tipster": "Joshua Nunn (Action Network)",
@@ -3995,9 +3995,9 @@
     "posted_at": "2026-09-30 13:06 ET",
     "game_date": "2026-10-03",
     "source_url": "https://www.actionnetwork.com/ncaaf/week-5-college-football-predictions-picks-ncaaf-group-of-6-moneyline-underdogs-saturday-oct-3",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401869942",
+    "final_score": "Georgia Southern Eagles 31, Coastal Carolina Chanticleers 24"
   }
 ]
