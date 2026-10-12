@@ -181,11 +181,60 @@ describe("Oct 3–5 finals", () => {
   });
 });
 
+describe("Oct 10–11 finals", () => {
+  it("grades the 23 cards whose games ESPN shows final", () => {
+    const settled = [
+      ["Quinn Allen (Covers)", "Cleveland Browns", "Cleveland Browns @ New York Jets", "loss", "Cleveland Browns 12, New York Jets 17"],
+      ["Joshua Nunn (Action Network)", "Arizona State Sun Devils", "Hawai'i Rainbow Warriors @ Arizona State Sun Devils", "loss", "Hawai'i Rainbow Warriors 12, Arizona State Sun Devils 30"],
+      ["Rob Paul (Covers)", "James Madison Dukes", "James Madison Dukes @ Georgia Southern Eagles", "loss", "James Madison Dukes 27, Georgia Southern Eagles 24"],
+      ["Joe Osborne (Covers)", "Under", "Cincinnati Bengals @ Miami Dolphins", "loss", "Cincinnati Bengals 31, Miami Dolphins 24"],
+      ["Jason Logan (Covers)", "Under", "Baltimore Ravens @ Atlanta Falcons", "loss", "Baltimore Ravens 30, Atlanta Falcons 23"],
+      ["Jason Logan (Covers)", "Houston Texans", "Houston Texans @ Tennessee Titans", "win", "Houston Texans 26, Tennessee Titans 3"],
+      ["Jason Logan (Covers)", "Green Bay Packers", "Chicago Bears @ Green Bay Packers", "win", "Chicago Bears 7, Green Bay Packers 31"],
+      ["Rob Paul (Covers)", "Under", "Georgia Bulldogs @ Alabama Crimson Tide", "win", "Georgia Bulldogs 20, Alabama Crimson Tide 17"],
+      ["Quinn Allen (Covers)", "Under", "Cleveland Browns @ New York Jets", "win", "Cleveland Browns 12, New York Jets 17"],
+      ["Jason Logan (Covers)", "Baltimore Ravens", "Baltimore Ravens @ Atlanta Falcons", "win", "Baltimore Ravens 30, Atlanta Falcons 23"],
+      ["Jason Logan (Covers)", "Over", "Minnesota Vikings @ New Orleans Saints", "loss", "Minnesota Vikings 23, New Orleans Saints 13"],
+      ["Joe Osborne (Covers)", "Over", "New York Giants @ Washington Commanders", "win", "New York Giants 27, Washington Commanders 27"],
+      ["Joe Osborne (Covers)", "Over", "Detroit Lions @ Arizona Cardinals", "win", "Detroit Lions 45, Arizona Cardinals 21"],
+      ["Ryan Minion (Action Network)", "USC Trojans", "USC Trojans @ Penn State Nittany Lions", "win", "USC Trojans 31, Penn State Nittany Lions 23"],
+      ["Jason Logan (Covers)", "Cleveland Browns", "Cleveland Browns @ New York Jets", "loss", "Cleveland Browns 12, New York Jets 17"],
+      ["Jason Logan (Covers)", "Atlanta Falcons", "Baltimore Ravens @ Atlanta Falcons", "loss", "Baltimore Ravens 30, Atlanta Falcons 23"],
+      ["Quinn Allen (Covers)", "Houston Texans", "Houston Texans @ Tennessee Titans", "win", "Houston Texans 26, Tennessee Titans 3"],
+      ["Jason Logan (Covers)", "Seattle Seahawks", "San Francisco 49ers @ Seattle Seahawks", "loss", "San Francisco 49ers 32, Seattle Seahawks 29"],
+      ["Jason Logan (Covers)", "Minnesota Vikings", "Minnesota Vikings @ New Orleans Saints", "win", "Minnesota Vikings 23, New Orleans Saints 13"],
+      ["Quinn Allen (Covers)", "Under", "Houston Texans @ Tennessee Titans", "win", "Houston Texans 26, Tennessee Titans 3"],
+      ["Joe Osborne (Covers)", "Miami Dolphins", "Cincinnati Bengals @ Miami Dolphins", "win", "Cincinnati Bengals 31, Miami Dolphins 24"],
+      ["Joe Osborne (Covers)", "Under", "Minnesota Vikings @ New Orleans Saints", "win", "Minnesota Vikings 23, New Orleans Saints 13"],
+      ["Jason Logan (Covers)", "Over", "Chicago Bears @ Green Bay Packers", "loss", "Chicago Bears 7, Green Bay Packers 31"],
+    ] as const;
+    assert.equal(settled.length, 23);
+    for (const [tipster, side, event, result, finalScore] of settled) {
+      const matches = picks.filter((item) => item.tipster === tipster && item.side === side && item.event === event);
+      assert.equal(matches.length, 1, `${tipster} ${side} ${event}`);
+      const pick = matches[0];
+      assert.ok(pick);
+      assert.equal(pick.game_final, true);
+      assert.equal(pick.result, result);
+      assert.equal(pick.final_score, finalScore);
+      assert.match(pick.box_score_url, /^https:\/\/www\.espn\.com\//);
+      const again = gradeFullGame({
+        market: pick.market,
+        side: pick.side,
+        number: pick.number,
+        finalScore: pick.final_score,
+      });
+      assert.equal(again, result);
+    }
+  });
+});
+
 describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 25);
+    assert.equal(open.length, 2);
+    assert.ok(open.every((pick) => pick.event === "Buffalo Bills @ Los Angeles Rams" && pick.game_date === "2026-10-12"));
     assert.equal(
       openPickRows().length,
       open.filter((pick) => !postTimeUnconfirmed(pick.posted_at)).length,
