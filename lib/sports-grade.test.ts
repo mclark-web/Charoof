@@ -229,12 +229,47 @@ describe("Oct 10–11 finals", () => {
   });
 });
 
+describe("Oct 12 finals", () => {
+  it("grades the two Bills at Rams cards ESPN shows final", () => {
+    const settled = [
+      ["verified-276", "Jason Logan (Covers)", "Los Angeles Rams", "Buffalo Bills @ Los Angeles Rams", "loss", "Buffalo Bills 37, Los Angeles Rams 34"],
+      ["verified-277", "Jason Logan (Covers)", "Under", "Buffalo Bills @ Los Angeles Rams", "loss", "Buffalo Bills 37, Los Angeles Rams 34"],
+    ] as const;
+    assert.equal(settled.length, 2);
+    const rows = verifiedPickRows();
+    for (const [id, tipster, side, event, result, finalScore] of settled) {
+      const matches = picks.filter((item) => item.tipster === tipster && item.side === side && item.event === event);
+      assert.equal(matches.length, 1, `${tipster} ${side} ${event}`);
+      const pick = matches[0];
+      assert.ok(pick);
+      assert.equal(pick.game_final, true);
+      assert.equal(pick.result, result);
+      assert.equal(pick.final_score, finalScore);
+      assert.equal(pick.box_score_url, "https://www.espn.com/nfl/game/_/gameId/401872994");
+      const again = gradeFullGame({
+        market: pick.market,
+        side: pick.side,
+        number: pick.number,
+        finalScore: pick.final_score,
+      });
+      assert.equal(again, result);
+      const row = rows.find((item) => item.id === id);
+      assert.equal(row?.result, "LOSS", id);
+      assert.match(row?.title ?? "", side === "Under" ? /Under 54\.5/ : /Los Angeles Rams −2\.5/);
+      assert.match(row?.detail ?? "", /Buffalo Bills 37, Los Angeles Rams 34/);
+    }
+  });
+});
+
 describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 2);
-    assert.ok(open.every((pick) => pick.event === "Buffalo Bills @ Los Angeles Rams" && pick.game_date === "2026-10-12"));
+    assert.equal(open.length, 0);
+    assert.equal(
+      picks.some((pick) => pick.event === "Buffalo Bills @ Los Angeles Rams" && pick.result === "pending"),
+      false,
+    );
     assert.equal(
       openPickRows().length,
       open.filter((pick) => !postTimeUnconfirmed(pick.posted_at)).length,
