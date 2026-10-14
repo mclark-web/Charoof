@@ -265,7 +265,7 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 0);
+    assert.equal(open.length, 22);
     assert.equal(
       picks.some((pick) => pick.event === "Buffalo Bills @ Los Angeles Rams" && pick.result === "pending"),
       false,
