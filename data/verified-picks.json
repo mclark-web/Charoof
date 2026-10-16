@@ -5244,10 +5244,10 @@
     "posted_at": "2026-10-14 07:16 ET",
     "game_date": "2026-10-14",
     "source_url": "https://www.covers.com/mlb/brewers-vs-dodgers-prediction-picks-odds-wednesday-10-14-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/mlb/game/_/gameId/401908032",
+    "final_score": "Milwaukee Brewers 6, Los Angeles Dodgers 2"
   },
   {
     "tipster": "RoadToCFB (Action Network)",
@@ -5260,10 +5260,10 @@
     "posted_at": "2026-10-14 08:05 ET",
     "game_date": "2026-10-14",
     "source_url": "https://www.actionnetwork.com/ncaaf/kennesaw-state-owls-vs-missouri-state-bears-prediction-pick-odds-college-football-wednesday-october-14",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/college-football/game/_/gameId/401871054",
+    "final_score": "Kennesaw State Owls 21, Missouri State Bears 24"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -5276,10 +5276,10 @@
     "posted_at": "2026-10-13 08:10 ET",
     "game_date": "2026-10-15",
     "source_url": "https://www.covers.com/nfl/seahawks-vs-broncos-prediction-picks-odds-early-leans-week-6-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872995",
+    "final_score": "Seattle Seahawks 14, Denver Broncos 17"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -5292,10 +5292,10 @@
     "posted_at": "2026-10-13 08:10 ET",
     "game_date": "2026-10-15",
     "source_url": "https://www.covers.com/nfl/seahawks-vs-broncos-prediction-picks-odds-early-leans-week-6-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "win",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872995",
+    "final_score": "Seattle Seahawks 14, Denver Broncos 17"
   },
   {
     "tipster": "Joe Osborne (Covers)",
@@ -5308,10 +5308,10 @@
     "posted_at": "2026-10-14 06:30 ET",
     "game_date": "2026-10-15",
     "source_url": "https://www.covers.com/nfl/seahawks-vs-broncos-prediction-picks-oct-15-2026",
-    "game_final": false,
-    "result": "pending",
-    "box_score_url": "",
-    "final_score": "Not final"
+    "game_final": true,
+    "result": "loss",
+    "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401872995",
+    "final_score": "Seattle Seahawks 14, Denver Broncos 17"
   },
   {
     "tipster": "Rob Paul (Covers)",

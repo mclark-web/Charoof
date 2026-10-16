@@ -261,11 +261,107 @@ describe("Oct 12 finals", () => {
   });
 });
 
+describe("Oct 14–15 finals", () => {
+  it("grades the five cards ESPN shows final", () => {
+    const settled = [
+      [
+        "verified-327",
+        "Quinn Allen (Covers)",
+        "Los Angeles Dodgers",
+        "Milwaukee Brewers @ Los Angeles Dodgers",
+        "loss",
+        "Milwaukee Brewers 6, Los Angeles Dodgers 2",
+        "https://www.espn.com/mlb/game/_/gameId/401908032",
+        /Los Angeles Dodgers moneyline/,
+      ],
+      [
+        "verified-328",
+        "RoadToCFB (Action Network)",
+        "Kennesaw State Owls",
+        "Kennesaw State Owls @ Missouri State Bears",
+        "loss",
+        "Kennesaw State Owls 21, Missouri State Bears 24",
+        "https://www.espn.com/college-football/game/_/gameId/401871054",
+        /Kennesaw State Owls −3/,
+      ],
+      [
+        "verified-329",
+        "Jason Logan (Covers)",
+        "Denver Broncos",
+        "Seattle Seahawks @ Denver Broncos",
+        "win",
+        "Seattle Seahawks 14, Denver Broncos 17",
+        "https://www.espn.com/nfl/game/_/gameId/401872995",
+        /Denver Broncos \+2\.5/,
+      ],
+      [
+        "verified-330",
+        "Jason Logan (Covers)",
+        "Under",
+        "Seattle Seahawks @ Denver Broncos",
+        "win",
+        "Seattle Seahawks 14, Denver Broncos 17",
+        "https://www.espn.com/nfl/game/_/gameId/401872995",
+        /Under 42\.5/,
+      ],
+      [
+        "verified-331",
+        "Joe Osborne (Covers)",
+        "Seattle Seahawks",
+        "Seattle Seahawks @ Denver Broncos",
+        "loss",
+        "Seattle Seahawks 14, Denver Broncos 17",
+        "https://www.espn.com/nfl/game/_/gameId/401872995",
+        /Seattle Seahawks −2\.5/,
+      ],
+    ] as const;
+    assert.equal(settled.length, 5);
+    const rows = verifiedPickRows();
+    for (const [id, tipster, side, event, result, finalScore, boxScore, title] of settled) {
+      const matches = picks.filter((item) => item.tipster === tipster && item.side === side && item.event === event);
+      assert.equal(matches.length, 1, `${tipster} ${side} ${event}`);
+      const pick = matches[0];
+      assert.ok(pick);
+      assert.equal(pick.game_final, true);
+      assert.equal(pick.result, result);
+      assert.equal(pick.final_score, finalScore);
+      assert.equal(pick.box_score_url, boxScore);
+      const again = gradeFullGame({
+        market: pick.market,
+        side: pick.side,
+        number: pick.number,
+        finalScore: pick.final_score,
+      });
+      assert.equal(again, result);
+      const row = rows.find((item) => item.id === id);
+      assert.equal(row?.result, result.toUpperCase(), id);
+      assert.match(row?.title ?? "", title);
+      assert.match(row?.detail ?? "", new RegExp(finalScore.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
+  });
+});
+
 describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 22);
+    assert.equal(open.length, 17);
+    assert.ok(
+      open.every(
+        (pick) => pick.game_date === "2026-10-17" || pick.game_date === "2026-10-18" || pick.game_date === "2026-10-19",
+      ),
+    );
+    for (const event of [
+      "Seattle Seahawks @ Denver Broncos",
+      "Kennesaw State Owls @ Missouri State Bears",
+      "Milwaukee Brewers @ Los Angeles Dodgers",
+    ]) {
+      assert.equal(
+        picks.some((pick) => pick.event === event && pick.result === "pending"),
+        false,
+        event,
+      );
+    }
     assert.equal(
       picks.some((pick) => pick.event === "Buffalo Bills @ Los Angeles Rams" && pick.result === "pending"),
       false,
