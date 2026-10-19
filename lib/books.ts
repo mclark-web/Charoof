@@ -115,7 +115,7 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
  */
 const ANALYSTS_LIVE_BOARD = {
   analysts: 296,
-  firms: 37,
+  banks: 37,
   calls: 609,
 } as const;
 
@@ -145,7 +145,23 @@ const fintwitWatchlist = FINTWIT_X_ACCOUNTS + FINTWIT_SUBSTACK_WRITERS;
 
 const FINTWIT_LIVE_BOARD = {
   fill: fintwitShownFill(fintwitBoardMean),
-  card: `2 graded calls · week of Sep 21, 2026 · ${fintwitWatchlist}-account watchlist`,
+  // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
+  // U+2011 keeps "16-account" from splitting at the hyphen.
+  card: `2\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0Sep\u00a021,\u00a02026\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+} as const;
+
+/**
+ * GCBot hub card, checked 2026-10-19.
+ * Source: mclark-web/charoofbot main @ 1a813280.
+ * data/gcbot/posts.csv has 979 rows and data/gcbot/narratives.csv has 6
+ * (market-news, options-flow, market-stats, trader-calls, football-betting,
+ * hoops-hockey-betting). data/corpus.json matches those counts.
+ * https://charoofbot.vercel.app says this page scores 979 real public X posts
+ * across 6 narratives, as of 18 Oct 2026.
+ */
+const GCBOT_LIVE_BOARD = {
+  posts: 979,
+  narratives: 6,
 } as const;
 
 function asOutcome(value: string, id: string): Outcome {
@@ -544,8 +560,8 @@ function analystsBook(sector: Sector): SectorBook {
     hero: {
       kind: "count",
       value: String(ANALYSTS_LIVE_BOARD.analysts),
-      card: `${ANALYSTS_LIVE_BOARD.analysts} analysts · ${ANALYSTS_LIVE_BOARD.firms} firms · ${ANALYSTS_LIVE_BOARD.calls} calls`,
-      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.firms} firms, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      card: `${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: analystRoster.liveUrl,
     liveLabel: "Open the live Analysts ledger",
@@ -611,16 +627,13 @@ function fintwitBookView(sector: Sector): SectorBook {
 }
 
 function gcbotBook(sector: Sector): SectorBook {
-  const posts = gcbotCorpus.posts.length;
-  const narratives = gcbotCorpus.narratives.length;
-  const accounts = gcbotCorpus.accounts.length;
   return {
     sector,
     hero: {
       kind: "count",
-      value: String(posts),
-      card: `${posts} fixture posts · ${narratives} narratives`,
-      hint: `${accounts} fixture accounts. Clone speech and amplifier scores are computed on the live GCBot board from this same corpus. This hub shows the narratives and the earliest post in each thread, and does not invent those two scores.`,
+      value: String(GCBOT_LIVE_BOARD.posts),
+      card: `${GCBOT_LIVE_BOARD.posts}\u00a0posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives`,
+      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives on the live board, as of 18 Oct 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
     liveHref: "https://charoofbot.vercel.app",
     liveLabel: "Open the live GCBot board",

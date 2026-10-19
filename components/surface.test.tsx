@@ -138,7 +138,9 @@ describe("hub copy", () => {
     assert.doesNotMatch(method, /vertical vial|horizontal tube|--gc-fill/);
     assert.match(disclaimer, /the home cards link to the live ledgers/);
     assert.match(disclaimer, /Demo rows are fiction, labeled Demo\./);
+    assert.match(disclaimer, /Analyst calls are sourced from public analyst rating and price-target tables/);
     assert.doesNotMatch(disclaimer, /each page links to the live ledger/);
+    assert.doesNotMatch(disclaimer, /seeded roster|fictional sample desks|synthetic corpus|fixture book/);
     assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale/);
     assert.doesNotMatch(header, /href: "\/analysts"|href: "\/fintwit"|href: "\/gcbot"/);
     assert.match(header, /label: "Hub"/);
@@ -219,8 +221,12 @@ describe("hub board cards", () => {
     assert.match(home, /href="https:\/\/bank-troof\.vercel\.app"/);
     assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
     assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);
-    assert.match(home, /296 analysts · 37 firms · 609 calls/);
-    assert.match(home, /2 graded calls · week of Sep 21, 2026 · 16-account watchlist/);
+    const homePlain = home.replace(/\u00a0/g, " ").replace(/\u2011/g, "-");
+    assert.match(homePlain, /37 banks · 609 calls/);
+    assert.doesNotMatch(homePlain, /37 firms|296 analysts/);
+    assert.match(homePlain, /2 graded calls · week of Sep 21, 2026 · 16-account watchlist/);
+    assert.match(homePlain, /979 posts · 6 narratives/);
+    assert.doesNotMatch(homePlain, /fixture posts|synthetic corpus/);
     assert.match(home, /gc-pct">9%</);
     assert.doesNotMatch(home, /gc-pct">10%</);
     assert.match(home, /gc-grade-tag weak">WEAK/);
