@@ -105,6 +105,34 @@ type FintwitCall = {
 
 const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
+/**
+ * Analysts hub card, checked 2026-10-19.
+ * Source: mclark-web/bank_troof data/calls/calls.csv (609 rows; calls.json matches)
+ * and https://bank-troof.vercel.app after merged PR #18.
+ * Distinct analyst_slug 296, distinct firm_slug 37. The live calls page splits
+ * the 609 rows into 456 active and 153 superseded. The home page labels the
+ * 37 firms as Banks.
+ */
+const ANALYSTS_LIVE_BOARD = {
+  analysts: 296,
+  firms: 37,
+  calls: 609,
+} as const;
+
+/**
+ * FinTwit hub card, checked 2026-10-19.
+ * Source: mclark-web/fintwittruth data/calls/calls.csv for the week of 2026-09-21,
+ * src/lib/watchlist.json, and https://fintwittruth.vercel.app.
+ * Monday noon scores are 12 (The Pulse Of The Market) and 7 (Piggo's Trading Desk).
+ * The board mean is 9.5. The live tube rounds that mean to 10%, and the grade is
+ * WEAK because 9.5 is under 40. Both rows are graded Substack calls. The watchlist
+ * file has 15 accounts, and the live home page says "Fifteen public accounts."
+ */
+const FINTWIT_LIVE_BOARD = {
+  fill: 9.5,
+  card: "2 graded calls · week of Sep 21, 2026 · 15-account watchlist",
+} as const;
+
 function asOutcome(value: string, id: string): Outcome {
   if (OUTCOMES.has(value as Outcome)) return value as Outcome;
   throw new Error(`Unknown grade ${value} on ${id}`);
@@ -500,9 +528,9 @@ function analystsBook(sector: Sector): SectorBook {
     sector,
     hero: {
       kind: "count",
-      value: String(analystRoster.analysts.length),
-      card: `${analystRoster.analysts.length} analysts · seeded book`,
-      hint: `${analystRoster.banks.length} sample desks · ${analystRoster.tickers.length} tickers · vintage ${analystRoster.asOf}. Names are the bank_troof roster. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      value: String(ANALYSTS_LIVE_BOARD.analysts),
+      card: `${ANALYSTS_LIVE_BOARD.analysts} analysts · ${ANALYSTS_LIVE_BOARD.firms} firms · ${ANALYSTS_LIVE_BOARD.calls} calls`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.firms} firms, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: analystRoster.liveUrl,
     liveLabel: "Open the live Analysts ledger",
@@ -526,15 +554,13 @@ function analystsBook(sector: Sector): SectorBook {
 
 function fintwitBookView(sector: Sector): SectorBook {
   const latest = fintwitBook.cohorts.find((cohort) => cohort.isLatest) ?? fintwitBook.cohorts[fintwitBook.cohorts.length - 1];
-  const counts = tally(fintwitOutcomes());
-  const fill = hitFill(counts.win, counts.loss);
   return {
     sector,
     hero: {
       kind: "tube",
-      fill,
-      card: `${fintwitBook.calls.length} seeded posts · ${recordLabel(counts.win, counts.loss)}`,
-      hint: `Monday-open direction for the seeded demo book: stated bullish or bearish versus the stored Friday close and Monday regular-session open. ${counts.pending} posts have no Monday open, so they stay PENDING and out of the fill. A single post shows its result, not a GC grade.`,
+      fill: FINTWIT_LIVE_BOARD.fill,
+      card: FINTWIT_LIVE_BOARD.card,
+      hint: "Week of Sep 21, 2026, Monday noon checkpoint. Two graded calls from two Substack writers. The board mean of those Monday noon scores is 9.5, shown as 10% WEAK. Fifteen accounts are on the watchlist.",
     },
     liveHref: fintwitBook.liveUrl,
     liveLabel: "Open the live FinTwit ledger",

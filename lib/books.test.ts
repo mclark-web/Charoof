@@ -10,7 +10,7 @@ import {
   unconfirmedPickRows,
   verifiedPickRows,
 } from "./books";
-import { gradeForFill } from "./grade";
+import { displayFill, gradeForFill } from "./grade";
 import { formatNewYorkDate, newYorkToday } from "./recency";
 import { fillForOutcome, hitFill } from "./outcome";
 
@@ -196,6 +196,12 @@ describe("sector books", () => {
     assert.equal(analysts.sections[0]?.rows.length, 35);
     assert.equal(analysts.liveHref, "https://bank-troof.vercel.app");
     assert.match(analysts.liveLabel ?? "", /Analysts/);
+    assert.equal(analysts.hero.kind, "count");
+    if (analysts.hero.kind === "count") {
+      assert.equal(analysts.hero.value, "296");
+      assert.equal(analysts.hero.card, "296 analysts · 37 firms · 609 calls");
+      assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
+    }
     assert.doesNotMatch(visibleText(analysts), BANNED);
 
     const fintwit = sectorBook("fintwit");
@@ -204,6 +210,11 @@ describe("sector books", () => {
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
     assert.equal(fintwit.hero.kind, "tube");
     if (fintwit.hero.kind === "tube") {
+      assert.equal(fintwit.hero.fill, 9.5);
+      assert.equal(displayFill(fintwit.hero.fill), 10);
+      assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
+      assert.equal(fintwit.hero.card, "2 graded calls · week of Sep 21, 2026 · 15-account watchlist");
+      assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
     }
     assert.doesNotMatch(visibleText(fintwit), BANNED);
