@@ -138,7 +138,10 @@ describe("hub copy", () => {
     assert.doesNotMatch(method, /vertical vial|horizontal tube|--gc-fill/);
     assert.match(disclaimer, /the home cards link to the live ledgers/);
     assert.match(disclaimer, /Demo rows are fiction, labeled Demo\./);
-    assert.match(disclaimer, /Hub card counts are a dated snapshot of each live board's own ledger \(as of Oct 19, 2026\)/);
+    assert.match(disclaimer, /Hub card counts are a dated snapshot of each live board\u2019s own ledger \(as of Oct 18\u201319, 2026\)/);
+    assert.match(disclaimer, /home cards show that snapshot, and the home cards link to the live ledgers/);
+    assert.doesNotMatch(disclaimer, /live ledger counts/);
+    assert.equal((disclaimer.match(/\[text-wrap:pretty\]/g) ?? []).length, 3);
     assert.match(disclaimer, /Analyst calls are sourced from public analyst rating tables and news reports/);
     assert.match(disclaimer, /GradedCalls is not affiliated with any analyst or firm/);
     assert.equal((disclaimer.match(/paid odds API/g) ?? []).length, 1);
