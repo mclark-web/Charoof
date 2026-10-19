@@ -5532,10 +5532,10 @@
     "posted_at": "2026-10-12 09:43 ET",
     "game_date": "2026-10-18",
     "source_url": "https://www.covers.com/nfl/cowboys-vs-packers-prediction-picks-odds-early-leans-week-6-2026",
-    "game_final": false,
-    "result": "pending",
+    "game_final": true,
+    "result": "win",
     "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401873007",
-    "final_score": "Not final"
+    "final_score": "Dallas Cowboys 13, Green Bay Packers 23"
   },
   {
     "tipster": "Jason Logan (Covers)",
@@ -5548,10 +5548,10 @@
     "posted_at": "2026-10-13 08:16 ET",
     "game_date": "2026-10-18",
     "source_url": "https://www.covers.com/nfl/predictions-to-bet-now-bet-later-week-6-2026",
-    "game_final": false,
-    "result": "pending",
+    "game_final": true,
+    "result": "loss",
     "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401873007",
-    "final_score": "Not final"
+    "final_score": "Dallas Cowboys 13, Green Bay Packers 23"
   },
   {
     "tipster": "Jason Logan (Covers)",
