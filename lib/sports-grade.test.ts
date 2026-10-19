@@ -341,17 +341,195 @@ describe("Oct 14–15 finals", () => {
   });
 });
 
+describe("Oct 17–18 finals", () => {
+  it("grades the thirteen cards ESPN shows final", () => {
+    const settled = [
+      [
+        "verified-332",
+        "Rob Paul (Covers)",
+        "Alabama Crimson Tide",
+        "Alabama Crimson Tide @ Tennessee Volunteers",
+        "loss",
+        "Alabama Crimson Tide 10, Tennessee Volunteers 26",
+        "https://www.espn.com/college-football/game/_/gameId/401856723",
+        /Alabama Crimson Tide −9\.5/,
+      ],
+      [
+        "verified-333",
+        "Rob Paul (Covers)",
+        "Over",
+        "Alabama Crimson Tide @ Tennessee Volunteers",
+        "loss",
+        "Alabama Crimson Tide 10, Tennessee Volunteers 26",
+        "https://www.espn.com/college-football/game/_/gameId/401856723",
+        /Over 50\.5/,
+      ],
+      [
+        "verified-334",
+        "Rob Paul (Covers)",
+        "Notre Dame Fighting Irish",
+        "Notre Dame Fighting Irish @ BYU Cougars",
+        "loss",
+        "Notre Dame Fighting Irish 24, BYU Cougars 28",
+        "https://www.espn.com/college-football/game/_/gameId/401856809",
+        /Notre Dame Fighting Irish −9\.5/,
+      ],
+      [
+        "verified-335",
+        "Rob Paul (Covers)",
+        "Over",
+        "Notre Dame Fighting Irish @ BYU Cougars",
+        "win",
+        "Notre Dame Fighting Irish 24, BYU Cougars 28",
+        "https://www.espn.com/college-football/game/_/gameId/401856809",
+        /Over 47\.5/,
+      ],
+      [
+        "verified-336",
+        "Jason Logan (Covers)",
+        "Atlanta Falcons",
+        "Chicago Bears @ Atlanta Falcons",
+        "loss",
+        "Chicago Bears 31, Atlanta Falcons 23",
+        "https://www.espn.com/nfl/game/_/gameId/401872999",
+        /Atlanta Falcons \+3\.5/,
+      ],
+      [
+        "verified-337",
+        "Jason Logan (Covers)",
+        "Under",
+        "Chicago Bears @ Atlanta Falcons",
+        "loss",
+        "Chicago Bears 31, Atlanta Falcons 23",
+        "https://www.espn.com/nfl/game/_/gameId/401872999",
+        /Under 49\.5/,
+      ],
+      [
+        "verified-338",
+        "Jason Logan (Covers)",
+        "Baltimore Ravens",
+        "Baltimore Ravens @ Cleveland Browns",
+        "loss",
+        "Baltimore Ravens 10, Cleveland Browns 13",
+        "https://www.espn.com/nfl/game/_/gameId/401872997",
+        /Baltimore Ravens −4\.5/,
+      ],
+      [
+        "verified-339",
+        "Jason Logan (Covers)",
+        "Under",
+        "Baltimore Ravens @ Cleveland Browns",
+        "win",
+        "Baltimore Ravens 10, Cleveland Browns 13",
+        "https://www.espn.com/nfl/game/_/gameId/401872997",
+        /Under 41\.5/,
+      ],
+      [
+        "verified-340",
+        "Dustin Saracini (Covers)",
+        "New York Jets",
+        "New York Jets @ New England Patriots",
+        "win",
+        "New York Jets 19, New England Patriots 26",
+        "https://www.espn.com/nfl/game/_/gameId/401873001",
+        /New York Jets \+7\.5/,
+      ],
+      [
+        "verified-341",
+        "Dustin Saracini (Covers)",
+        "Under",
+        "New York Jets @ New England Patriots",
+        "loss",
+        "New York Jets 19, New England Patriots 26",
+        "https://www.espn.com/nfl/game/_/gameId/401873001",
+        /Under 43\.5/,
+      ],
+      [
+        "verified-342",
+        "Jason Logan (Covers)",
+        "Kansas City Chiefs",
+        "Los Angeles Chargers @ Kansas City Chiefs",
+        "win",
+        "Los Angeles Chargers 6, Kansas City Chiefs 22",
+        "https://www.espn.com/nfl/game/_/gameId/401873006",
+        /Kansas City Chiefs −7\.5/,
+      ],
+      [
+        "verified-343",
+        "Joe Osborne (Covers)",
+        "Kansas City Chiefs",
+        "Los Angeles Chargers @ Kansas City Chiefs",
+        "win",
+        "Los Angeles Chargers 6, Kansas City Chiefs 22",
+        "https://www.espn.com/nfl/game/_/gameId/401873006",
+        /Kansas City Chiefs −8\.5/,
+      ],
+      [
+        "verified-344",
+        "Joe Osborne (Covers)",
+        "Under",
+        "Los Angeles Chargers @ Kansas City Chiefs",
+        "win",
+        "Los Angeles Chargers 6, Kansas City Chiefs 22",
+        "https://www.espn.com/nfl/game/_/gameId/401873006",
+        /Under 42\.5/,
+      ],
+    ] as const;
+    assert.equal(settled.length, 13);
+    const rows = verifiedPickRows();
+    for (const [id, tipster, side, event, result, finalScore, boxScore, title] of settled) {
+      const matches = picks.filter((item) => item.tipster === tipster && item.side === side && item.event === event);
+      assert.equal(matches.length, 1, `${tipster} ${side} ${event}`);
+      const pick = matches[0];
+      assert.ok(pick);
+      assert.equal(pick.game_final, true);
+      assert.equal(pick.result, result);
+      assert.equal(pick.final_score, finalScore);
+      assert.equal(pick.box_score_url, boxScore);
+      const again = gradeFullGame({
+        market: pick.market,
+        side: pick.side,
+        number: pick.number,
+        finalScore: pick.final_score,
+      });
+      assert.equal(again, result);
+      const row = rows.find((item) => item.id === id);
+      assert.equal(row?.result, result.toUpperCase(), id);
+      assert.match(row?.title ?? "", title);
+      assert.match(row?.detail ?? "", new RegExp(finalScore.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
+  });
+});
+
 describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 17);
+    assert.equal(open.length, 4);
     assert.ok(
       open.every(
-        (pick) => pick.game_date === "2026-10-17" || pick.game_date === "2026-10-18" || pick.game_date === "2026-10-19",
+        (pick) => pick.game_date === "2026-10-18" || pick.game_date === "2026-10-19",
       ),
     );
+    assert.equal(open.filter((pick) => pick.event === "Dallas Cowboys @ Green Bay Packers").length, 2);
+    assert.equal(open.filter((pick) => pick.event === "Washington Commanders @ San Francisco 49ers").length, 2);
+    assert.ok(
+      open
+        .filter((pick) => pick.event === "Dallas Cowboys @ Green Bay Packers")
+        .every((pick) => pick.box_score_url === "https://www.espn.com/nfl/game/_/gameId/401873007"),
+    );
+    assert.ok(
+      open
+        .filter((pick) => pick.event === "Washington Commanders @ San Francisco 49ers")
+        .every((pick) => pick.box_score_url === "https://www.espn.com/nfl/game/_/gameId/401873008"),
+    );
     for (const event of [
+      "Alabama Crimson Tide @ Tennessee Volunteers",
+      "Notre Dame Fighting Irish @ BYU Cougars",
+      "Baltimore Ravens @ Cleveland Browns",
+      "Chicago Bears @ Atlanta Falcons",
+      "New York Jets @ New England Patriots",
+      "Los Angeles Chargers @ Kansas City Chiefs",
       "Seattle Seahawks @ Denver Broncos",
       "Kennesaw State Owls @ Missouri State Bears",
       "Milwaukee Brewers @ Los Angeles Dodgers",
