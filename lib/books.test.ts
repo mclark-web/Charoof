@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
+  fintwitShownFill,
   fridayPickRows,
   fintwitCallRows,
   hubStats,
@@ -10,7 +11,7 @@ import {
   unconfirmedPickRows,
   verifiedPickRows,
 } from "./books";
-import { gradeForFill } from "./grade";
+import { displayFill, gradeForFill } from "./grade";
 import { formatNewYorkDate, newYorkToday } from "./recency";
 import { fillForOutcome, hitFill } from "./outcome";
 
@@ -196,6 +197,12 @@ describe("sector books", () => {
     assert.equal(analysts.sections[0]?.rows.length, 35);
     assert.equal(analysts.liveHref, "https://bank-troof.vercel.app");
     assert.match(analysts.liveLabel ?? "", /Analysts/);
+    assert.equal(analysts.hero.kind, "count");
+    if (analysts.hero.kind === "count") {
+      assert.equal(analysts.hero.value, "296");
+      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 37 banks · 609 calls");
+      assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
+    }
     assert.doesNotMatch(visibleText(analysts), BANNED);
 
     const fintwit = sectorBook("fintwit");
@@ -204,6 +211,14 @@ describe("sector books", () => {
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
     assert.equal(fintwit.hero.kind, "tube");
     if (fintwit.hero.kind === "tube") {
+      assert.equal(fintwitShownFill(9.5), 9);
+      assert.notEqual(fintwitShownFill(9.5), Math.round(9.5));
+      assert.equal(fintwit.hero.fill, 9);
+      assert.equal(displayFill(fintwit.hero.fill), 9);
+      assert.equal(gradeForFill(9.5).name, "WEAK");
+      assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
+      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "2 graded calls · week of Sep 21, 2026 · 16-account watchlist");
+      assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
     }
     assert.doesNotMatch(visibleText(fintwit), BANNED);
@@ -211,6 +226,12 @@ describe("sector books", () => {
     const bot = sectorBook("gcbot");
     assert.equal(bot.sections[0]?.rows.length, 12);
     assert.equal(bot.sections[0]?.rows[0]?.title, "AI capex supercycle");
+    assert.equal(bot.hero.kind, "count");
+    if (bot.hero.kind === "count") {
+      assert.equal(bot.hero.value, "979");
+      assert.equal(bot.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "posts · 6 narratives");
+      assert.doesNotMatch(`${bot.hero.card} ${bot.hero.hint}`, /fixture|synthetic|seeded|demo/i);
+    }
     assert.equal(bot.liveLabel, "Open the live GCBot board");
     assert.doesNotMatch(visibleText(bot), BANNED);
     assert.match(bot.liveHref ?? "", /charoofbot\.vercel\.app/);

@@ -105,6 +105,65 @@ type FintwitCall = {
 
 const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
+/**
+ * Analysts hub card, checked 2026-10-19.
+ * Source: mclark-web/bank_troof data/calls/calls.csv (609 rows; calls.json matches)
+ * and https://bank-troof.vercel.app after merged PR #18.
+ * Distinct analyst_slug 296, distinct firm_slug 37. The live calls page splits
+ * the 609 rows into 456 active and 153 superseded. The home page labels the
+ * 37 firms as Banks.
+ */
+const ANALYSTS_LIVE_BOARD = {
+  analysts: 296,
+  banks: 37,
+  calls: 609,
+} as const;
+
+/**
+ * FinTwit hub card, checked 2026-10-19 after fintwittruth #19 (e0cf117).
+ * Monday noon scores from data/calls/calls.csv, week of 2026-09-21:
+ * 12 (The Pulse Of The Market) and 7 (Piggo's Trading Desk). Both are graded
+ * Substack calls. The board mean is 9.5. fintwittruth formatScore floors that
+ * mean, so the live tube shows 9%. The grade stays WEAK because 9.5 is under 40.
+ * src/lib/watchlist.json has 14 X accounts (@mrMoCapital is gone). trackedRoster
+ * adds the 2 Substack writers, and https://fintwittruth.vercel.app says 16 accounts.
+ */
+const FINTWIT_MONDAY_NOON_SCORES = [12, 7] as const;
+const FINTWIT_X_ACCOUNTS = 14;
+const FINTWIT_SUBSTACK_WRITERS = 2;
+
+/** Same rule as fintwittruth formatScore: floor, do not round. 9.5 shows as 9. */
+export function fintwitShownFill(mean: number): number {
+  if (!Number.isFinite(mean) || mean <= 0) return 0;
+  if (mean < 1) return mean;
+  return Math.floor(mean);
+}
+
+const fintwitBoardMean =
+  FINTWIT_MONDAY_NOON_SCORES.reduce((sum, score) => sum + score, 0) / FINTWIT_MONDAY_NOON_SCORES.length;
+const fintwitWatchlist = FINTWIT_X_ACCOUNTS + FINTWIT_SUBSTACK_WRITERS;
+
+const FINTWIT_LIVE_BOARD = {
+  fill: fintwitShownFill(fintwitBoardMean),
+  // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
+  // U+2011 keeps "16-account" from splitting at the hyphen.
+  card: `2\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0Sep\u00a021,\u00a02026\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+} as const;
+
+/**
+ * GCBot hub card, checked 2026-10-19.
+ * Source: mclark-web/charoofbot main @ 1a813280.
+ * data/gcbot/posts.csv has 979 rows and data/gcbot/narratives.csv has 6
+ * (market-news, options-flow, market-stats, trader-calls, football-betting,
+ * hoops-hockey-betting). data/corpus.json matches those counts.
+ * https://charoofbot.vercel.app says this page scores 979 real public X posts
+ * across 6 narratives, as of 18 Oct 2026.
+ */
+const GCBOT_LIVE_BOARD = {
+  posts: 979,
+  narratives: 6,
+} as const;
+
 function asOutcome(value: string, id: string): Outcome {
   if (OUTCOMES.has(value as Outcome)) return value as Outcome;
   throw new Error(`Unknown grade ${value} on ${id}`);
@@ -500,9 +559,9 @@ function analystsBook(sector: Sector): SectorBook {
     sector,
     hero: {
       kind: "count",
-      value: String(analystRoster.analysts.length),
-      card: `${analystRoster.analysts.length} analysts · seeded book`,
-      hint: `${analystRoster.banks.length} sample desks · ${analystRoster.tickers.length} tickers · vintage ${analystRoster.asOf}. Names are the bank_troof roster. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      value: String(ANALYSTS_LIVE_BOARD.analysts),
+      card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: analystRoster.liveUrl,
     liveLabel: "Open the live Analysts ledger",
@@ -526,15 +585,13 @@ function analystsBook(sector: Sector): SectorBook {
 
 function fintwitBookView(sector: Sector): SectorBook {
   const latest = fintwitBook.cohorts.find((cohort) => cohort.isLatest) ?? fintwitBook.cohorts[fintwitBook.cohorts.length - 1];
-  const counts = tally(fintwitOutcomes());
-  const fill = hitFill(counts.win, counts.loss);
   return {
     sector,
     hero: {
       kind: "tube",
-      fill,
-      card: `${fintwitBook.calls.length} seeded posts · ${recordLabel(counts.win, counts.loss)}`,
-      hint: `Monday-open direction for the seeded demo book: stated bullish or bearish versus the stored Friday close and Monday regular-session open. ${counts.pending} posts have no Monday open, so they stay PENDING and out of the fill. A single post shows its result, not a GC grade.`,
+      fill: FINTWIT_LIVE_BOARD.fill,
+      card: FINTWIT_LIVE_BOARD.card,
+      hint: "Week of Sep 21, 2026, Monday noon checkpoint. Two graded calls from two Substack writers. The board mean of those Monday noon scores is 9.5, shown as 9% WEAK. Sixteen accounts are on the watchlist: 14 X accounts plus those two writers.",
     },
     liveHref: fintwitBook.liveUrl,
     liveLabel: "Open the live FinTwit ledger",
@@ -570,16 +627,13 @@ function fintwitBookView(sector: Sector): SectorBook {
 }
 
 function gcbotBook(sector: Sector): SectorBook {
-  const posts = gcbotCorpus.posts.length;
-  const narratives = gcbotCorpus.narratives.length;
-  const accounts = gcbotCorpus.accounts.length;
   return {
     sector,
     hero: {
       kind: "count",
-      value: String(posts),
-      card: `${posts} fixture posts · ${narratives} narratives`,
-      hint: `${accounts} fixture accounts. Clone speech and amplifier scores are computed on the live GCBot board from this same corpus. This hub shows the narratives and the earliest post in each thread, and does not invent those two scores.`,
+      value: String(GCBOT_LIVE_BOARD.posts),
+      card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives`,
+      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives on the live board, as of 18 Oct 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
     liveHref: "https://charoofbot.vercel.app",
     liveLabel: "Open the live GCBot board",

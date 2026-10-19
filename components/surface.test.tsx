@@ -138,7 +138,15 @@ describe("hub copy", () => {
     assert.doesNotMatch(method, /vertical vial|horizontal tube|--gc-fill/);
     assert.match(disclaimer, /the home cards link to the live ledgers/);
     assert.match(disclaimer, /Demo rows are fiction, labeled Demo\./);
+    assert.match(disclaimer, /Hub card counts are a dated snapshot of each live board\u2019s own ledger \(as of Oct 18\u201319, 2026\)/);
+    assert.match(disclaimer, /home cards show that snapshot, and the home cards link to the live ledgers/);
+    assert.doesNotMatch(disclaimer, /live ledger counts/);
+    assert.equal((disclaimer.match(/\[text-wrap:pretty\]/g) ?? []).length, 3);
+    assert.match(disclaimer, /Analyst calls are sourced from public analyst rating tables and news reports/);
+    assert.match(disclaimer, /GradedCalls is not affiliated with any analyst or firm/);
+    assert.equal((disclaimer.match(/paid odds API/g) ?? []).length, 1);
     assert.doesNotMatch(disclaimer, /each page links to the live ledger/);
+    assert.doesNotMatch(disclaimer, /seeded roster|fictional sample desks|synthetic corpus|fixture book/);
     assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale/);
     assert.doesNotMatch(header, /href: "\/analysts"|href: "\/fintwit"|href: "\/gcbot"/);
     assert.match(header, /label: "Hub"/);
@@ -219,6 +227,18 @@ describe("hub board cards", () => {
     assert.match(home, /href="https:\/\/bank-troof\.vercel\.app"/);
     assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
     assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);
+    const homePlain = home.replace(/\u00a0/g, " ").replace(/\u2011/g, "-");
+    assert.match(homePlain, /analysts · 37 banks · 609 calls/);
+    assert.doesNotMatch(homePlain, /37 firms/);
+    assert.match(homePlain, /2 graded calls · week of Sep 21, 2026 · 16-account watchlist/);
+    assert.match(homePlain, />979</);
+    assert.match(homePlain, /posts · 6 narratives/);
+    assert.doesNotMatch(homePlain, /979 posts/);
+    assert.doesNotMatch(homePlain, /fixture posts|synthetic corpus/);
+    assert.match(home, /gc-pct">9%</);
+    assert.doesNotMatch(home, /gc-pct">10%</);
+    assert.match(home, /gc-grade-tag weak">WEAK/);
+    assert.doesNotMatch(home, /seeded posts|seeded book|54%/);
   });
 });
 

@@ -154,9 +154,8 @@ export const sectors: Sector[] = [
     href: "https://charoofbot.vercel.app",
     kicker: "Narratives · Volume",
     title: "GCBot",
-    summary:
-      "Clone speech and amplifiers, scored by narrative volume. The zero-cost demo uses a synthetic corpus.",
-    foot: "Clone speech · Amplifiers · Volume",
+    summary: "Clone speech and amplifiers, scored by narrative volume.",
+    foot: "Clone\u00a0speech\u00a0· Amplifiers\u00a0·\u00a0Volume",
     exampleFill: 47,
     trust: [
       "Clone speech is the same wording posted as an original.",
