@@ -155,7 +155,7 @@ export const sectors: Sector[] = [
     kicker: "Narratives · Volume",
     title: "GCBot",
     summary: "Clone speech and amplifiers, scored by narrative volume.",
-    foot: "Clone\u00a0speech\u00a0· Amplifiers\u00a0· Volume",
+    foot: "Clone\u00a0speech\u00a0· Amplifiers\u00a0·\u00a0Volume",
     exampleFill: 47,
     trust: [
       "Clone speech is the same wording posted as an original.",

@@ -200,7 +200,7 @@ describe("sector books", () => {
     assert.equal(analysts.hero.kind, "count");
     if (analysts.hero.kind === "count") {
       assert.equal(analysts.hero.value, "296");
-      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "37 banks · 609 calls");
+      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 37 banks · 609 calls");
       assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
     }
     assert.doesNotMatch(visibleText(analysts), BANNED);
@@ -229,7 +229,7 @@ describe("sector books", () => {
     assert.equal(bot.hero.kind, "count");
     if (bot.hero.kind === "count") {
       assert.equal(bot.hero.value, "979");
-      assert.equal(bot.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "979 posts · 6 narratives");
+      assert.equal(bot.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "posts · 6 narratives");
       assert.doesNotMatch(`${bot.hero.card} ${bot.hero.hint}`, /fixture|synthetic|seeded|demo/i);
     }
     assert.equal(bot.liveLabel, "Open the live GCBot board");

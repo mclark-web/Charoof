@@ -560,7 +560,7 @@ function analystsBook(sector: Sector): SectorBook {
     hero: {
       kind: "count",
       value: String(ANALYSTS_LIVE_BOARD.analysts),
-      card: `${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
+      card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
       hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: analystRoster.liveUrl,
@@ -632,7 +632,7 @@ function gcbotBook(sector: Sector): SectorBook {
     hero: {
       kind: "count",
       value: String(GCBOT_LIVE_BOARD.posts),
-      card: `${GCBOT_LIVE_BOARD.posts}\u00a0posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives`,
+      card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives`,
       hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives on the live board, as of 18 Oct 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
     liveHref: "https://charoofbot.vercel.app",
