@@ -8,7 +8,13 @@ import type { BoardSection } from "@/lib/books";
 const PREVIEW = 8;
 const STEP = 24;
 
-export function BoardTable({ section }: { section: BoardSection }) {
+export function BoardTable({
+  section,
+  hideLabel = false,
+}: {
+  section: BoardSection;
+  hideLabel?: boolean;
+}) {
   const keepOpen = section.id === "public-cappers";
   const [shown, setShown] = useState(keepOpen ? section.rows.length : Math.min(PREVIEW, section.rows.length));
   const [revealed, setRevealed] = useState(false);
@@ -27,7 +33,7 @@ export function BoardTable({ section }: { section: BoardSection }) {
   const tenths = section.id === "public-cappers";
   return (
     <>
-      <div className="section-label">{section.label}</div>
+      {hideLabel ? null : <div className="section-label">{section.label}</div>}
       <p className="board-note">
         {section.note}
         {section.id === "public-cappers" ? (
