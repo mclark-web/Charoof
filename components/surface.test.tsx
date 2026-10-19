@@ -220,8 +220,9 @@ describe("hub board cards", () => {
     assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
     assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);
     assert.match(home, /296 analysts · 37 firms · 609 calls/);
-    assert.match(home, /2 graded calls · week of Sep 21, 2026 · 15-account watchlist/);
-    assert.match(home, /gc-pct">10%</);
+    assert.match(home, /2 graded calls · week of Sep 21, 2026 · 16-account watchlist/);
+    assert.match(home, /gc-pct">9%</);
+    assert.doesNotMatch(home, /gc-pct">10%</);
     assert.match(home, /gc-grade-tag weak">WEAK/);
     assert.doesNotMatch(home, /seeded posts|seeded book|54%/);
   });

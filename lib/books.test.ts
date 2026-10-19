@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
+  fintwitShownFill,
   fridayPickRows,
   fintwitCallRows,
   hubStats,
@@ -210,10 +211,13 @@ describe("sector books", () => {
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
     assert.equal(fintwit.hero.kind, "tube");
     if (fintwit.hero.kind === "tube") {
-      assert.equal(fintwit.hero.fill, 9.5);
-      assert.equal(displayFill(fintwit.hero.fill), 10);
+      assert.equal(fintwitShownFill(9.5), 9);
+      assert.notEqual(fintwitShownFill(9.5), Math.round(9.5));
+      assert.equal(fintwit.hero.fill, 9);
+      assert.equal(displayFill(fintwit.hero.fill), 9);
+      assert.equal(gradeForFill(9.5).name, "WEAK");
       assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
-      assert.equal(fintwit.hero.card, "2 graded calls · week of Sep 21, 2026 · 15-account watchlist");
+      assert.equal(fintwit.hero.card, "2 graded calls · week of Sep 21, 2026 · 16-account watchlist");
       assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
     }

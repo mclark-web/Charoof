@@ -120,17 +120,32 @@ const ANALYSTS_LIVE_BOARD = {
 } as const;
 
 /**
- * FinTwit hub card, checked 2026-10-19.
- * Source: mclark-web/fintwittruth data/calls/calls.csv for the week of 2026-09-21,
- * src/lib/watchlist.json, and https://fintwittruth.vercel.app.
- * Monday noon scores are 12 (The Pulse Of The Market) and 7 (Piggo's Trading Desk).
- * The board mean is 9.5. The live tube rounds that mean to 10%, and the grade is
- * WEAK because 9.5 is under 40. Both rows are graded Substack calls. The watchlist
- * file has 15 accounts, and the live home page says "Fifteen public accounts."
+ * FinTwit hub card, checked 2026-10-19 after fintwittruth #19 (e0cf117).
+ * Monday noon scores from data/calls/calls.csv, week of 2026-09-21:
+ * 12 (The Pulse Of The Market) and 7 (Piggo's Trading Desk). Both are graded
+ * Substack calls. The board mean is 9.5. fintwittruth formatScore floors that
+ * mean, so the live tube shows 9%. The grade stays WEAK because 9.5 is under 40.
+ * src/lib/watchlist.json has 14 X accounts (@mrMoCapital is gone). trackedRoster
+ * adds the 2 Substack writers, and https://fintwittruth.vercel.app says 16 accounts.
  */
+const FINTWIT_MONDAY_NOON_SCORES = [12, 7] as const;
+const FINTWIT_X_ACCOUNTS = 14;
+const FINTWIT_SUBSTACK_WRITERS = 2;
+
+/** Same rule as fintwittruth formatScore: floor, do not round. 9.5 shows as 9. */
+export function fintwitShownFill(mean: number): number {
+  if (!Number.isFinite(mean) || mean <= 0) return 0;
+  if (mean < 1) return mean;
+  return Math.floor(mean);
+}
+
+const fintwitBoardMean =
+  FINTWIT_MONDAY_NOON_SCORES.reduce((sum, score) => sum + score, 0) / FINTWIT_MONDAY_NOON_SCORES.length;
+const fintwitWatchlist = FINTWIT_X_ACCOUNTS + FINTWIT_SUBSTACK_WRITERS;
+
 const FINTWIT_LIVE_BOARD = {
-  fill: 9.5,
-  card: "2 graded calls · week of Sep 21, 2026 · 15-account watchlist",
+  fill: fintwitShownFill(fintwitBoardMean),
+  card: `2 graded calls · week of Sep 21, 2026 · ${fintwitWatchlist}-account watchlist`,
 } as const;
 
 function asOutcome(value: string, id: string): Outcome {
@@ -560,7 +575,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       kind: "tube",
       fill: FINTWIT_LIVE_BOARD.fill,
       card: FINTWIT_LIVE_BOARD.card,
-      hint: "Week of Sep 21, 2026, Monday noon checkpoint. Two graded calls from two Substack writers. The board mean of those Monday noon scores is 9.5, shown as 10% WEAK. Fifteen accounts are on the watchlist.",
+      hint: "Week of Sep 21, 2026, Monday noon checkpoint. Two graded calls from two Substack writers. The board mean of those Monday noon scores is 9.5, shown as 9% WEAK. Sixteen accounts are on the watchlist: 14 X accounts plus those two writers.",
     },
     liveHref: fintwitBook.liveUrl,
     liveLabel: "Open the live FinTwit ledger",
