@@ -211,13 +211,16 @@ describe("sector books", () => {
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
     assert.equal(fintwit.hero.kind, "tube");
     if (fintwit.hero.kind === "tube") {
-      assert.equal(fintwitShownFill(9.5), 9);
-      assert.notEqual(fintwitShownFill(9.5), Math.round(9.5));
-      assert.equal(fintwit.hero.fill, 9);
-      assert.equal(displayFill(fintwit.hero.fill), 9);
-      assert.equal(gradeForFill(9.5).name, "WEAK");
+      assert.equal(fintwitShownFill(32.5), 32);
+      assert.notEqual(fintwitShownFill(32.5), Math.round(32.5));
+      assert.equal(displayFill(32.5), 33);
+      assert.equal(fintwit.hero.fill, 32);
+      assert.equal(displayFill(fintwit.hero.fill), 32);
+      assert.equal(gradeForFill(32.5).name, "WEAK");
       assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
-      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "2 graded calls · week of Sep 21, 2026 · 16-account watchlist");
+      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "2 graded calls · week of Oct 19, 2026 · 16-account watchlist");
+      assert.match(fintwit.hero.hint, /Week of Oct 19, 2026/);
+      assert.match(fintwit.hero.hint, /32\.5, shown as 32% WEAK/);
       assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
     }
