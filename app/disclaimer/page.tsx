@@ -13,7 +13,7 @@ export default function DisclaimerPage() {
         GradedCalls is not investment advice, not betting advice, and not a solicitation to trade or wager.
       </p>
       <p className="[text-wrap:pretty]">
-        Hub card counts are a dated snapshot of each live board’s own ledger (as of Oct 18–19, 2026). Verified sports
+        Hub card counts are a dated snapshot of each live board’s own ledger (as of Oct 20, 2026). Verified sports
         picks are public cards graded on recorded finals. The Analysts, FinTwit, and GCBot home cards show that
         snapshot, and the home cards link to the live ledgers. Demo rows are fiction, labeled Demo.
       </p>

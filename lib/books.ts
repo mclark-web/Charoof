@@ -120,19 +120,22 @@ const ANALYSTS_LIVE_BOARD = {
 } as const;
 
 /**
- * FinTwit hub card, checked 2026-10-19 after fintwittruth #19 (e0cf117).
- * Monday noon scores from data/calls/calls.csv, week of 2026-09-21:
- * 12 (The Pulse Of The Market) and 7 (Piggo's Trading Desk). Both are graded
- * Substack calls. The board mean is 9.5. fintwittruth formatScore floors that
- * mean, so the live tube shows 9%. The grade stays WEAK because 9.5 is under 40.
- * src/lib/watchlist.json has 14 X accounts (@mrMoCapital is gone). trackedRoster
- * adds the 2 Substack writers, and https://fintwittruth.vercel.app says 16 accounts.
+ * FinTwit hub card, checked 2026-10-20 after fintwittruth #20 (7747c361).
+ * Latest week in data/calls/calls.csv is 2026-10-19. Monday noon is GRADED;
+ * Wednesday and Friday are PENDING. Scores: 58 (TraderJonesy, X) and 7
+ * (Piggo's Trading Desk, Substack). The board mean is 32.5. fintwittruth
+ * formatScore floors that mean, so the live tube shows 32%. The grade stays
+ * WEAK because 32.5 is under 40. https://fintwittruth.vercel.app leads with
+ * "Week of Oct 19, 2026 · n=2 · GC Scale 32% WEAK".
+ * src/lib/watchlist.json has 14 X accounts, including TraderJonesy.
+ * trackedRoster adds the 2 Substack writers (piggostradingdesk, smtraderca),
+ * and the live board says 16 accounts.
  */
-const FINTWIT_MONDAY_NOON_SCORES = [12, 7] as const;
+const FINTWIT_MONDAY_NOON_SCORES = [58, 7] as const;
 const FINTWIT_X_ACCOUNTS = 14;
 const FINTWIT_SUBSTACK_WRITERS = 2;
 
-/** Same rule as fintwittruth formatScore: floor, do not round. 9.5 shows as 9. */
+/** Same rule as fintwittruth formatScore: floor, do not round. 32.5 shows as 32. */
 export function fintwitShownFill(mean: number): number {
   if (!Number.isFinite(mean) || mean <= 0) return 0;
   if (mean < 1) return mean;
@@ -147,7 +150,7 @@ const FINTWIT_LIVE_BOARD = {
   fill: fintwitShownFill(fintwitBoardMean),
   // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
   // U+2011 keeps "16-account" from splitting at the hyphen.
-  card: `2\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0Sep\u00a021,\u00a02026\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+  card: `${FINTWIT_MONDAY_NOON_SCORES.length}\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0Oct\u00a019,\u00a02026\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
 } as const;
 
 /**
@@ -591,7 +594,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       kind: "tube",
       fill: FINTWIT_LIVE_BOARD.fill,
       card: FINTWIT_LIVE_BOARD.card,
-      hint: "Week of Sep 21, 2026, Monday noon checkpoint. Two graded calls from two Substack writers. The board mean of those Monday noon scores is 9.5, shown as 9% WEAK. Sixteen accounts are on the watchlist: 14 X accounts plus those two writers.",
+      hint: "Week of Oct 19, 2026, Monday noon checkpoint. Two graded calls: TraderJonesy on X scored 58, and Piggo's Trading Desk on Substack scored 7. The board mean of those Monday noon scores is 32.5, shown as 32% WEAK. Sixteen accounts are on the watchlist: 14 X accounts plus two Substack writers.",
     },
     liveHref: fintwitBook.liveUrl,
     liveLabel: "Open the live FinTwit ledger",
