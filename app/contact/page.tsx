@@ -3,7 +3,8 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "How to read GradedCalls before you write in.",
+  description:
+    "A dedicated dispute channel is coming. Each call links to its original source so you can verify it.",
 };
 
 export default function ContactPage() {
@@ -11,14 +12,16 @@ export default function ContactPage() {
     <section className="prose-panel panel">
       <h1>Contact</h1>
       <p>
-        There is no account desk on this demo. Corrections and disputes belong on this page. Name the call, when it
-        locked, and which print it was scored against.
+        A dedicated dispute channel is coming. Each call links to its original source so you can verify it.
       </p>
       <p>
-        <Link className="hit-44" href="/method">Read the method →</Link>
+        Questions about a grade start with the method: what was said, when it locked, and which print it was scored
+        against.
       </p>
       <p>
-        <Link className="hit-44" href="/disclaimer">Corrections and the disclaimer</Link>
+        <Link className="hit-44" href="/method">
+          Read the method →
+        </Link>
       </p>
     </section>
   );

@@ -45,9 +45,10 @@ describe("security headers", () => {
     assert.match(config, /securityHeaders\(\)/);
     assert.doesNotMatch(config, /Content-Security-Policy-Report-Only/);
     assert.match(config, /source: "\/legal", destination: "\/disclaimer", permanent: true/);
-    assert.match(security, /Contact: https:\/\/gradedcalls\.com\/contact/);
+    assert.match(security, /Contact: https:\/\/charoof\.vercel\.app\/contact/);
     assert.match(security, /Expires: 2027-10-22T23:59:59\.000Z/);
     assert.match(security, /Canonical: https:\/\/charoof\.vercel\.app\/\.well-known\/security\.txt/);
-    assert.doesNotMatch(security, /TODO|mailto:|@gradedcalls\.com/i);
+    assert.doesNotMatch(security, /gradedcalls\.com/);
+    assert.doesNotMatch(security, /TODO|TBD|placeholder|pending formation|\[.*LLC.*\]|mailto:|@\w+\.\w+/);
   });
 });

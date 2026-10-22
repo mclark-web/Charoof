@@ -63,7 +63,7 @@ export default function DisclaimerPage() {
         Trademarks, logos, and names belong to their owners. Use here is to identify the source of a public statement.
       </p>
       <p>
-        To correct a record or dispute an attribution, use the <Link className="hit-44" href="/contact">contact page</Link>.
+        A dedicated dispute channel is coming. Each call links to its original source so you can verify it.
       </p>
 
       <h2>Sports</h2>
