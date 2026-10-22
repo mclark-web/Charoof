@@ -11,7 +11,7 @@ export default function ContactPage() {
     <section className="prose-panel panel">
       <h1>Contact</h1>
       <p>
-        There is no account desk on this demo. Questions about a grade start with the method: what was said, when it
+        There is no account desk on this demo. Corrections and disputes belong on this page. Name the call, when it
         locked, and which print it was scored against.
       </p>
       <p>

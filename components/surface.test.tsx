@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import DisclaimerPage from "@/app/disclaimer/page";
 import HubPage from "@/app/page";
 import SportsPage from "@/app/sports/page";
 import { CapperPacks } from "./capper-packs";
@@ -211,15 +212,31 @@ describe("hub copy", () => {
     assert.match(disclaimer, /does not create a fiduciary/);
     assert.match(disclaimer, /Past performance does not guarantee future results/);
     assert.match(disclaimer, /1-800-GAMBLER/);
-    assert.match(disclaimer, /contact@gradedcalls\.com/);
-    assert.match(disclaimer, /TODO:/);
+    assert.match(disclaimer, /href="\/contact"/);
+    assert.match(disclaimer, /the GradedCalls team/);
+    assert.match(disclaimer, /same Oct 20, 2026 snapshot of the week of Oct 19, 2026/);
+    assert.match(disclaimer, /does not grade calls on this hub/);
+    assert.doesNotMatch(disclaimer, /uses the live graded calls/);
     assert.match(disclaimer, /Commonwealth of Pennsylvania/);
-    assert.match(disclaimer, /\[GradedCalls LLC — pending formation\]/);
     assert.match(disclaimer, /Last updated October 22, 2026/);
     assert.match(disclaimer, /localStorage/);
     assert.match(disclaimer, /as-is/);
     assert.doesNotMatch(disclaimer, /attorney|template|placeholder/i);
     assert.doesNotMatch(disclaimer, /charoof|chad|chud/i);
+    assert.doesNotMatch(disclaimer, /TODO|pending formation|@gradedcalls\.com/);
+    const notice = readFileSync(new URL("./disclaimer-notice.tsx", import.meta.url), "utf8");
+    assert.match(layout, /tabIndex=\{-1\}/);
+    assert.match(notice, /getElementById\("content"\)\?\.focus/);
+  });
+
+  it("rejects placeholder contact copy in the disclaimer output", () => {
+    const html = renderToStaticMarkup(<DisclaimerPage />);
+    assert.doesNotMatch(html, /TODO/);
+    assert.doesNotMatch(html, /pending formation/);
+    assert.doesNotMatch(html, /@gradedcalls\.com/);
+    assert.match(html, /Last updated October 22, 2026/);
+    assert.match(html, /href="\/contact"/);
+    assert.match(html, /the GradedCalls team/);
   });
 });
 

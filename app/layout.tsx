@@ -58,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <SiteHeader />
-        <main id="content" className="wrap">
+        <main id="content" className="wrap" tabIndex={-1}>
           {children}
           <SiteFooter />
         </main>

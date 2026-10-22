@@ -1,5 +1,4 @@
-# TODO: replace contact@gradedcalls.com with a monitored security inbox.
-Contact: mailto:contact@gradedcalls.com
+Contact: https://gradedcalls.com/contact
 Expires: 2027-10-22T23:59:59.000Z
 Preferred-Languages: en
 Canonical: https://charoof.vercel.app/.well-known/security.txt

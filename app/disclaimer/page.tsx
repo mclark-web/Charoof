@@ -12,7 +12,7 @@ export default function DisclaimerPage() {
     <section className="prose-panel panel">
       <p className="legal-meta">Last updated October 22, 2026</p>
       <h1>Disclaimer</h1>
-      <p>This site is operated by [GradedCalls LLC — pending formation].</p>
+      <p>This site is operated by the GradedCalls team.</p>
 
       <h2>Not advice</h2>
       <p className="[text-wrap:pretty]">
@@ -43,8 +43,9 @@ export default function DisclaimerPage() {
       <p className="[text-wrap:pretty]">
         Sports does not use a paid odds API. A verified sports row is a public pick graded on an official result.
         Analyst calls are sourced from public analyst rating tables and news reports; GradedCalls is not affiliated with
-        any analyst or firm. The FinTwit home card uses the live graded calls. GCBot posts are real public posts scored
-        on the live board. This surface does not call a paid social API.
+        any analyst or firm. The FinTwit home card shows that same Oct 20, 2026 snapshot of the week of Oct 19, 2026
+        graded calls, and links to the live ledger. It does not grade calls on this hub. GCBot posts are real public
+        posts, and that home card shows the same snapshot. This surface does not call a paid social API.
       </p>
       <p>
         <Link className="hit-44" href="/method">
@@ -62,13 +63,7 @@ export default function DisclaimerPage() {
         Trademarks, logos, and names belong to their owners. Use here is to identify the source of a public statement.
       </p>
       <p>
-        To correct a record or dispute an attribution, email the address below.{" "}
-        <strong className="legal-todo">TODO:</strong> replace this address with a monitored inbox.
-      </p>
-      <p>
-        <a className="hit-44" href="mailto:contact@gradedcalls.com">
-          contact@gradedcalls.com
-        </a>
+        To correct a record or dispute an attribution, use the <Link className="hit-44" href="/contact">contact page</Link>.
       </p>
 
       <h2>Sports</h2>
@@ -91,9 +86,8 @@ export default function DisclaimerPage() {
 
       <h2>No warranty and liability</h2>
       <p>
-        The site is provided as-is and as-available. To the fullest extent the law allows, [GradedCalls LLC — pending
-        formation] and the people who operate it disclaim warranties of accuracy, merchantability, fitness for a
-        particular purpose, and non-infringement.
+        The site is provided as-is and as-available. To the fullest extent the law allows, the GradedCalls team
+        disclaims warranties of accuracy, merchantability, fitness for a particular purpose, and non-infringement.
       </p>
       <p>
         They are not liable for trading losses, wagering losses, lost profits, or decisions you make after reading a
@@ -107,7 +101,7 @@ export default function DisclaimerPage() {
 
       <h2>Privacy</h2>
       <p>
-        The application does not create accounts and does not ask for your name, email, or payment details. Its source
+        The application does not create accounts and does not ask for your name or payment details. Its source
         code does not include an analytics package and does not set cookies.
       </p>
       <p>

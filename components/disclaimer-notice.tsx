@@ -56,6 +56,9 @@ export function DisclaimerNotice() {
             onClick={() => {
               dismissDisclaimerNotice(localStorage, document.documentElement);
               window.dispatchEvent(new Event(DISCLAIMER_NOTICE_EVENT));
+              requestAnimationFrame(() => {
+                document.getElementById("content")?.focus({ preventScroll: true });
+              });
             }}
           >
             Dismiss
