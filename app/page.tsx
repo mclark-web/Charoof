@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DisclaimerNotice } from "@/components/disclaimer-notice";
 import { GcTube, GradePill } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
 import { sectorBooks, type SectorBook } from "@/lib/books";
@@ -25,6 +26,7 @@ export default function HubPage() {
   const books = sectorBooks();
   return (
     <>
+      <DisclaimerNotice />
       <h1 className="section-label" id="sectors">
         Boards
       </h1>

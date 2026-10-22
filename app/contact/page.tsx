@@ -17,6 +17,9 @@ export default function ContactPage() {
       <p>
         <Link className="hit-44" href="/method">Read the method →</Link>
       </p>
+      <p>
+        <Link className="hit-44" href="/disclaimer">Corrections and the disclaimer</Link>
+      </p>
     </section>
   );
 }

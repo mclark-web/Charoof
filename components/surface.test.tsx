@@ -197,6 +197,30 @@ describe("hub copy", () => {
     assert.equal(existsSync(new URL("../app/gcbot/page.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/sign-in/page.tsx", import.meta.url)), false);
   });
+
+  it("keeps the disclaimer in the site footer and off the attorney-review note", () => {
+    const disclaimer = readFileSync(new URL("../app/disclaimer/page.tsx", import.meta.url), "utf8").replace(/\s+/g, " ");
+    const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
+    const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+    const footerHtml = renderToStaticMarkup(<SiteFooter />);
+    assert.match(layout, /<SiteFooter \/>/);
+    assert.match(footerHtml, /href="\/disclaimer"/);
+    assert.match(footerHtml, />Disclaimer</);
+    assert.match(home, /DisclaimerNotice/);
+    assert.match(disclaimer, /is not a registered investment adviser/);
+    assert.match(disclaimer, /does not create a fiduciary/);
+    assert.match(disclaimer, /Past performance does not guarantee future results/);
+    assert.match(disclaimer, /1-800-GAMBLER/);
+    assert.match(disclaimer, /contact@gradedcalls\.com/);
+    assert.match(disclaimer, /TODO:/);
+    assert.match(disclaimer, /Commonwealth of Pennsylvania/);
+    assert.match(disclaimer, /\[GradedCalls LLC — pending formation\]/);
+    assert.match(disclaimer, /Last updated October 22, 2026/);
+    assert.match(disclaimer, /localStorage/);
+    assert.match(disclaimer, /as-is/);
+    assert.doesNotMatch(disclaimer, /attorney|template|placeholder/i);
+    assert.doesNotMatch(disclaimer, /charoof|chad|chud/i);
+  });
 });
 
 function escapeRegExp(value: string) {

@@ -37,6 +37,12 @@ export default function GlobalError({
               </a>
             </p>
           </section>
+          <footer className="footer">
+            <div>© 2026 GradedCalls · Not investment or betting advice</div>
+            <div className="footer-links">
+              <a href="/disclaimer">Disclaimer</a>
+            </div>
+          </footer>
         </main>
       </body>
     </html>
