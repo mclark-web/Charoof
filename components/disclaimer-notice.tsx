@@ -57,7 +57,8 @@ export function DisclaimerNotice() {
               dismissDisclaimerNotice(localStorage, document.documentElement);
               window.dispatchEvent(new Event(DISCLAIMER_NOTICE_EVENT));
               requestAnimationFrame(() => {
-                document.getElementById("content")?.focus({ preventScroll: true });
+                const next = document.getElementById("sectors") ?? document.getElementById("content");
+                next?.focus({ preventScroll: true, focusVisible: true } as FocusOptions);
               });
             }}
           >

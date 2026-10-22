@@ -27,7 +27,7 @@ export default function HubPage() {
   return (
     <>
       <DisclaimerNotice />
-      <h1 className="section-label" id="sectors">
+      <h1 className="section-label" id="sectors" tabIndex={-1}>
         Boards
       </h1>
       <div className="sector-grid">

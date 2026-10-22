@@ -229,8 +229,13 @@ describe("hub copy", () => {
     assert.doesNotMatch(disclaimer, /charoof|chad|chud/i);
     assert.doesNotMatch(disclaimer, PLACEHOLDER);
     const notice = readFileSync(new URL("./disclaimer-notice.tsx", import.meta.url), "utf8");
+    const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
     assert.match(layout, /tabIndex=\{-1\}/);
-    assert.match(notice, /getElementById\("content"\)\?\.focus/);
+    assert.match(home, /id="sectors" tabIndex=\{-1\}/);
+    assert.match(notice, /getElementById\("sectors"\) \?\? document\.getElementById\("content"\)/);
+    assert.match(notice, /focusVisible: true/);
+    assert.match(css, /#sectors \{ width: fit-content; \}/);
+    assert.match(css, /#sectors:focus-visible \{ outline: 2px solid var\(--orange\); outline-offset: 4px; border-radius: 6px; \}/);
   });
 
   it("rejects placeholder contact copy in the disclaimer output", () => {
