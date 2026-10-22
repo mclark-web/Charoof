@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import DisclaimerPage from "@/app/disclaimer/page";
 import HubPage from "@/app/page";
 import SportsPage from "@/app/sports/page";
 import { CapperPacks } from "./capper-packs";
@@ -10,6 +11,8 @@ import { SiteFooter } from "./site-footer";
 import { sectorBook, type BoardRow } from "@/lib/books";
 import { formatFillTenths } from "@/lib/grade";
 import { LIVE_BOARDS, sectorByKey } from "@/lib/sectors";
+
+const PLACEHOLDER = /TODO|TBD|placeholder|pending formation|\[.*LLC.*\]|@\w+\.\w+/;
 
 describe("sports row chrome", () => {
   it("keeps the game date on one line and matches WIN/LOSS pill weight", () => {
@@ -196,6 +199,59 @@ describe("hub copy", () => {
     assert.equal(existsSync(new URL("../app/fintwit/page.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/gcbot/page.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/sign-in/page.tsx", import.meta.url)), false);
+  });
+
+  it("keeps the disclaimer in the site footer and off the attorney-review note", () => {
+    const disclaimer = readFileSync(new URL("../app/disclaimer/page.tsx", import.meta.url), "utf8").replace(/\s+/g, " ");
+    const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
+    const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+    const footerHtml = renderToStaticMarkup(<SiteFooter />);
+    assert.match(layout, /<SiteFooter \/>/);
+    assert.match(footerHtml, /href="\/disclaimer"/);
+    assert.match(footerHtml, />Disclaimer</);
+    assert.match(home, /DisclaimerNotice/);
+    assert.match(disclaimer, /is not a registered investment adviser/);
+    assert.match(disclaimer, /does not create a fiduciary/);
+    assert.match(disclaimer, /Past performance does not guarantee future results/);
+    assert.match(disclaimer, /1-800-GAMBLER/);
+    assert.match(disclaimer, /A dedicated dispute channel is coming/);
+    assert.match(disclaimer, /Each call links to its original source so you can verify it/);
+    assert.doesNotMatch(disclaimer, /href="\/contact"/);
+    assert.match(disclaimer, /the GradedCalls team/);
+    assert.match(disclaimer, /same Oct 20, 2026 snapshot of the week of Oct 19, 2026/);
+    assert.match(disclaimer, /does not grade calls on this hub/);
+    assert.doesNotMatch(disclaimer, /uses the live graded calls/);
+    assert.match(disclaimer, /Commonwealth of Pennsylvania/);
+    assert.match(disclaimer, /Last updated October 22, 2026/);
+    assert.match(disclaimer, /localStorage/);
+    assert.match(disclaimer, /as-is/);
+    assert.doesNotMatch(disclaimer, /attorney|template|placeholder/i);
+    assert.doesNotMatch(disclaimer, /charoof|chad|chud/i);
+    assert.doesNotMatch(disclaimer, PLACEHOLDER);
+    const notice = readFileSync(new URL("./disclaimer-notice.tsx", import.meta.url), "utf8");
+    const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+    assert.match(layout, /tabIndex=\{-1\}/);
+    assert.match(home, /id="sectors" tabIndex=\{-1\}/);
+    assert.match(notice, /getElementById\("sectors"\) \?\? document\.getElementById\("content"\)/);
+    assert.match(notice, /focusVisible: true/);
+    assert.match(css, /#sectors \{ width: fit-content; \}/);
+    assert.match(css, /#sectors:focus-visible \{ outline: 2px solid var\(--orange\); outline-offset: 4px; border-radius: 6px; \}/);
+  });
+
+  it("rejects placeholder contact copy in the disclaimer output", () => {
+    const html = renderToStaticMarkup(<DisclaimerPage />);
+    const contact = readFileSync(new URL("../app/contact/page.tsx", import.meta.url), "utf8").replace(/\s+/g, " ");
+    assert.doesNotMatch(html, PLACEHOLDER);
+    assert.match(html, /A dedicated dispute channel is coming/);
+    assert.match(html, /Each call links to its original source so you can verify it/);
+    assert.doesNotMatch(html, /href="\/contact"/);
+    assert.match(html, /Last updated October 22, 2026/);
+    assert.match(html, /the GradedCalls team/);
+    assert.match(contact, /A dedicated dispute channel is coming/);
+    assert.match(contact, /Each call links to its original source so you can verify it/);
+    assert.match(contact, /href="\/method"/);
+    assert.doesNotMatch(contact, /account desk|href="\/disclaimer"/);
+    assert.doesNotMatch(contact, PLACEHOLDER);
   });
 });
 

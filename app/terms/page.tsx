@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms",
@@ -14,6 +15,11 @@ export default function TermsPage() {
         a public record under the published method. They are not a promise of future results.
       </p>
       <p>Do not copy a fixture onto a real book. Misses stay visible when a live record is connected. Silent edits after lock are out of bounds.</p>
+      <p>
+        <Link className="hit-44" href="/disclaimer">
+          Read the disclaimer
+        </Link>
+      </p>
     </section>
   );
 }
