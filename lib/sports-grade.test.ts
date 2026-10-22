@@ -551,19 +551,63 @@ describe("Cowboys at Packers final", () => {
   });
 });
 
+describe("Commanders at 49ers final", () => {
+  it("grades the two Jason Logan cards ESPN shows final", () => {
+    const settled = [
+      [
+        "verified-347",
+        "Jason Logan (Covers)",
+        "San Francisco 49ers",
+        "Washington Commanders @ San Francisco 49ers",
+        "loss",
+        "Washington Commanders 17, San Francisco 49ers 23",
+        "https://www.espn.com/nfl/game/_/gameId/401873008",
+        /San Francisco 49ers −7\.5/,
+      ],
+      [
+        "verified-348",
+        "Jason Logan (Covers)",
+        "Under",
+        "Washington Commanders @ San Francisco 49ers",
+        "win",
+        "Washington Commanders 17, San Francisco 49ers 23",
+        "https://www.espn.com/nfl/game/_/gameId/401873008",
+        /Under 50\.5/,
+      ],
+    ] as const;
+    assert.equal(settled.length, 2);
+    const rows = verifiedPickRows();
+    for (const [id, tipster, side, event, result, finalScore, boxScore, title] of settled) {
+      const matches = picks.filter((item) => item.tipster === tipster && item.side === side && item.event === event);
+      assert.equal(matches.length, 1, `${tipster} ${side} ${event}`);
+      const pick = matches[0];
+      assert.ok(pick);
+      assert.equal(pick.game_final, true);
+      assert.equal(pick.result, result);
+      assert.equal(pick.final_score, finalScore);
+      assert.equal(pick.box_score_url, boxScore);
+      const again = gradeFullGame({
+        market: pick.market,
+        side: pick.side,
+        number: pick.number,
+        finalScore: pick.final_score,
+      });
+      assert.equal(again, result);
+      const row = rows.find((item) => item.id === id);
+      assert.equal(row?.result, result.toUpperCase(), id);
+      assert.match(row?.title ?? "", title);
+      assert.match(row?.detail ?? "", new RegExp(finalScore.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
+  });
+});
+
 describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 2);
-    assert.ok(open.every((pick) => pick.game_date === "2026-10-19"));
+    assert.equal(open.length, 0);
     assert.equal(open.filter((pick) => pick.event === "Dallas Cowboys @ Green Bay Packers").length, 0);
-    assert.equal(open.filter((pick) => pick.event === "Washington Commanders @ San Francisco 49ers").length, 2);
-    assert.ok(
-      open
-        .filter((pick) => pick.event === "Washington Commanders @ San Francisco 49ers")
-        .every((pick) => pick.box_score_url === "https://www.espn.com/nfl/game/_/gameId/401873008"),
-    );
+    assert.equal(open.filter((pick) => pick.event === "Washington Commanders @ San Francisco 49ers").length, 0);
     for (const event of [
       "Alabama Crimson Tide @ Tennessee Volunteers",
       "Notre Dame Fighting Irish @ BYU Cougars",
@@ -572,6 +616,7 @@ describe("open picks stay pending", () => {
       "New York Jets @ New England Patriots",
       "Los Angeles Chargers @ Kansas City Chiefs",
       "Dallas Cowboys @ Green Bay Packers",
+      "Washington Commanders @ San Francisco 49ers",
       "Seattle Seahawks @ Denver Broncos",
       "Kennesaw State Owls @ Missouri State Bears",
       "Milwaukee Brewers @ Los Angeles Dodgers",
