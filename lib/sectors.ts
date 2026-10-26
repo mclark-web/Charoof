@@ -1,3 +1,5 @@
+import { ANALYSTS_URL, BOT_URL, FINTWIT_URL, SPORTS_URL } from "@/lib/site-urls";
+
 export type SectorKey = "analysts" | "fintwit" | "sports" | "gcbot";
 
 export type Fixture = {
@@ -25,7 +27,7 @@ export type Sector = {
 export const sectors: Sector[] = [
   {
     key: "analysts",
-    href: "https://bank-troof.vercel.app",
+    href: ANALYSTS_URL,
     kicker: "Equities · Research",
     title: "Analysts",
     summary:
@@ -67,7 +69,7 @@ export const sectors: Sector[] = [
   },
   {
     key: "fintwit",
-    href: "https://fintwittruth.vercel.app",
+    href: FINTWIT_URL,
     kicker: "Markets · Social",
     title: "FinTwit",
     summary:
@@ -109,7 +111,7 @@ export const sectors: Sector[] = [
   },
   {
     key: "sports",
-    href: "/sports",
+    href: SPORTS_URL,
     kicker: "Cappers · Public picks",
     title: "Sports",
     summary:
@@ -151,7 +153,7 @@ export const sectors: Sector[] = [
   },
   {
     key: "gcbot",
-    href: "https://charoofbot.vercel.app",
+    href: BOT_URL,
     kicker: "Narratives · Volume",
     title: "GCBot",
     summary: "Clone speech and amplifiers, scored by narrative volume.",
@@ -200,5 +202,5 @@ export function sectorByKey(key: SectorKey): Sector {
 
 /** Sibling boards. Sports lives on the Hub, so it is not in this list. */
 export const LIVE_BOARDS = sectors
-  .filter((sector) => sector.href.startsWith("http"))
+  .filter((sector) => sector.key !== "sports")
   .map((sector) => ({ label: sector.title, href: sector.href }));

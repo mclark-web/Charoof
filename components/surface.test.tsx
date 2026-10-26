@@ -11,6 +11,7 @@ import { SiteFooter } from "./site-footer";
 import { sectorBook, type BoardRow } from "@/lib/books";
 import { formatFillTenths } from "@/lib/grade";
 import { LIVE_BOARDS, sectorByKey } from "@/lib/sectors";
+import { ANALYSTS_URL, BOT_URL, FINTWIT_URL, SPORTS_URL, sitePath } from "@/lib/site-urls";
 
 const PLACEHOLDER = /TODO|TBD|placeholder|pending formation|\[.*LLC.*\]|@\w+\.\w+/;
 
@@ -90,10 +91,13 @@ describe("hub copy", () => {
     assert.match(brand, /Name: GradedCalls/);
     assert.doesNotMatch(readme, /charoof|chad|chud/i);
     assert.match(errorPage, /<title>This board failed to load · GradedCalls<\/title>/);
-    assert.match(errorPage, /href="\/"/);
+    assert.match(errorPage, /href=\{HUB_URL\}/);
     assert.match(errorPage, /title="Hub"/);
     assert.match(errorPage, />\s*Hub\s*</);
     assert.equal(existsSync(new URL("../public/gradedcalls-lockup.png", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/opengraph-image.png", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/opengraph-image.alt.txt", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../public/opengraph-image.png", import.meta.url)), true);
   });
 
   it("folds GC Scale into Method and drops the retired preview copy", () => {
@@ -129,7 +133,9 @@ describe("hub copy", () => {
     assert.match(method, /A sample of 10 or more graded picks uses the same cutoffs\./);
     assert.match(method, /id="sports-score"/);
     const board = readFileSync(new URL("./board-table.tsx", import.meta.url), "utf8");
-    assert.match(board, /href="\/method#sports-score"/);
+    assert.match(board, /sitePath\("\/method#sports-score"\)/);
+    const packs = readFileSync(new URL("./capper-packs.tsx", import.meta.url), "utf8");
+    assert.match(packs, /sitePath\("\/method#sports-score"\)/);
     assert.match(board, /How capper scores are built/);
     assert.match(method, /weighted 40 \/ 30 \/ 20 \/ 10/);
     assert.match(method, /\{PROVISIONAL_SAMPLE_NOTE\}/);
@@ -152,10 +158,10 @@ describe("hub copy", () => {
     assert.doesNotMatch(disclaimer, /seeded roster|fictional sample desks|synthetic corpus|fixture book/);
     assert.doesNotMatch(header, /Sign in|\/sign-in|\/gc-scale/);
     assert.doesNotMatch(header, /href: "\/analysts"|href: "\/fintwit"|href: "\/gcbot"/);
-    assert.match(header, /label: "Hub"/);
-    assert.match(header, /href: "\/sports", label: "Sports"/);
+    assert.match(header, /href: HUB_URL, label: "Hub"/);
+    assert.match(header, /href: SPORTS_URL, label: "Sports"/);
     assert.match(header, /LIVE_BOARDS/);
-    assert.match(header, /label: "Method"/);
+    assert.match(header, /sitePath\("\/method"\), label: "Method"/);
     const nav = header.slice(header.indexOf("const NAV"));
     assert.ok(nav.indexOf('label: "Hub"') < nav.indexOf('label: "Sports"'));
     assert.ok(nav.indexOf('label: "Sports"') < nav.indexOf("LIVE_BOARDS"));
@@ -166,16 +172,14 @@ describe("hub copy", () => {
     );
     assert.deepEqual(
       LIVE_BOARDS.map((board) => board.href),
-      [
-        "https://bank-troof.vercel.app",
-        "https://fintwittruth.vercel.app",
-        "https://charoofbot.vercel.app",
-      ],
+      [ANALYSTS_URL, FINTWIT_URL, BOT_URL],
     );
     const footerHtml = renderToStaticMarkup(<SiteFooter />);
-    assert.match(footerHtml, /href="https:\/\/bank-troof\.vercel\.app"/);
-    assert.match(footerHtml, /href="https:\/\/fintwittruth\.vercel\.app"/);
-    assert.match(footerHtml, /href="https:\/\/charoofbot\.vercel\.app"/);
+    assert.ok(footerHtml.includes(`href="${ANALYSTS_URL}"`));
+    assert.ok(footerHtml.includes(`href="${FINTWIT_URL}"`));
+    assert.ok(footerHtml.includes(`href="${BOT_URL}"`));
+    assert.ok(footerHtml.includes(`href="${sitePath("/disclaimer")}"`));
+    assert.doesNotMatch(footerHtml, /vercel\.app/i);
     assert.doesNotMatch(footerHtml, /href="\/analysts"|href="\/fintwit"|href="\/gcbot"/);
     assert.ok(footerHtml.indexOf("Analysts") < footerHtml.indexOf("FinTwit"));
     assert.ok(footerHtml.indexOf("FinTwit") < footerHtml.indexOf("GCBot"));
@@ -190,8 +194,10 @@ describe("hub copy", () => {
     assert.match(config, /source: "\/fintwit"/);
     assert.match(config, /source: "\/gcbot"/);
     const sportsPage = readFileSync(new URL("../app/sports/page.tsx", import.meta.url), "utf8");
+    const rootLayout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
     assert.match(sportsPage, /SectorBoard/);
-    assert.match(sportsPage, /canonical: "https:\/\/charoof\.vercel\.app\/sports"/);
+    assert.match(sportsPage, /canonical: SPORTS_URL/);
+    assert.match(rootLayout, /metadataBase: new URL\(SITE_URL\)/);
     assert.equal(existsSync(new URL("../app/sports/page.tsx", import.meta.url)), true);
     assert.equal(existsSync(new URL("../components/gc-scale-view.tsx", import.meta.url)), false);
     assert.equal(existsSync(new URL("../app/gc-scale/page.tsx", import.meta.url)), false);
@@ -207,7 +213,7 @@ describe("hub copy", () => {
     const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
     const footerHtml = renderToStaticMarkup(<SiteFooter />);
     assert.match(layout, /<SiteFooter \/>/);
-    assert.match(footerHtml, /href="\/disclaimer"/);
+    assert.ok(footerHtml.includes(`href="${sitePath("/disclaimer")}"`));
     assert.match(footerHtml, />Disclaimer</);
     assert.match(home, /DisclaimerNotice/);
     assert.match(disclaimer, /is not a registered investment adviser/);
@@ -249,7 +255,7 @@ describe("hub copy", () => {
     assert.match(html, /the GradedCalls team/);
     assert.match(contact, /A dedicated dispute channel is coming/);
     assert.match(contact, /Each call links to its original source so you can verify it/);
-    assert.match(contact, /href="\/method"/);
+    assert.match(contact, /sitePath\("\/method"\)/);
     assert.doesNotMatch(contact, /account desk|href="\/disclaimer"/);
     assert.doesNotMatch(contact, PLACEHOLDER);
   });
@@ -268,7 +274,8 @@ describe("hub board cards", () => {
     const sportsCard = home.indexOf(">Sports<");
     const gcbot = home.indexOf(">GCBot<");
     assert.ok(analysts > -1 && analysts < fintwit && fintwit < sportsCard && sportsCard < gcbot);
-    const sportsLink = home.slice(home.indexOf('href="/sports"'), home.indexOf('href="/sports"') + 1500);
+    const sportsHref = `href="${SPORTS_URL}"`;
+    const sportsLink = home.slice(home.indexOf(sportsHref), home.indexOf(sportsHref) + 1500);
     assert.match(sportsLink, /<h2>Sports<\/h2>/);
     assert.match(sportsLink, /200–162–1 · 2 void · 0 pending/);
     assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
@@ -280,9 +287,10 @@ describe("hub board cards", () => {
     assert.equal((sports.match(/<h1[ >]/g) ?? []).length, 1);
     assert.match(sports, /<h1 class="section-label" id="sports">Sports<\/h1>/);
     assert.doesNotMatch(home, /Sports picks are the record on this hub/);
-    assert.match(home, /href="https:\/\/bank-troof\.vercel\.app"/);
-    assert.match(home, /href="https:\/\/fintwittruth\.vercel\.app"/);
-    assert.match(home, /href="https:\/\/charoofbot\.vercel\.app"/);
+    assert.ok(home.includes(`href="${ANALYSTS_URL}"`));
+    assert.ok(home.includes(`href="${FINTWIT_URL}"`));
+    assert.ok(home.includes(`href="${BOT_URL}"`));
+    assert.doesNotMatch(home, /vercel\.app/i);
     const homePlain = home.replace(/\u00a0/g, " ").replace(/\u2011/g, "-");
     assert.match(homePlain, /analysts · 37 banks · 609 calls/);
     assert.doesNotMatch(homePlain, /37 firms/);

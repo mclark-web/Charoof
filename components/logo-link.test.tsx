@@ -3,13 +3,15 @@ import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LogoLink } from "./logo-link";
+import { HUB_URL } from "@/lib/site-urls";
 
 describe("logo link", () => {
   it("points the header mark at the hub", () => {
     const html = renderToStaticMarkup(<LogoLink />);
     const anchor = html.match(/<a class="brand"[^>]*>/)?.[0] ?? "";
-    assert.match(anchor, /href="\/"/);
-    assert.doesNotMatch(anchor, /href="\/[^"]/);
+    assert.ok(anchor.includes(`href="${HUB_URL}"`));
+    assert.match(html, /min-width:\s*44px/);
+    assert.match(html, /min-height:\s*44px/);
     assert.match(html, /aria-label="GradedCalls"/);
     assert.match(html, /alt="GradedCalls"/);
     assert.match(html, /src="\/gradedcalls-mark\.png"/);

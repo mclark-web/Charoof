@@ -10,6 +10,7 @@ import {
   dismissDisclaimerNotice,
   readDisclaimerNoticeDismissed,
 } from "@/lib/disclaimer-notice";
+import { sitePath } from "@/lib/site-urls";
 
 function subscribe(onStoreChange: () => void) {
   window.addEventListener(DISCLAIMER_NOTICE_EVENT, onStoreChange);
@@ -46,7 +47,7 @@ export function DisclaimerNotice() {
           and past results do not predict future ones.
         </p>
         <div className="notice-actions">
-          <Link className="notice-link" href="/disclaimer">
+          <Link className="notice-link" href={sitePath("/disclaimer")}>
             Full disclaimer
           </Link>
           <button

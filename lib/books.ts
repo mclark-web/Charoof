@@ -15,6 +15,7 @@ import {
   presentCapper,
 } from "@/lib/recency";
 import { sectors, type Fixture, type Sector, type SectorKey } from "@/lib/sectors";
+import { ANALYSTS_URL, BOT_URL, FINTWIT_URL } from "@/lib/site-urls";
 import { boardPrice } from "@/lib/sports-grade";
 
 export type BoardLane = "Demo" | "Verified" | "Unverified" | "Seeded";
@@ -108,7 +109,7 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 /**
  * Analysts hub card, checked 2026-10-19.
  * Source: mclark-web/bank_troof data/calls/calls.csv (609 rows; calls.json matches)
- * and https://bank-troof.vercel.app after merged PR #18.
+ * and https://analysts.gradedcalls.com after merged PR #18.
  * Distinct analyst_slug 296, distinct firm_slug 37. The live calls page splits
  * the 609 rows into 456 active and 153 superseded. The home page labels the
  * 37 firms as Banks.
@@ -125,7 +126,7 @@ const ANALYSTS_LIVE_BOARD = {
  * Wednesday and Friday are PENDING. Scores: 58 (TraderJonesy, X) and 7
  * (Piggo's Trading Desk, Substack). The board mean is 32.5. fintwittruth
  * formatScore floors that mean, so the live tube shows 32%. The grade stays
- * WEAK because 32.5 is under 40. https://fintwittruth.vercel.app leads with
+ * WEAK because 32.5 is under 40. https://fintwit.gradedcalls.com leads with
  * "Week of Oct 19, 2026 · n=2 · GC Scale 32% WEAK".
  * src/lib/watchlist.json has 14 X accounts, including TraderJonesy.
  * trackedRoster adds the 2 Substack writers (piggostradingdesk, smtraderca),
@@ -159,7 +160,7 @@ const FINTWIT_LIVE_BOARD = {
  * data/gcbot/posts.csv has 979 rows and data/gcbot/narratives.csv has 6
  * (market-news, options-flow, market-stats, trader-calls, football-betting,
  * hoops-hockey-betting). data/corpus.json matches those counts.
- * https://charoofbot.vercel.app says this page scores 979 real public X posts
+ * https://bot.gradedcalls.com says this page scores 979 real public X posts
  * across 6 narratives, as of 18 Oct 2026.
  */
 const GCBOT_LIVE_BOARD = {
@@ -566,7 +567,7 @@ function analystsBook(sector: Sector): SectorBook {
       card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
       hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
-    liveHref: analystRoster.liveUrl,
+    liveHref: ANALYSTS_URL,
     liveLabel: "Open the live Analysts ledger",
     sections: [
       {
@@ -596,7 +597,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       card: FINTWIT_LIVE_BOARD.card,
       hint: "Week of Oct 19, 2026, Monday noon checkpoint. Two graded calls: TraderJonesy on X scored 58, and Piggo's Trading Desk on Substack scored 7. The board mean of those Monday noon scores is 32.5, shown as 32% WEAK. Sixteen accounts are on the watchlist: 14 X accounts plus two Substack writers.",
     },
-    liveHref: fintwitBook.liveUrl,
+    liveHref: FINTWIT_URL,
     liveLabel: "Open the live FinTwit ledger",
     sections: [
       {
@@ -638,7 +639,7 @@ function gcbotBook(sector: Sector): SectorBook {
       card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives`,
       hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives on the live board, as of 18 Oct 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
-    liveHref: "https://charoofbot.vercel.app",
+    liveHref: BOT_URL,
     liveLabel: "Open the live GCBot board",
     sections: [
       {

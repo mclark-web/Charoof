@@ -3,10 +3,16 @@ import { Ambient } from "@/components/ambient";
 import { GradePill } from "@/components/gc-tube";
 import { GRADE_BANDS } from "@/lib/grade";
 import { PROVISIONAL_SAMPLE_NOTE } from "@/lib/recency";
+import { sitePath } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+
+const methodUrl = sitePath("/method");
 
 export const metadata: Metadata = {
   title: "Method",
   description: "How GradedCalls freezes a public claim and scores Grade Calibration.",
+  alternates: { canonical: methodUrl },
+  ...shareMeta(methodUrl),
 };
 
 export default function MethodPage() {

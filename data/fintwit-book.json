@@ -1,6 +1,6 @@
 {
   "source": "fintwittruth src/lib/demo-data.ts and market-history.json. Handles and wording are the seeded demo book. Levels are offsets from recorded Friday Yahoo Finance closes. directionGrade compares the stated direction with the Monday regular-session open versus that Friday close. It is not the live board peer-rank GC score.",
-  "liveUrl": "https://fintwittruth.vercel.app",
+  "liveUrl": "https://fintwit.gradedcalls.com",
   "accounts": [
     {
       "handle": "gammagoblin",

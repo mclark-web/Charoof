@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { DisclaimerNotice } from "@/components/disclaimer-notice";
 import { GcTube, GradePill } from "@/components/gc-tube";
 import { SectorCard } from "@/components/sector-board";
 import { sectorBooks, type SectorBook } from "@/lib/books";
 import { GRADE_BANDS } from "@/lib/grade";
+import { SITE_URL, sitePath } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+
+export const metadata: Metadata = {
+  alternates: { canonical: SITE_URL },
+  ...shareMeta(SITE_URL),
+};
 
 export const revalidate = 300;
 
@@ -47,7 +55,7 @@ export default function HubPage() {
           </p>
           <p>Under 10 graded picks in 90 days, the grade stays PROVISIONAL.</p>
           <p className="method-link">
-            <Link className="hit-44" href="/method#gc-scale">
+            <Link className="hit-44" href={sitePath("/method#gc-scale")}>
               Method
             </Link>
           </p>

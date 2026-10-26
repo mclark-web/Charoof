@@ -1,6 +1,7 @@
 "use client";
 
 import { LogoLink } from "@/components/logo-link";
+import { HUB_URL, sitePath } from "@/lib/site-urls";
 import "./globals.css";
 
 export default function GlobalError({
@@ -31,8 +32,7 @@ export default function GlobalError({
             </p>
             <p>
               {/* The root layout failed, so this is a full navigation, not a client transition. */}
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a className="hit-44" href="/" title="Hub">
+              <a className="hit-44" href={HUB_URL} title="Hub">
                 Hub
               </a>
             </p>
@@ -40,7 +40,7 @@ export default function GlobalError({
           <footer className="footer">
             <div>© 2026 GradedCalls · Not investment or betting advice</div>
             <div className="footer-links">
-              <a href="/disclaimer">Disclaimer</a>
+              <a href={sitePath("/disclaimer")}>Disclaimer</a>
             </div>
           </footer>
         </main>

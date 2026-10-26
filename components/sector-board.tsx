@@ -3,10 +3,11 @@ import { BoardTable } from "@/components/board-table";
 import { CapperPacks } from "@/components/capper-packs";
 import { GcTube } from "@/components/gc-tube";
 import type { SectorBook } from "@/lib/books";
+import { sameSite } from "@/lib/site-urls";
 
 export function SectorCard({ book }: { book: SectorBook }) {
   const { sector, hero } = book;
-  const external = sector.href.startsWith("http");
+  const external = !sameSite(sector.href);
   const body = (
     <>
       <div className="kicker">{sector.kicker}</div>

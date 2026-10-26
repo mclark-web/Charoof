@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import nextConfig from "../next.config";
+import { securityTxt } from "./security-txt";
 import { contentSecurityPolicy, securityHeaders } from "./security-headers";
+import { ANALYSTS_URL, BOT_URL, FINTWIT_URL, HUB_URL, SITE_URL } from "./site-urls";
 
 function directive(policy: string, name: string) {
   return policy.split("; ").find((part) => part === name || part.startsWith(`${name} `)) ?? "";
@@ -38,17 +41,46 @@ describe("security headers", () => {
     assert.doesNotMatch(policy, /upgrade-insecure-requests/);
   });
 
-  it("wires the header helper from next.config and redirects /legal", () => {
+  it("wires the header helper from next.config and redirects /legal", async () => {
     const config = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
-    const security = readFileSync(new URL("../public/.well-known/security.txt", import.meta.url), "utf8");
+    const security = securityTxt();
+    const route = readFileSync(new URL("../app/.well-known/security.txt/route.ts", import.meta.url), "utf8");
     assert.match(config, /poweredByHeader: false/);
     assert.match(config, /securityHeaders\(\)/);
     assert.doesNotMatch(config, /Content-Security-Policy-Report-Only/);
     assert.match(config, /source: "\/legal", destination: "\/disclaimer", permanent: true/);
-    assert.match(security, /Contact: https:\/\/charoof\.vercel\.app\/contact/);
+    assert.match(config, /source: "\/analysts", destination: ANALYSTS_URL/);
+    assert.match(config, /source: "\/fintwit", destination: FINTWIT_URL/);
+    assert.match(config, /source: "\/gcbot", destination: BOT_URL/);
+    assert.match(config, /value: "gradedcalls\.com"/);
+    assert.match(config, /destination: `\$\{HUB_URL\}\/:path\*`/);
+    assert.equal(existsSync(new URL("../public/.well-known/security.txt", import.meta.url)), false);
+    assert.match(route, /securityTxt\(\)/);
+    assert.ok(security.includes(`Contact: ${SITE_URL}/contact`));
     assert.match(security, /Expires: 2027-10-22T23:59:59\.000Z/);
-    assert.match(security, /Canonical: https:\/\/charoof\.vercel\.app\/\.well-known\/security\.txt/);
-    assert.doesNotMatch(security, /gradedcalls\.com/);
+    assert.ok(security.includes(`Canonical: ${SITE_URL}/.well-known/security.txt`));
+    assert.ok(security.includes(`Policy: ${SITE_URL}/disclaimer`));
+    assert.match(security, /gradedcalls\.com/);
+    assert.doesNotMatch(security, /vercel\.app/i);
     assert.doesNotMatch(security, /TODO|TBD|placeholder|pending formation|\[.*LLC.*\]|mailto:|@\w+\.\w+/);
+
+    const redirects = await nextConfig.redirects!();
+    const fintwit = redirects.find((item) => item.source === "/fintwit");
+    const analysts = redirects.find((item) => item.source === "/analysts");
+    const bot = redirects.find((item) => item.source === "/gcbot");
+    const apexIndex = redirects.findIndex((item) =>
+      item.has?.some((rule) => rule.type === "host" && rule.value === "gradedcalls.com"),
+    );
+    assert.equal(analysts?.destination, ANALYSTS_URL);
+    assert.equal(analysts?.permanent, true);
+    assert.equal(fintwit?.destination, FINTWIT_URL);
+    assert.equal(fintwit?.permanent, true);
+    assert.equal(bot?.destination, BOT_URL);
+    assert.equal(bot?.permanent, true);
+    assert.equal(redirects.some((item) => item.source === "/sports"), false);
+    assert.ok(apexIndex > redirects.findIndex((item) => item.source === "/fintwit"));
+    const apex = redirects[apexIndex];
+    assert.equal(apex?.permanent, true);
+    assert.equal(apex?.destination, `${HUB_URL}/:path*`);
   });
 });

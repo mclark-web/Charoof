@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { sitePath } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+
+const termsUrl = sitePath("/terms");
 
 export const metadata: Metadata = {
   title: "Terms",
   description: "Terms for the GradedCalls demo.",
+  alternates: { canonical: termsUrl },
+  ...shareMeta(termsUrl),
 };
 
 export default function TermsPage() {
@@ -16,7 +22,7 @@ export default function TermsPage() {
       </p>
       <p>Do not copy a fixture onto a real book. Misses stay visible when a live record is connected. Silent edits after lock are out of bounds.</p>
       <p>
-        <Link className="hit-44" href="/disclaimer">
+        <Link className="hit-44" href={sitePath("/disclaimer")}>
           Read the disclaimer
         </Link>
       </p>

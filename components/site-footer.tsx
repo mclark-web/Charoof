@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LIVE_BOARDS } from "@/lib/sectors";
+import { sitePath } from "@/lib/site-urls";
 
 export function SiteFooter() {
   return (
@@ -11,10 +12,10 @@ export function SiteFooter() {
             {board.label}
           </a>
         ))}
-        <Link href="/method">Method</Link>
-        <Link href="/disclaimer">Disclaimer</Link>
-        <Link href="/terms">Terms</Link>
-        <Link href="/contact">Contact</Link>
+        <Link href={sitePath("/method")}>Method</Link>
+        <Link href={sitePath("/disclaimer")}>Disclaimer</Link>
+        <Link href={sitePath("/terms")}>Terms</Link>
+        <Link href={sitePath("/contact")}>Contact</Link>
       </div>
     </footer>
   );
