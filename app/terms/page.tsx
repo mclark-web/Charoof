@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { sitePath } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+
+const termsUrl = sitePath("/terms");
 
 export const metadata: Metadata = {
   title: "Terms",
   description: "Terms for the GradedCalls demo.",
-  alternates: { canonical: sitePath("/terms") },
+  alternates: { canonical: termsUrl },
+  ...shareMeta(termsUrl),
 };
 
 export default function TermsPage() {

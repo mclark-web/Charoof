@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { sitePath } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+
+const contactUrl = sitePath("/contact");
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
     "A dedicated dispute channel is coming. Each call links to its original source so you can verify it.",
-  alternates: { canonical: sitePath("/contact") },
+  alternates: { canonical: contactUrl },
+  ...shareMeta(contactUrl),
 };
 
 export default function ContactPage() {

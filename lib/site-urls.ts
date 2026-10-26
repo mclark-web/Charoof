@@ -36,6 +36,9 @@ export function sitePath(path = "/"): string {
 
 export const SPORTS_URL = sitePath("/sports");
 
+/** Absolute share image. File-convention OG images follow the Vercel deployment host. */
+export const SHARE_IMAGE_URL = `${SITE_URL}/opengraph-image.png`;
+
 export function sameSite(href: string, origin = SITE_URL): boolean {
   if (href.startsWith("/") && !href.startsWith("//")) return true;
   try {

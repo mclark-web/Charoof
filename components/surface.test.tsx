@@ -95,6 +95,9 @@ describe("hub copy", () => {
     assert.match(errorPage, /title="Hub"/);
     assert.match(errorPage, />\s*Hub\s*</);
     assert.equal(existsSync(new URL("../public/gradedcalls-lockup.png", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/opengraph-image.png", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../app/opengraph-image.alt.txt", import.meta.url)), false);
+    assert.equal(existsSync(new URL("../public/opengraph-image.png", import.meta.url)), true);
   });
 
   it("folds GC Scale into Method and drops the retired preview copy", () => {

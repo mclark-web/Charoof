@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SectorBoard } from "@/components/sector-board";
 import { sectorBook } from "@/lib/books";
 import { SPORTS_URL } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
 
 export const revalidate = 300;
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SPORTS_URL,
   },
+  ...shareMeta(SPORTS_URL),
 };
 
 export default function SportsPage() {

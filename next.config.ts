@@ -4,6 +4,7 @@ import { ANALYSTS_URL, BOT_URL, FINTWIT_URL, HUB_URL } from "./lib/site-urls";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   async headers() {
     return [
       {

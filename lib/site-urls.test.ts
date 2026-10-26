@@ -10,6 +10,7 @@ import {
   DEFAULT_SITE_URL,
   FINTWIT_URL,
   HUB_URL,
+  SHARE_IMAGE_URL,
   SITE_URL,
   SPORTS_URL,
   pathnameOf,
@@ -30,6 +31,7 @@ describe("site urls", () => {
     assert.equal(FINTWIT_URL, DEFAULT_FINTWIT_URL);
     assert.equal(BOT_URL, DEFAULT_BOT_URL);
     assert.equal(SPORTS_URL, "https://www.gradedcalls.com/sports");
+    assert.equal(SHARE_IMAGE_URL, "https://www.gradedcalls.com/opengraph-image.png");
     assert.equal(sitePath("/method#gc-scale"), "https://www.gradedcalls.com/method#gc-scale");
     assert.equal(sitePath("/#sectors"), "https://www.gradedcalls.com/#sectors");
     assert.equal(sameSite(SPORTS_URL), true);

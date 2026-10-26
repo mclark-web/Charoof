@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { HUB_URL } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+import { HUB_URL, SITE_URL } from "@/lib/site-urls";
+
+export const metadata: Metadata = {
+  ...shareMeta(SITE_URL),
+};
 
 export default function NotFound() {
   return (

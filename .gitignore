@@ -8,6 +8,7 @@
 !.yarn/versions
 /coverage
 /.next/
+/.next-preview-head/
 /out/
 /build
 .DS_Store

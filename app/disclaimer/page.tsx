@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { sitePath } from "@/lib/site-urls";
+import { shareMeta } from "@/lib/share-meta";
+
+const disclaimerUrl = sitePath("/disclaimer");
 
 export const metadata: Metadata = {
   title: "Disclaimer",
   description:
     "GradedCalls is not financial, investment, legal, tax, or betting advice. Grades and GC Scale scores are historical records, not a promise of future results.",
-  alternates: { canonical: sitePath("/disclaimer") },
+  alternates: { canonical: disclaimerUrl },
+  ...shareMeta(disclaimerUrl),
 };
 
 export default function DisclaimerPage() {
