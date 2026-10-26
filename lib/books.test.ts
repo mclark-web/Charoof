@@ -14,6 +14,9 @@ import {
 import { displayFill, gradeForFill } from "./grade";
 import { formatNewYorkDate, newYorkToday } from "./recency";
 import { fillForOutcome, hitFill } from "./outcome";
+import { ANALYSTS_URL, BOT_URL, FINTWIT_URL } from "./site-urls";
+import analystRoster from "@/data/analyst-roster.json";
+import fintwitBook from "@/data/fintwit-book.json";
 
 const BANNED = /chad|chud|charoof/i;
 
@@ -195,7 +198,8 @@ describe("sector books", () => {
   it("previews the seeded sibling books and links to the live ledgers", () => {
     const analysts = sectorBook("analysts");
     assert.equal(analysts.sections[0]?.rows.length, 35);
-    assert.equal(analysts.liveHref, "https://bank-troof.vercel.app");
+    assert.equal(analysts.liveHref, ANALYSTS_URL);
+    assert.equal(analystRoster.liveUrl, "https://analysts.gradedcalls.com");
     assert.match(analysts.liveLabel ?? "", /Analysts/);
     assert.equal(analysts.hero.kind, "count");
     if (analysts.hero.kind === "count") {
@@ -207,7 +211,8 @@ describe("sector books", () => {
 
     const fintwit = sectorBook("fintwit");
     assert.equal(fintwit.sections[0]?.rows.length, 19);
-    assert.equal(fintwit.liveHref, "https://fintwittruth.vercel.app");
+    assert.equal(fintwit.liveHref, FINTWIT_URL);
+    assert.equal(fintwitBook.liveUrl, "https://fintwit.gradedcalls.com");
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
     assert.equal(fintwit.hero.kind, "tube");
     if (fintwit.hero.kind === "tube") {
@@ -237,7 +242,7 @@ describe("sector books", () => {
     }
     assert.equal(bot.liveLabel, "Open the live GCBot board");
     assert.doesNotMatch(visibleText(bot), BANNED);
-    assert.match(bot.liveHref ?? "", /charoofbot\.vercel\.app/);
+    assert.equal(bot.liveHref, BOT_URL);
   });
 
   it("derives hub counts from the restored books", () => {

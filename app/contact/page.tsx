@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { sitePath } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
     "A dedicated dispute channel is coming. Each call links to its original source so you can verify it.",
+  alternates: { canonical: sitePath("/contact") },
 };
 
 export default function ContactPage() {
@@ -19,7 +21,7 @@ export default function ContactPage() {
         against.
       </p>
       <p>
-        <Link className="hit-44" href="/method">
+        <Link className="hit-44" href={sitePath("/method")}>
           Read the method →
         </Link>
       </p>

@@ -5,22 +5,24 @@ import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LogoLink } from "@/components/logo-link";
 import { LIVE_BOARDS } from "@/lib/sectors";
+import { HUB_URL, SPORTS_URL, pathnameOf, sitePath } from "@/lib/site-urls";
 
 type NavItem = { href: string; label: string; external?: boolean };
 
 const NAV: NavItem[] = [
-  { href: "/", label: "Hub" },
-  { href: "/sports", label: "Sports" },
+  { href: HUB_URL, label: "Hub" },
+  { href: SPORTS_URL, label: "Sports" },
   ...LIVE_BOARDS.map((board) => ({ href: board.href, label: board.label, external: true })),
-  { href: "/method", label: "Method" },
+  { href: sitePath("/method"), label: "Method" },
 ];
 
 const COMPACT_QUERY = "(max-width: 820px)";
 
 function isActive(pathname: string, item: NavItem) {
   if (item.external) return false;
-  if (item.href === "/") return pathname === "/";
-  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+  const path = pathnameOf(item.href);
+  if (path === "/") return pathname === "/";
+  return pathname === path || pathname.startsWith(`${path}/`);
 }
 
 function NavLink({
@@ -163,12 +165,12 @@ export function SiteHeader() {
                 const current = isActive(pathname, item);
                 return <NavLink key={item.href} item={item} current={current} className={current ? "active" : undefined} />;
               })}
-              <Link href="/#sectors">Browse grades</Link>
+              <Link href={sitePath("/#sectors")}>Browse grades</Link>
             </div>
           ) : null}
         </div>
         <div className="top-actions">
-          <Link className="btn btn-primary" href="/#sectors">
+          <Link className="btn btn-primary" href={sitePath("/#sectors")}>
             Browse grades
           </Link>
         </div>

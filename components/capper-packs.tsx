@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sitePath } from "@/lib/site-urls";
 import { CapperTable } from "@/components/board-row";
 import { splitCapperPacks } from "@/lib/capper-pack";
 import type { BoardRow } from "@/lib/books";
@@ -67,7 +68,7 @@ export function CapperPacks({
           <p>{hint}</p>
           <p>{note}</p>
           <p>
-            <Link className="hit-44" href="/method#sports-score">
+            <Link className="hit-44" href={sitePath("/method#sports-score")}>
               How capper scores are built
             </Link>
           </p>

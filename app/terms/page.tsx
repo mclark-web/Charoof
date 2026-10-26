@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { sitePath } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Terms",
   description: "Terms for the GradedCalls demo.",
+  alternates: { canonical: sitePath("/terms") },
 };
 
 export default function TermsPage() {
@@ -16,7 +18,7 @@ export default function TermsPage() {
       </p>
       <p>Do not copy a fixture onto a real book. Misses stay visible when a live record is connected. Silent edits after lock are out of bounds.</p>
       <p>
-        <Link className="hit-44" href="/disclaimer">
+        <Link className="hit-44" href={sitePath("/disclaimer")}>
           Read the disclaimer
         </Link>
       </p>

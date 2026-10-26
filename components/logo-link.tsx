@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { HUB_URL } from "@/lib/site-urls";
 
 const markStyle = {
   width: 44,
@@ -11,7 +12,7 @@ const markStyle = {
 
 export function LogoLink() {
   return (
-    <Link className="brand" href="/" aria-label="GradedCalls" style={{ minWidth: 44, minHeight: 44 }}>
+    <Link className="brand" href={HUB_URL} aria-label="GradedCalls" style={{ minWidth: 44, minHeight: 44 }}>
       <Image
         className="brand-mark"
         src="/gradedcalls-mark.png"

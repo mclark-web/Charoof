@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { sitePath } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "Disclaimer",
   description:
     "GradedCalls is not financial, investment, legal, tax, or betting advice. Grades and GC Scale scores are historical records, not a promise of future results.",
+  alternates: { canonical: sitePath("/disclaimer") },
 };
 
 export default function DisclaimerPage() {
@@ -48,7 +50,7 @@ export default function DisclaimerPage() {
         posts, and that home card shows the same snapshot. This surface does not call a paid social API.
       </p>
       <p>
-        <Link className="hit-44" href="/method">
+        <Link className="hit-44" href={sitePath("/method")}>
           Read the method
         </Link>
       </p>

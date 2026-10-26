@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SectorBoard } from "@/components/sector-board";
 import { sectorBook } from "@/lib/books";
+import { SPORTS_URL } from "@/lib/site-urls";
 
 export const revalidate = 300;
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   description:
     "Verified public free picks and the Fri Sep 18 archive, graded on official finals. Demo fiction stays labeled Demo.",
   alternates: {
-    canonical: "https://charoof.vercel.app/sports",
+    canonical: SPORTS_URL,
   },
 };
 

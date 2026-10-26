@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SITE_URL } from "@/lib/site-urls";
 import "./globals.css";
 
 const description =
   "The GradedCalls hub links the Sports, Analysts, FinTwit, and GCBot boards. Grade Calibration, shown as a liquid gauge: STRONG, WEAK, PROVISIONAL, or EXIT LIQUIDITY.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   applicationName: "GradedCalls",
   title: {
     default: "GradedCalls",

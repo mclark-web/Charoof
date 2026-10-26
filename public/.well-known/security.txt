@@ -1,5 +1,0 @@
-Contact: https://charoof.vercel.app/contact
-Expires: 2027-10-22T23:59:59.000Z
-Preferred-Languages: en
-Canonical: https://charoof.vercel.app/.well-known/security.txt
-Policy: https://charoof.vercel.app/disclaimer

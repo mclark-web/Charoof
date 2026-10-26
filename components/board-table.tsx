@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BoardDataRow } from "@/components/board-row";
 import type { BoardSection } from "@/lib/books";
+import { sitePath } from "@/lib/site-urls";
 
 const PREVIEW = 8;
 const STEP = 24;
@@ -33,7 +34,7 @@ export function BoardTable({ section }: { section: BoardSection }) {
         {section.id === "public-cappers" ? (
           <>
             {" "}
-            <Link className="hit-44" href="/method#sports-score">
+            <Link className="hit-44" href={sitePath("/method#sports-score")}>
               How capper scores are built
             </Link>
             .
