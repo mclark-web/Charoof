@@ -11,13 +11,14 @@ const shareImage = {
   alt: "GradedCalls",
 };
 
-/** Absolute share tags. Child routes replace openGraph, so every field travels with the URL. */
-export function shareMeta(url: string): Pick<Metadata, "openGraph" | "twitter"> {
+/** Absolute share tags. Child routes replace openGraph, so every field travels with the call.
+ *  Omit `url` on the 404 so that page does not emit og:url. */
+export function shareMeta(url?: string): Pick<Metadata, "openGraph" | "twitter"> {
   return {
     openGraph: {
       title: "GradedCalls",
       description: HUB_DESCRIPTION,
-      url,
+      ...(url ? { url } : {}),
       siteName: "GradedCalls",
       type: "website",
       images: [shareImage],
