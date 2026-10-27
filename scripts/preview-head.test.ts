@@ -10,6 +10,7 @@ const previewSuffix = ["vercel", "app"].join(".");
 const previewHost = `charoof-git-preview-hoonu.${previewSuffix}`;
 const distDir = ".next-preview-head";
 const textExt = new Set([".html", ".rsc", ".json", ".meta"]);
+const skipDirs = new Set(["node_modules", ".git", ".next", distDir, "out", "build", "coverage"]);
 
 function appPath(rel: string) {
   return fileURLToPath(new URL(`../${distDir}/server/app/${rel}`, import.meta.url));
@@ -46,7 +47,46 @@ function contents(head: string, attr: "property" | "name", key: string) {
   return [...head.matchAll(pattern)].map((match) => match[1]);
 }
 
+function walkFiles(root: string, skip: Set<string>): string[] {
+  const out: string[] = [];
+  const visit = (rel: string) => {
+    const abs = rel ? join(root, rel) : root;
+    for (const entry of readdirSync(abs, { withFileTypes: true })) {
+      if (skip.has(entry.name)) continue;
+      const child = rel ? join(rel, entry.name) : entry.name;
+      if (entry.isDirectory()) visit(child);
+      else if (entry.isFile()) out.push(child);
+    }
+  };
+  visit("");
+  return out;
+}
+
 describe("preview deployment heads", () => {
+  it("allows the retired production host only on its redirect config line", () => {
+    const root = fileURLToPath(new URL("..", import.meta.url));
+    const legacyHost = `charoof.${previewSuffix}`;
+    const allowedLine = `has: [{ type: "host", value: "${legacyHost}" }],`;
+    let allowedCount = 0;
+    const leaks: string[] = [];
+
+    for (const rel of walkFiles(root, skipDirs)) {
+      const text = readFileSync(join(root, rel), "utf8");
+      if (!text.toLowerCase().includes(previewSuffix)) continue;
+      for (const line of text.split("\n")) {
+        if (!line.toLowerCase().includes(previewSuffix)) continue;
+        if (rel === "next.config.ts" && line.trim() === allowedLine) {
+          allowedCount += 1;
+          continue;
+        }
+        leaks.push(`${rel}: ${line.trim()}`);
+      }
+    }
+
+    assert.equal(allowedCount, 1);
+    assert.deepEqual(leaks, [], `unexpected ${previewSuffix} source:\n${leaks.join("\n")}`);
+  });
+
   it("keeps built pages off the preview host when Vercel preview hosts are set", { timeout: 180_000 }, () => {
     const root = fileURLToPath(new URL("..", import.meta.url));
     const tsconfigPath = fileURLToPath(new URL("../tsconfig.json", import.meta.url));
@@ -129,10 +169,23 @@ describe("preview deployment heads", () => {
       }
     }
 
+    const distRoot = fileURLToPath(new URL(`../${distDir}`, import.meta.url));
+    const metadata = walkFiles(distRoot, new Set()).filter((rel) => /robots|sitemap/i.test(rel));
+    const appEntries = readdirSync(join(distRoot, "server/app")).join("\n");
+    assert.ok(metadata.some((rel) => /robots/i.test(rel)), `expected robots output\n${appEntries}`);
+    assert.ok(metadata.some((rel) => /sitemap/i.test(rel)), `expected sitemap output\n${appEntries}`);
+    for (const rel of metadata) {
+      if (readFileSync(join(distRoot, rel), "utf8").toLowerCase().includes(previewSuffix)) leaks.push(rel);
+    }
+
     assert.equal(pages.length, 7);
     assert.ok([...scanned].some((file) => file.endsWith(".html")));
     assert.ok([...scanned].some((file) => file.endsWith(".rsc")), "expected RSC payloads");
     assert.ok([...scanned].some((file) => file.endsWith(".json")), "expected static JSON");
-    assert.deepEqual(leaks, [], `built HTML or page data contains ${previewSuffix}:\n${leaks.join("\n")}`);
+    assert.deepEqual(
+      leaks,
+      [],
+      `built HTML, page data, robots, or sitemap contains ${previewSuffix}:\n${leaks.join("\n")}`,
+    );
   });
 });

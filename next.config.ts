@@ -26,6 +26,13 @@ const nextConfig: NextConfig = {
         destination: `${HUB_URL}/:path*`,
         permanent: true,
       },
+      // Retired production alias. Preview hosts are not this exact host.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "charoof.vercel.app" }],
+        destination: `${HUB_URL}/:path*`,
+        permanent: true,
+      },
       { source: "/sign-in", destination: "/", permanent: true },
       { source: "/gc-scale", destination: "/method#gc-scale", permanent: true },
       { source: "/methodology", destination: "/method", permanent: true },
