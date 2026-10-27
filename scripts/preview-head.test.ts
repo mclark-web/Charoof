@@ -62,6 +62,15 @@ function walkFiles(root: string, skip: Set<string>): string[] {
   return out;
 }
 
+/** Join `"a" + "b"` so a host split across string literals still counts. */
+function scriptHasPreviewSuffix(source: string) {
+  const flattened = source.toLowerCase().replace(/(["'`])\s*\+\s*\1/g, "");
+  return flattened.includes(previewSuffix);
+}
+
+const scriptRoots = ["static", join("server", "chunks"), join("server", "app")];
+const ignoredBuildFiles = new Set(["routes-manifest.json", "required-server-files.js", "required-server-files.json"]);
+
 describe("preview deployment heads", () => {
   it("allows the retired production host only on its redirect config line", () => {
     const root = fileURLToPath(new URL("..", import.meta.url));
@@ -178,6 +187,31 @@ describe("preview deployment heads", () => {
       if (readFileSync(join(distRoot, rel), "utf8").toLowerCase().includes(previewSuffix)) leaks.push(rel);
     }
 
+    const scripts: string[] = [];
+    for (const relRoot of scriptRoots) {
+      for (const rel of walkFiles(join(distRoot, relRoot), new Set())) {
+        if (extname(rel) !== ".js") continue;
+        const name = rel.split(/[/\\]/).pop() ?? rel;
+        if (ignoredBuildFiles.has(name)) continue;
+        scripts.push(join(relRoot, rel));
+      }
+    }
+    assert.ok(
+      scripts.some((file) => file.startsWith("static/")),
+      "expected client JS under static/",
+    );
+    assert.ok(
+      scripts.some((file) => file.startsWith("server/chunks/")),
+      "expected server chunks",
+    );
+    assert.ok(
+      scripts.some((file) => file.startsWith("server/app/") && file.endsWith(".js")),
+      "expected server app JS",
+    );
+    for (const rel of scripts) {
+      if (scriptHasPreviewSuffix(readFileSync(join(distRoot, rel), "utf8"))) leaks.push(rel);
+    }
+
     assert.equal(pages.length, 7);
     assert.ok([...scanned].some((file) => file.endsWith(".html")));
     assert.ok([...scanned].some((file) => file.endsWith(".rsc")), "expected RSC payloads");
@@ -185,7 +219,7 @@ describe("preview deployment heads", () => {
     assert.deepEqual(
       leaks,
       [],
-      `built HTML, page data, robots, or sitemap contains ${previewSuffix}:\n${leaks.join("\n")}`,
+      `built HTML, page data, robots, sitemap, or JS contains ${previewSuffix}:\n${leaks.join("\n")}`,
     );
   });
 });
