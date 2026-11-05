@@ -45,7 +45,7 @@ describe("recovered sports ledger", () => {
 
   it("fills the verified lane with the timed public cards", () => {
     const rows = verifiedPickRows();
-    assert.equal(rows.length, 373);
+    assert.equal(rows.length, 436);
     assert.ok(rows.every((row) => row.lane === "Verified"));
     const titles = rows.map((row) => row.title).join("\n");
     for (const name of ["Jason Logan", "Chris Hatfield", "Todd Cordell", "Chris Bennett", "Rob Paul", "Quinn Allen"]) {
@@ -113,16 +113,16 @@ describe("recovered sports ledger", () => {
     assert.notEqual(joint?.title, "Rob Paul");
     const rob = rows.find((row) => row.title === "Rob Paul");
     assert.ok(rob);
-    assert.equal(rob?.sample, "n = 46");
+    assert.equal(rob?.sample, "n = 56");
     assert.equal(rob?.windows, "1W 8–4 · 2W 8–4 · 1M 8–4 · 3M 8–4");
     assert.equal(rob?.fill, 200 / 3);
     assert.equal(gradeForFill(rob?.fill ?? 0).name, "PROVISIONAL");
     assert.equal(rob?.gradeName, "PROVISIONAL");
     assert.equal(rob?.sampleNote, undefined);
     const logan = rows.find((row) => row.title === "Jason Logan");
-    assert.equal(logan?.detail, "63 public picks · 30–33");
+    assert.equal(logan?.detail, "73 public picks · 35–38");
     assert.equal(logan?.windows, "1W 6–4 · 2W 11–10 · 1M 11–10 · 3M 11–10");
-    assert.equal(logan?.sample, "n = 63");
+    assert.equal(logan?.sample, "n = 73");
     assert.equal(logan?.fill, 55.42857142857143);
     assert.equal(logan?.gradeName, "PROVISIONAL");
     assert.equal(logan?.sampleNote, undefined);
@@ -131,7 +131,7 @@ describe("recovered sports ledger", () => {
     assert.equal(cordell?.gradeName, "STRONG");
     assert.equal(cordell?.sampleNote, undefined);
     const inglis = publicCapperRows("2026-09-30").find((row) => row.title === "Josh Inglis");
-    assert.equal(inglis?.sample, "n = 8");
+    assert.equal(inglis?.sample, "n = 9");
     assert.ok((inglis?.fill ?? 0) >= 70);
     assert.equal(inglis?.gradeName, "PROVISIONAL");
     assert.equal(inglis?.sampleNote, undefined);
@@ -152,9 +152,9 @@ describe("sector books", () => {
   it("shows verified sports rows before the demo fixtures", () => {
     const book = sectorBook("sports");
     assert.equal(book.sections[0]?.id, "open-picks");
-    assert.equal(book.sections[0]?.rows.length, 0);
+    assert.equal(book.sections[0]?.rows.length, 2);
     assert.equal(book.sections[1]?.id, "verified-cards");
-    assert.equal(book.sections[1]?.rows.length, 373);
+    assert.equal(book.sections[1]?.rows.length, 436);
     const falcons = book.sections[1]?.rows.filter((row) => row.detail.includes("Atlanta Falcons @ New Orleans Saints"));
     assert.equal(falcons?.length, 2);
     assert.ok(falcons?.every((row) => row.result === "WIN" && row.fill == null));
@@ -187,7 +187,7 @@ describe("sector books", () => {
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");
     if (book.hero.kind === "tube") {
-      assert.equal(book.hero.card, "393 public picks · 216–174–1 · 2 void · 0 pending");
+      assert.equal(book.hero.card, "458 public picks · 246–207–1 · 2 void · 2 pending");
       assert.doesNotMatch(book.hero.hint, /133–101/);
       assert.doesNotMatch(book.hero.hint, /\d+ void/);
       assert.doesNotMatch(book.hero.hint, /\d+ pending/);
@@ -247,13 +247,13 @@ describe("sector books", () => {
 
   it("derives hub counts from the restored books", () => {
     const stats = hubStats();
-    assert.equal(stats.sportsCards, 393);
-    assert.equal(stats.sportsRecord, "216–174–1");
+    assert.equal(stats.sportsCards, 458);
+    assert.equal(stats.sportsRecord, "246–207–1");
     assert.equal(stats.sportsVoids, 2);
-    assert.equal(stats.sportsPending, 0);
+    assert.equal(stats.sportsPending, 2);
     assert.equal(
       stats.sportsCards,
-      216 + 174 + 1 + stats.sportsVoids + stats.sportsPending,
+      246 + 207 + 1 + stats.sportsVoids + stats.sportsPending,
     );
     assert.equal(stats.analysts, 35);
     assert.equal(stats.banks, 14);
