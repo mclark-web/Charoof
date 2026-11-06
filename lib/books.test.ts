@@ -45,7 +45,7 @@ describe("recovered sports ledger", () => {
 
   it("fills the verified lane with the timed public cards", () => {
     const rows = verifiedPickRows();
-    assert.equal(rows.length, 436);
+    assert.equal(rows.length, 438);
     assert.ok(rows.every((row) => row.lane === "Verified"));
     const titles = rows.map((row) => row.title).join("\n");
     for (const name of ["Jason Logan", "Chris Hatfield", "Todd Cordell", "Chris Bennett", "Rob Paul", "Quinn Allen"]) {
@@ -152,9 +152,9 @@ describe("sector books", () => {
   it("shows verified sports rows before the demo fixtures", () => {
     const book = sectorBook("sports");
     assert.equal(book.sections[0]?.id, "open-picks");
-    assert.equal(book.sections[0]?.rows.length, 2);
+    assert.equal(book.sections[0]?.rows.length, 0);
     assert.equal(book.sections[1]?.id, "verified-cards");
-    assert.equal(book.sections[1]?.rows.length, 436);
+    assert.equal(book.sections[1]?.rows.length, 438);
     const falcons = book.sections[1]?.rows.filter((row) => row.detail.includes("Atlanta Falcons @ New Orleans Saints"));
     assert.equal(falcons?.length, 2);
     assert.ok(falcons?.every((row) => row.result === "WIN" && row.fill == null));
@@ -187,7 +187,7 @@ describe("sector books", () => {
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");
     if (book.hero.kind === "tube") {
-      assert.equal(book.hero.card, "458 public picks · 246–207–1 · 2 void · 2 pending");
+      assert.equal(book.hero.card, "458 public picks · 247–208–1 · 2 void · 0 pending");
       assert.doesNotMatch(book.hero.hint, /133–101/);
       assert.doesNotMatch(book.hero.hint, /\d+ void/);
       assert.doesNotMatch(book.hero.hint, /\d+ pending/);
@@ -248,12 +248,12 @@ describe("sector books", () => {
   it("derives hub counts from the restored books", () => {
     const stats = hubStats();
     assert.equal(stats.sportsCards, 458);
-    assert.equal(stats.sportsRecord, "246–207–1");
+    assert.equal(stats.sportsRecord, "247–208–1");
     assert.equal(stats.sportsVoids, 2);
-    assert.equal(stats.sportsPending, 2);
+    assert.equal(stats.sportsPending, 0);
     assert.equal(
       stats.sportsCards,
-      246 + 207 + 1 + stats.sportsVoids + stats.sportsPending,
+      247 + 208 + 1 + stats.sportsVoids + stats.sportsPending,
     );
     assert.equal(stats.analysts, 35);
     assert.equal(stats.banks, 14);

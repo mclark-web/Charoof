@@ -605,8 +605,18 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 2);
-    assert.ok(open.every((pick) => pick.event === "Jacksonville Jaguars @ Baltimore Ravens" && pick.game_date === "2026-11-05"));
+    assert.equal(open.length, 0);
+    const tnf = picks.filter(
+      (pick) => pick.event === "Jacksonville Jaguars @ Baltimore Ravens" && pick.game_date === "2026-11-05",
+    );
+    assert.equal(tnf.length, 2);
+    assert.deepEqual(
+      tnf.map((pick) => [pick.market, pick.side, pick.number, pick.result, pick.final_score]).sort(),
+      [
+        ["spread", "Jacksonville Jaguars", -9.5, "win", "Jacksonville Jaguars 33, Baltimore Ravens 10"],
+        ["total", "Under", 42.5, "loss", "Jacksonville Jaguars 33, Baltimore Ravens 10"],
+      ],
+    );
     assert.equal(open.filter((pick) => pick.event === "Dallas Cowboys @ Green Bay Packers").length, 0);
     assert.equal(open.filter((pick) => pick.event === "Washington Commanders @ San Francisco 49ers").length, 0);
     for (const event of [

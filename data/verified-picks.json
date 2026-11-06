@@ -6332,10 +6332,10 @@
     "posted_at": "2026-11-05 13:29 ET",
     "game_date": "2026-11-05",
     "source_url": "https://www.covers.com/nfl/jaguars-vs-ravens-prediction-picks-nov-5-2026",
-    "game_final": false,
-    "result": "pending",
+    "game_final": true,
+    "result": "win",
     "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401873037",
-    "final_score": "Not final"
+    "final_score": "Jacksonville Jaguars 33, Baltimore Ravens 10"
   },
   {
     "tipster": "Joe Osborne (Covers)",
@@ -6348,10 +6348,10 @@
     "posted_at": "2026-11-03 19:33 ET",
     "game_date": "2026-11-05",
     "source_url": "https://www.covers.com/nfl/jaguars-vs-ravens-prediction-picks-odds-early-leans-week-9-2026",
-    "game_final": false,
-    "result": "pending",
+    "game_final": true,
+    "result": "loss",
     "box_score_url": "https://www.espn.com/nfl/game/_/gameId/401873037",
-    "final_score": "Not final"
+    "final_score": "Jacksonville Jaguars 33, Baltimore Ravens 10"
   },
   {
     "tipster": "Quinn Allen (Covers)",
