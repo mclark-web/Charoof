@@ -4,7 +4,7 @@ import fintwitBook from "@/data/fintwit-book.json";
 import gcbotCorpus from "@/data/gcbot-corpus.json";
 import verifiedPicks from "@/data/verified-picks.json";
 import { compareCappers } from "@/lib/capper-pack";
-import { GRADE_BANDS, type GradeKey } from "@/lib/grade";
+import { GRADE_BANDS, gradeForFill, type GradeKey } from "@/lib/grade";
 import { hitFill, outcomeLabel, recordLabel, resultPill, type Outcome, type ResultPill } from "@/lib/outcome";
 import {
   blendWinRate,
@@ -107,34 +107,36 @@ type FintwitCall = {
 const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
 /**
- * Analysts hub card, checked 2026-10-19.
- * Source: mclark-web/bank_troof data/calls/calls.csv (609 rows; calls.json matches)
- * and https://analysts.gradedcalls.com after merged PR #18.
- * Distinct analyst_slug 296, distinct firm_slug 37. The live calls page splits
- * the 609 rows into 456 active and 153 superseded. The home page labels the
- * 37 firms as Banks.
+ * Analysts hub card. This object is the only place those three figures are set.
+ * Checked 2026-11-11 against https://analysts.gradedcalls.com.
+ * The home page shows 119 analysts and 37 banks. The calls page splits the
+ * ledger into 193 active and 63 superseded (256 calls).
  */
 const ANALYSTS_LIVE_BOARD = {
-  analysts: 296,
+  analysts: 119,
   banks: 37,
-  calls: 609,
+  calls: 256,
 } as const;
 
 /**
- * FinTwit hub card, checked 2026-10-20 after fintwittruth #20 (7747c361).
- * Latest week in data/calls/calls.csv is 2026-10-19. Monday noon is GRADED;
- * Wednesday and Friday are PENDING. Scores: 58 (TraderJonesy, X) and 7
- * (Piggo's Trading Desk, Substack). The board mean is 32.5. fintwittruth
- * formatScore floors that mean, so the live tube shows 32%. The grade stays
- * WEAK because 32.5 is under 40. https://fintwit.gradedcalls.com leads with
- * "Week of Oct 19, 2026 · n=2 · GC Scale 32% WEAK".
- * src/lib/watchlist.json has 14 X accounts, including TraderJonesy.
- * trackedRoster adds the 2 Substack writers (piggostradingdesk, smtraderca),
- * and the live board says 16 accounts.
+ * FinTwit hub card. This block is the only place the Hub summary is set.
+ * Checked 2026-11-11 against https://fintwit.gradedcalls.com. The live board
+ * still leads with the week of Oct 19, 2026: n=2, Monday-noon mean 32.5 shown
+ * as 32% WEAK, and a 16-account watchlist. Weeks of Oct 26, Nov 2, and Nov 9
+ * were still "not graded yet" while that board is refreshed in parallel.
+ * Edit the week label, the call list, and the two account counts together.
+ * The tube, the card line, and the hint are built from those values.
+ * Scores are TraderJonesy on X (58) and Piggo's Trading Desk on Substack (7).
+ * fintwittruth formatScore floors the mean, so 32.5 shows as 32%.
  */
-const FINTWIT_MONDAY_NOON_SCORES = [58, 7] as const;
+const FINTWIT_WEEK_LABEL = "Oct 19, 2026";
+const FINTWIT_MONDAY_NOON_CALLS = [
+  { name: "TraderJonesy", venue: "X", score: 58 },
+  { name: "Piggo's Trading Desk", venue: "Substack", score: 7 },
+] as const;
 const FINTWIT_X_ACCOUNTS = 14;
 const FINTWIT_SUBSTACK_WRITERS = 2;
+const FINTWIT_MONDAY_NOON_SCORES = FINTWIT_MONDAY_NOON_CALLS.map((call) => call.score);
 
 /** Same rule as fintwittruth formatScore: floor, do not round. 32.5 shows as 32. */
 export function fintwitShownFill(mean: number): number {
@@ -146,13 +148,30 @@ export function fintwitShownFill(mean: number): number {
 const fintwitBoardMean =
   FINTWIT_MONDAY_NOON_SCORES.reduce((sum, score) => sum + score, 0) / FINTWIT_MONDAY_NOON_SCORES.length;
 const fintwitWatchlist = FINTWIT_X_ACCOUNTS + FINTWIT_SUBSTACK_WRITERS;
+const fintwitFill = fintwitShownFill(fintwitBoardMean);
+
+/** Small counts stay words so the hint reads the way the live board is described. */
+function fintwitCountWord(count: number, capital: boolean): string {
+  const words = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+  ];
+  const word = count < words.length ? words[count] : String(count);
+  return capital ? word.charAt(0).toUpperCase() + word.slice(1) : word;
+}
+
+const fintwitCallPhrase = FINTWIT_MONDAY_NOON_CALLS.map((call) => `${call.name} on ${call.venue} scored ${call.score}`).join(
+  ", and ",
+);
+const fintwitWeekCard = FINTWIT_WEEK_LABEL.replaceAll(" ", "\u00a0");
 
 const FINTWIT_LIVE_BOARD = {
-  fill: fintwitShownFill(fintwitBoardMean),
+  fill: fintwitFill,
   // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
   // U+2011 keeps "16-account" from splitting at the hyphen.
-  card: `${FINTWIT_MONDAY_NOON_SCORES.length}\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0Oct\u00a019,\u00a02026\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
-} as const;
+  card: `${FINTWIT_MONDAY_NOON_CALLS.length}\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+  hint: `Week of ${FINTWIT_WEEK_LABEL}, Monday noon checkpoint. ${fintwitCountWord(FINTWIT_MONDAY_NOON_CALLS.length, true)} graded calls: ${fintwitCallPhrase}. The board mean of those Monday noon scores is ${fintwitBoardMean}, shown as ${fintwitFill}% ${gradeForFill(fintwitFill).name}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`,
+};
 
 /**
  * GCBot hub card, checked 2026-10-19.
@@ -565,7 +584,7 @@ function analystsBook(sector: Sector): SectorBook {
       kind: "count",
       value: String(ANALYSTS_LIVE_BOARD.analysts),
       card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
-      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-10-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-11. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: ANALYSTS_URL,
     liveLabel: "Open the live Analysts ledger",
@@ -595,7 +614,7 @@ function fintwitBookView(sector: Sector): SectorBook {
       kind: "tube",
       fill: FINTWIT_LIVE_BOARD.fill,
       card: FINTWIT_LIVE_BOARD.card,
-      hint: "Week of Oct 19, 2026, Monday noon checkpoint. Two graded calls: TraderJonesy on X scored 58, and Piggo's Trading Desk on Substack scored 7. The board mean of those Monday noon scores is 32.5, shown as 32% WEAK. Sixteen accounts are on the watchlist: 14 X accounts plus two Substack writers.",
+      hint: FINTWIT_LIVE_BOARD.hint,
     },
     liveHref: FINTWIT_URL,
     liveLabel: "Open the live FinTwit ledger",
