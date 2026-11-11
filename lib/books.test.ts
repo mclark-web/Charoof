@@ -45,7 +45,7 @@ describe("recovered sports ledger", () => {
 
   it("fills the verified lane with the timed public cards", () => {
     const rows = verifiedPickRows();
-    assert.equal(rows.length, 438);
+    assert.equal(rows.length, 678);
     assert.ok(rows.every((row) => row.lane === "Verified"));
     const titles = rows.map((row) => row.title).join("\n");
     for (const name of ["Jason Logan", "Chris Hatfield", "Todd Cordell", "Chris Bennett", "Rob Paul", "Quinn Allen"]) {
@@ -113,25 +113,25 @@ describe("recovered sports ledger", () => {
     assert.notEqual(joint?.title, "Rob Paul");
     const rob = rows.find((row) => row.title === "Rob Paul");
     assert.ok(rob);
-    assert.equal(rob?.sample, "n = 56");
+    assert.equal(rob?.sample, "n = 111");
     assert.equal(rob?.windows, "1W 8–4 · 2W 8–4 · 1M 8–4 · 3M 8–4");
     assert.equal(rob?.fill, 200 / 3);
     assert.equal(gradeForFill(rob?.fill ?? 0).name, "PROVISIONAL");
     assert.equal(rob?.gradeName, "PROVISIONAL");
     assert.equal(rob?.sampleNote, undefined);
     const logan = rows.find((row) => row.title === "Jason Logan");
-    assert.equal(logan?.detail, "73 public picks · 35–38");
+    assert.equal(logan?.detail, "83 public picks · 41–42");
     assert.equal(logan?.windows, "1W 6–4 · 2W 11–10 · 1M 11–10 · 3M 11–10");
-    assert.equal(logan?.sample, "n = 73");
+    assert.equal(logan?.sample, "n = 83");
     assert.equal(logan?.fill, 55.42857142857143);
     assert.equal(logan?.gradeName, "PROVISIONAL");
     assert.equal(logan?.sampleNote, undefined);
     const cordell = rows.find((row) => row.title === "Todd Cordell");
-    assert.equal(cordell?.sample, "n = 36");
+    assert.equal(cordell?.sample, "n = 39");
     assert.equal(cordell?.gradeName, "STRONG");
     assert.equal(cordell?.sampleNote, undefined);
     const inglis = publicCapperRows("2026-09-30").find((row) => row.title === "Josh Inglis");
-    assert.equal(inglis?.sample, "n = 9");
+    assert.equal(inglis?.sample, "n = 10");
     assert.ok((inglis?.fill ?? 0) >= 70);
     assert.equal(inglis?.gradeName, "PROVISIONAL");
     assert.equal(inglis?.sampleNote, undefined);
@@ -152,9 +152,9 @@ describe("sector books", () => {
   it("shows verified sports rows before the demo fixtures", () => {
     const book = sectorBook("sports");
     assert.equal(book.sections[0]?.id, "open-picks");
-    assert.equal(book.sections[0]?.rows.length, 0);
+    assert.equal(book.sections[0]?.rows.length, 28);
     assert.equal(book.sections[1]?.id, "verified-cards");
-    assert.equal(book.sections[1]?.rows.length, 438);
+    assert.equal(book.sections[1]?.rows.length, 678);
     const falcons = book.sections[1]?.rows.filter((row) => row.detail.includes("Atlanta Falcons @ New Orleans Saints"));
     assert.equal(falcons?.length, 2);
     assert.ok(falcons?.every((row) => row.result === "WIN" && row.fill == null));
@@ -187,7 +187,7 @@ describe("sector books", () => {
     assert.ok(book.sections.at(-1)?.rows.every((row) => row.lane === "Demo"));
     assert.equal(book.hero.kind, "tube");
     if (book.hero.kind === "tube") {
-      assert.equal(book.hero.card, "458 public picks · 247–208–1 · 2 void · 0 pending");
+      assert.equal(book.hero.card, "726 public picks · 389–306–1 · 2 void · 28 pending");
       assert.doesNotMatch(book.hero.hint, /133–101/);
       assert.doesNotMatch(book.hero.hint, /\d+ void/);
       assert.doesNotMatch(book.hero.hint, /\d+ pending/);
@@ -203,8 +203,8 @@ describe("sector books", () => {
     assert.match(analysts.liveLabel ?? "", /Analysts/);
     assert.equal(analysts.hero.kind, "count");
     if (analysts.hero.kind === "count") {
-      assert.equal(analysts.hero.value, "296");
-      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 37 banks · 609 calls");
+      assert.equal(analysts.hero.value, "122");
+      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 38 banks · 278 calls");
       assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
     }
     assert.doesNotMatch(visibleText(analysts), BANNED);
@@ -219,13 +219,13 @@ describe("sector books", () => {
       assert.equal(fintwitShownFill(32.5), 32);
       assert.notEqual(fintwitShownFill(32.5), Math.round(32.5));
       assert.equal(displayFill(32.5), 33);
-      assert.equal(fintwit.hero.fill, 32);
-      assert.equal(displayFill(fintwit.hero.fill), 32);
+      assert.equal(fintwit.hero.fill, 78);
+      assert.equal(displayFill(fintwit.hero.fill), 78);
       assert.equal(gradeForFill(32.5).name, "WEAK");
-      assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
-      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "2 graded calls · week of Oct 19, 2026 · 16-account watchlist");
-      assert.match(fintwit.hero.hint, /Week of Oct 19, 2026/);
-      assert.match(fintwit.hero.hint, /32\.5, shown as 32% WEAK/);
+      assert.equal(gradeForFill(fintwit.hero.fill).name, "STRONG");
+      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "1 graded call · week of Nov 9, 2026 · 16-account watchlist");
+      assert.match(fintwit.hero.hint, /Week of Nov 9, 2026/);
+      assert.match(fintwit.hero.hint, /78, shown as 78% STRONG/);
       assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
     }
@@ -247,13 +247,13 @@ describe("sector books", () => {
 
   it("derives hub counts from the restored books", () => {
     const stats = hubStats();
-    assert.equal(stats.sportsCards, 458);
-    assert.equal(stats.sportsRecord, "247–208–1");
+    assert.equal(stats.sportsCards, 726);
+    assert.equal(stats.sportsRecord, "389–306–1");
     assert.equal(stats.sportsVoids, 2);
-    assert.equal(stats.sportsPending, 0);
+    assert.equal(stats.sportsPending, 28);
     assert.equal(
       stats.sportsCards,
-      247 + 208 + 1 + stats.sportsVoids + stats.sportsPending,
+      389 + 306 + 1 + stats.sportsVoids + stats.sportsPending,
     );
     assert.equal(stats.analysts, 35);
     assert.equal(stats.banks, 14);
