@@ -203,7 +203,7 @@ describe("sector books", () => {
     assert.match(analysts.liveLabel ?? "", /Analysts/);
     assert.equal(analysts.hero.kind, "count");
     if (analysts.hero.kind === "count") {
-      assert.equal(analysts.hero.value, "121");
+      assert.equal(analysts.hero.value, "122");
       assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 38 banks · 278 calls");
       assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
     }

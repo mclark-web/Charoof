@@ -109,10 +109,10 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 /**
  * Analysts hub card. This object is the only place those three figures are set.
  * Set 2026-11-11 from bank_troof PR #25, which goes live with this hub update:
- * 121 analysts, 38 banks, 278 calls.
+ * 122 analysts, 38 banks, 278 calls.
  */
 const ANALYSTS_LIVE_BOARD = {
-  analysts: 121,
+  analysts: 122,
   banks: 38,
   calls: 278,
 } as const;
