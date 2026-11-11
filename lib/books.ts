@@ -108,31 +108,29 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
 /**
  * Analysts hub card. This object is the only place those three figures are set.
- * Checked 2026-11-11 against https://analysts.gradedcalls.com.
- * The home page shows 119 analysts and 37 banks. The calls page splits the
- * ledger into 193 active and 63 superseded (256 calls).
+ * Set 2026-11-11 from bank_troof PR #25, which goes live with this hub update:
+ * 121 analysts, 38 banks, 278 calls.
  */
 const ANALYSTS_LIVE_BOARD = {
-  analysts: 119,
-  banks: 37,
-  calls: 256,
+  analysts: 121,
+  banks: 38,
+  calls: 278,
 } as const;
 
 /**
  * FinTwit hub card. This block is the only place the Hub summary is set.
- * Checked 2026-11-11 against https://fintwit.gradedcalls.com. The live board
- * still leads with the week of Oct 19, 2026: n=2, Monday-noon mean 32.5 shown
- * as 32% WEAK, and a 16-account watchlist. Weeks of Oct 26, Nov 2, and Nov 9
- * were still "not graded yet" while that board is refreshed in parallel.
+ * Set 2026-11-11 from fintwittruth PR #25, which goes live with this hub update.
+ * Latest week is Nov 9, 2026: one Monday-noon call, TraderJonesy on X, bullish
+ * SPY, scored 78 and shown as 78% STRONG. Wednesday and Friday of that week
+ * are not graded yet. Watchlist counts are unchanged: 14 X accounts plus two
+ * Substack writers.
  * Edit the week label, the call list, and the two account counts together.
  * The tube, the card line, and the hint are built from those values.
- * Scores are TraderJonesy on X (58) and Piggo's Trading Desk on Substack (7).
- * fintwittruth formatScore floors the mean, so 32.5 shows as 32%.
+ * fintwittruth formatScore floors the mean.
  */
-const FINTWIT_WEEK_LABEL = "Oct 19, 2026";
+const FINTWIT_WEEK_LABEL = "Nov 9, 2026";
 const FINTWIT_MONDAY_NOON_CALLS = [
-  { name: "TraderJonesy", venue: "X", score: 58 },
-  { name: "Piggo's Trading Desk", venue: "Substack", score: 7 },
+  { name: "TraderJonesy", venue: "X", score: 78 },
 ] as const;
 const FINTWIT_X_ACCOUNTS = 14;
 const FINTWIT_SUBSTACK_WRITERS = 2;
@@ -163,14 +161,15 @@ function fintwitCountWord(count: number, capital: boolean): string {
 const fintwitCallPhrase = FINTWIT_MONDAY_NOON_CALLS.map((call) => `${call.name} on ${call.venue} scored ${call.score}`).join(
   ", and ",
 );
+const fintwitCallNoun = FINTWIT_MONDAY_NOON_CALLS.length === 1 ? "call" : "calls";
 const fintwitWeekCard = FINTWIT_WEEK_LABEL.replaceAll(" ", "\u00a0");
 
 const FINTWIT_LIVE_BOARD = {
   fill: fintwitFill,
   // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
   // U+2011 keeps "16-account" from splitting at the hyphen.
-  card: `${FINTWIT_MONDAY_NOON_CALLS.length}\u00a0graded\u00a0calls\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
-  hint: `Week of ${FINTWIT_WEEK_LABEL}, Monday noon checkpoint. ${fintwitCountWord(FINTWIT_MONDAY_NOON_CALLS.length, true)} graded calls: ${fintwitCallPhrase}. The board mean of those Monday noon scores is ${fintwitBoardMean}, shown as ${fintwitFill}% ${gradeForFill(fintwitFill).name}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`,
+  card: `${FINTWIT_MONDAY_NOON_CALLS.length}\u00a0graded\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+  hint: `Week of ${FINTWIT_WEEK_LABEL}, Monday noon checkpoint. ${fintwitCountWord(FINTWIT_MONDAY_NOON_CALLS.length, true)} graded ${fintwitCallNoun}: ${fintwitCallPhrase}. The board mean of those Monday noon scores is ${fintwitBoardMean}, shown as ${fintwitFill}% ${gradeForFill(fintwitFill).name}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`,
 };
 
 /**

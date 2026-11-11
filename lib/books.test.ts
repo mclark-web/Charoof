@@ -203,8 +203,8 @@ describe("sector books", () => {
     assert.match(analysts.liveLabel ?? "", /Analysts/);
     assert.equal(analysts.hero.kind, "count");
     if (analysts.hero.kind === "count") {
-      assert.equal(analysts.hero.value, "119");
-      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 37 banks · 256 calls");
+      assert.equal(analysts.hero.value, "121");
+      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 38 banks · 278 calls");
       assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
     }
     assert.doesNotMatch(visibleText(analysts), BANNED);
@@ -219,13 +219,13 @@ describe("sector books", () => {
       assert.equal(fintwitShownFill(32.5), 32);
       assert.notEqual(fintwitShownFill(32.5), Math.round(32.5));
       assert.equal(displayFill(32.5), 33);
-      assert.equal(fintwit.hero.fill, 32);
-      assert.equal(displayFill(fintwit.hero.fill), 32);
+      assert.equal(fintwit.hero.fill, 78);
+      assert.equal(displayFill(fintwit.hero.fill), 78);
       assert.equal(gradeForFill(32.5).name, "WEAK");
-      assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
-      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "2 graded calls · week of Oct 19, 2026 · 16-account watchlist");
-      assert.match(fintwit.hero.hint, /Week of Oct 19, 2026/);
-      assert.match(fintwit.hero.hint, /32\.5, shown as 32% WEAK/);
+      assert.equal(gradeForFill(fintwit.hero.fill).name, "STRONG");
+      assert.equal(fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "1 graded call · week of Nov 9, 2026 · 16-account watchlist");
+      assert.match(fintwit.hero.hint, /Week of Nov 9, 2026/);
+      assert.match(fintwit.hero.hint, /78, shown as 78% STRONG/);
       assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
     }
