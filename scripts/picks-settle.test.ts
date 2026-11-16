@@ -7,6 +7,7 @@ import { describe, it } from "node:test";
 import { renderVerifiedJson, type PickRow } from "./picks-ledger";
 import { parsePickCsv, PICKS_CSV_PATH } from "./picks-ledger";
 import {
+  boxScoreUrl,
   commitSettledCsv,
   etWallTime,
   gameStartEt,
@@ -16,6 +17,7 @@ import {
   linescoresAgree,
   manualSettleReason,
   namesMatch,
+  espnSportPath,
   scoreboardDates,
   settleRow,
   settleWriteMode,
@@ -79,6 +81,17 @@ const tulsa: EspnGame = {
 };
 
 describe("ESPN settle", () => {
+  it("resolves NBA and NHL scoreboards to the same box-score sites the ledger already links", () => {
+    assert.equal(espnSportPath("NBA"), "basketball/nba");
+    assert.equal(espnSportPath("NHL"), "hockey/nhl");
+    assert.equal(espnSportPath("NFL"), "football/nfl");
+    assert.equal(espnSportPath("CFB"), "football/college-football");
+    assert.equal(espnSportPath("MLB"), "baseball/mlb");
+    assert.equal(espnSportPath("Soccer"), null);
+    assert.equal(boxScoreUrl("basketball/nba", "401909970"), "https://www.espn.com/nba/game/_/gameId/401909970");
+    assert.equal(boxScoreUrl("hockey/nhl", "401892692"), "https://www.espn.com/nhl/game/_/gameId/401892692");
+  });
+
   it("queries the ET game date and the UTC day on either side", () => {
     assert.deepEqual(scoreboardDates("2026-10-01"), ["2026-09-30", "2026-10-01", "2026-10-02"]);
     assert.deepEqual(etWallTime("2026-10-02T00:15Z"), { date: "2026-10-01", time: "20:15" });
@@ -861,7 +874,7 @@ describe("ESPN settle", () => {
 
   it("does not newly flag any committed full-game rows", () => {
     const rows = parsePickCsv(readFileSync(PICKS_CSV_PATH, "utf8"));
-    assert.equal(rows.length, 710);
+    assert.equal(rows.length, 894);
     const fullGame = new Set(["total", "spread", "moneyline", "run_line", "team_total"]);
     const flagged = rows.filter((pick) => fullGame.has(pick.market) && manualSettleReason(pick) != null);
     assert.deepEqual(

@@ -51,12 +51,16 @@ const SPORT_PATH: Record<string, string> = {
   CFB: "football/college-football",
   NCAAF: "football/college-football",
   MLB: "baseball/mlb",
+  NBA: "basketball/nba",
+  NHL: "hockey/nhl",
 };
 
 const SITE_SLUG: Record<string, string> = {
   "football/nfl": "nfl",
   "football/college-football": "college-football",
   "baseball/mlb": "mlb",
+  "basketball/nba": "nba",
+  "hockey/nhl": "nhl",
 };
 
 type Competitor = {
