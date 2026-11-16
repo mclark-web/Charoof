@@ -108,13 +108,14 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
 /**
  * Analysts hub card. This object is the only place those three figures are set.
- * Set 2026-11-11 from bank_troof PR #25, which goes live with this hub update:
- * 122 analysts, 38 banks, 278 calls.
+ * Set 2026-11-15 from the bank_troof calls ledger after the 13 Nov refresh
+ * (closes through 13 Nov 2026, 41 calls added from 11-13 Nov):
+ * 134 analysts, 48 banks, 319 calls.
  */
 const ANALYSTS_LIVE_BOARD = {
-  analysts: 122,
-  banks: 38,
-  calls: 278,
+  analysts: 134,
+  banks: 48,
+  calls: 319,
 } as const;
 
 /**
@@ -583,7 +584,7 @@ function analystsBook(sector: Sector): SectorBook {
       kind: "count",
       value: String(ANALYSTS_LIVE_BOARD.analysts),
       card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
-      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-11. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-15. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: ANALYSTS_URL,
     liveLabel: "Open the live Analysts ledger",
