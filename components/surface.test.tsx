@@ -277,9 +277,9 @@ describe("hub board cards", () => {
     const sportsHref = `href="${SPORTS_URL}"`;
     const sportsLink = home.slice(home.indexOf(sportsHref), home.indexOf(sportsHref) + 1500);
     assert.match(sportsLink, /<h2>Sports<\/h2>/);
-    assert.match(sportsLink, /389–306–1 · 2 void · 28 pending/);
+    assert.match(sportsLink, /492–401–1 · 2 void · 14 pending/);
     assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
-    const record = sports.indexOf("726 public picks · 389–306–1 · 2 void · 28 pending");
+    const record = sports.indexOf("910 public picks · 492–401–1 · 2 void · 14 pending");
     const cappers = sports.indexOf(">Best<");
     const open = sports.indexOf("Open picks");
     assert.ok(record > -1 && record < cappers && cappers < open);
@@ -314,7 +314,7 @@ describe("hub sports ledger", () => {
   it("puts the total record and capper cards above the pick rows", () => {
     const book = sectorBook("sports");
     const html = renderToStaticMarkup(<SectorBoard book={book} />);
-    const record = html.indexOf("726 public picks · 389–306–1 · 2 void · 28 pending");
+    const record = html.indexOf("910 public picks · 492–401–1 · 2 void · 14 pending");
     const best = html.indexOf(">Best<");
     const worst = html.indexOf(">Worst<");
     const middle = html.indexOf("Show the middle");
@@ -359,8 +359,8 @@ describe("hub sports ledger", () => {
     assert.doesNotMatch(html, new RegExp(`Jon Metler[\\s\\S]*?gc-pct">${Math.round(jon.fill)}%</`));
     assert.doesNotMatch(html, new RegExp(`Joe Osborne[\\s\\S]*?gc-pct">${Math.round(joe.fill)}%</`));
     const hero = html.slice(html.indexOf('class="gc-scale is-hero'), html.indexOf(">Best<"));
-    assert.match(hero, /gc-pct">56%</);
-    assert.doesNotMatch(hero, /gc-pct">56\.0%</);
+    assert.match(hero, /gc-pct">55%</);
+    assert.doesNotMatch(hero, /gc-pct">55\.0%</);
   });
 });
 

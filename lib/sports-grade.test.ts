@@ -59,7 +59,15 @@ describe("Sep 19–30 verified finals", () => {
     assert.equal(titles.some((title) => title.includes("South Dakota") && title.includes("58.5")), false);
     assert.equal(titles.some((title) => title.includes("Baylor") && title.includes("55.5")), false);
     assert.equal(titles.some((title) => title.includes("Liberty") && title.includes("52.5")), false);
-    assert.equal(titles.some((title) => title.includes("Louisville") && title.includes("moneyline")), false);
+    assert.equal(
+      picks.some(
+        (pick) =>
+          pick.market === "moneyline" &&
+          pick.event.includes("Louisville") &&
+          pick.game_date !== "2026-11-14",
+      ),
+      false,
+    );
     assert.equal(titles.some((title) => title.includes("Texas A&M") && title.includes("-16.5")), false);
     assert.equal(picks.some((pick) => pick.market === "yrfi"), false);
     const keys = picks.map((pick) =>
@@ -605,7 +613,7 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 28);
+    assert.equal(open.length, 14);
     const tnf = picks.filter(
       (pick) => pick.event === "Jacksonville Jaguars @ Baltimore Ravens" && pick.game_date === "2026-11-05",
     );
