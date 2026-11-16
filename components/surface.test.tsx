@@ -292,7 +292,7 @@ describe("hub board cards", () => {
     assert.ok(home.includes(`href="${BOT_URL}"`));
     assert.doesNotMatch(home, /vercel\.app/i);
     const homePlain = home.replace(/\u00a0/g, " ").replace(/\u2011/g, "-");
-    assert.match(homePlain, /analysts · 38 banks · 278 calls/);
+    assert.match(homePlain, /analysts · 48 banks · 319 calls/);
     assert.doesNotMatch(homePlain, /37 firms/);
     assert.match(homePlain, /1 graded call · week of Nov 9, 2026 · 16-account watchlist/);
     assert.doesNotMatch(homePlain, /week of Sep 21, 2026/);
