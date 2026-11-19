@@ -613,7 +613,7 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 14);
+    assert.equal(open.length, 92);
     const tnf = picks.filter(
       (pick) => pick.event === "Jacksonville Jaguars @ Baltimore Ravens" && pick.game_date === "2026-11-05",
     );

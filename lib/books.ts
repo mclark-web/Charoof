@@ -111,6 +111,8 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
  * Set 2026-11-15 from the bank_troof calls ledger after the 13 Nov refresh
  * (closes through 13 Nov 2026, 41 calls added from 11-13 Nov):
  * 134 analysts, 48 banks, 319 calls.
+ * Rechecked 2026-11-19. The live board still shows 134 analysts and 48 banks,
+ * and bank_troof main has no calls after 13 Nov, so the call count stays 319.
  */
 const ANALYSTS_LIVE_BOARD = {
   analysts: 134,
@@ -119,20 +121,17 @@ const ANALYSTS_LIVE_BOARD = {
 } as const;
 
 /**
- * FinTwit hub card. This block is the only place the Hub summary is set.
- * Set 2026-11-11 from fintwittruth PR #25, which goes live with this hub update.
- * Latest week is Nov 9, 2026: one Monday-noon call, TraderJonesy on X, bullish
- * SPY, scored 78 and shown as 78% STRONG. Wednesday and Friday of that week
- * are not graded yet. Watchlist counts are unchanged: 14 X accounts plus two
+ * FinTwit hub card.
+ * Checked 2026-11-19 against https://fintwit.gradedcalls.com, which is
+ * fintwittruth main after PR #26. The home line is As of Nov 16, 2026 · 1 call.
+ * That call is TraderJonesy on X, bullish SPY and also tagging QQQ, so the
+ * live board leaves it ungraded. The week of Nov 9 finished at 78 and is no
+ * longer the home line. The watchlist is unchanged: 14 X accounts plus two
  * Substack writers.
- * Edit the week label, the call list, and the two account counts together.
- * The tube, the card line, and the hint are built from those values.
- * fintwittruth formatScore floors the mean.
  */
-const FINTWIT_WEEK_LABEL = "Nov 9, 2026";
-const FINTWIT_MONDAY_NOON_CALLS = [
-  { name: "TraderJonesy", venue: "X", score: 78 },
-] as const;
+const FINTWIT_WEEK_LABEL = "Nov 16, 2026";
+const FINTWIT_MONDAY_NOON_CALLS = [] as ReadonlyArray<{ name: string; venue: string; score: number }>;
+const FINTWIT_CALLS_ON_THE_BOARD = 1;
 const FINTWIT_X_ACCOUNTS = 14;
 const FINTWIT_SUBSTACK_WRITERS = 2;
 const FINTWIT_MONDAY_NOON_SCORES = FINTWIT_MONDAY_NOON_CALLS.map((call) => call.score);
@@ -145,9 +144,11 @@ export function fintwitShownFill(mean: number): number {
 }
 
 const fintwitBoardMean =
-  FINTWIT_MONDAY_NOON_SCORES.reduce((sum, score) => sum + score, 0) / FINTWIT_MONDAY_NOON_SCORES.length;
+  FINTWIT_MONDAY_NOON_SCORES.length === 0
+    ? null
+    : FINTWIT_MONDAY_NOON_SCORES.reduce((sum, score) => sum + score, 0) / FINTWIT_MONDAY_NOON_SCORES.length;
 const fintwitWatchlist = FINTWIT_X_ACCOUNTS + FINTWIT_SUBSTACK_WRITERS;
-const fintwitFill = fintwitShownFill(fintwitBoardMean);
+const fintwitFill = fintwitBoardMean == null ? null : fintwitShownFill(fintwitBoardMean);
 
 /** Small counts stay words so the hint reads the way the live board is described. */
 function fintwitCountWord(count: number, capital: boolean): string {
@@ -159,32 +160,38 @@ function fintwitCountWord(count: number, capital: boolean): string {
   return capital ? word.charAt(0).toUpperCase() + word.slice(1) : word;
 }
 
-const fintwitCallPhrase = FINTWIT_MONDAY_NOON_CALLS.map((call) => `${call.name} on ${call.venue} scored ${call.score}`).join(
-  ", and ",
-);
-const fintwitCallNoun = FINTWIT_MONDAY_NOON_CALLS.length === 1 ? "call" : "calls";
+const fintwitCallPhrase =
+  FINTWIT_MONDAY_NOON_CALLS.length === 0
+    ? "TraderJonesy on X, bullish SPY and also tagging QQQ, so the call stays off the Monday noon mean"
+    : FINTWIT_MONDAY_NOON_CALLS.map((call) => `${call.name} on ${call.venue} scored ${call.score}`).join(", and ");
+const fintwitCallNoun = FINTWIT_CALLS_ON_THE_BOARD === 1 ? "call" : "calls";
 const fintwitWeekCard = FINTWIT_WEEK_LABEL.replaceAll(" ", "\u00a0");
 
 const FINTWIT_LIVE_BOARD = {
   fill: fintwitFill,
+  value: String(FINTWIT_CALLS_ON_THE_BOARD),
   // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
   // U+2011 keeps "16-account" from splitting at the hyphen.
-  card: `${FINTWIT_MONDAY_NOON_CALLS.length}\u00a0graded\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
-  hint: `Week of ${FINTWIT_WEEK_LABEL}, Monday noon checkpoint. ${fintwitCountWord(FINTWIT_MONDAY_NOON_CALLS.length, true)} graded ${fintwitCallNoun}: ${fintwitCallPhrase}. The board mean of those Monday noon scores is ${fintwitBoardMean}, shown as ${fintwitFill}% ${gradeForFill(fintwitFill).name}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`,
+  card:
+    fintwitFill == null
+      ? `${FINTWIT_CALLS_ON_THE_BOARD}\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· not\u00a0graded\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`
+      : `${FINTWIT_MONDAY_NOON_CALLS.length}\u00a0graded\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+  hint:
+    fintwitFill == null
+      ? `Week of ${FINTWIT_WEEK_LABEL}. ${fintwitCountWord(FINTWIT_CALLS_ON_THE_BOARD, true)} ${fintwitCallNoun} on the live board, not graded yet: ${fintwitCallPhrase}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`
+      : `Week of ${FINTWIT_WEEK_LABEL}, Monday noon checkpoint. ${fintwitCountWord(FINTWIT_MONDAY_NOON_CALLS.length, true)} graded ${fintwitCallNoun}: ${fintwitCallPhrase}. The board mean of those Monday noon scores is ${fintwitBoardMean}, shown as ${fintwitFill}% ${gradeForFill(fintwitFill).name}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`,
 };
 
 /**
- * GCBot hub card, checked 2026-10-19.
- * Source: mclark-web/charoofbot main @ 1a813280.
- * data/gcbot/posts.csv has 979 rows and data/gcbot/narratives.csv has 6
- * (market-news, options-flow, market-stats, trader-calls, football-betting,
- * hoops-hockey-betting). data/corpus.json matches those counts.
- * https://bot.gradedcalls.com says this page scores 979 real public X posts
- * across 6 narratives, as of 18 Oct 2026.
+ * GCBot hub card, checked 2026-11-19 against https://bot.gradedcalls.com.
+ * Source: mclark-web/charoofbot main after PR #15, the narrative board through
+ * 15 Nov 2026. The live totals are 9,536 posts, 22 narratives, and 2,939 accounts.
+ * Window Oct 4–Nov 15, 2026.
  */
 const GCBOT_LIVE_BOARD = {
-  posts: 979,
-  narratives: 6,
+  posts: 9536,
+  narratives: 22,
+  accounts: 2939,
 } as const;
 
 function asOutcome(value: string, id: string): Outcome {
@@ -584,7 +591,7 @@ function analystsBook(sector: Sector): SectorBook {
       kind: "count",
       value: String(ANALYSTS_LIVE_BOARD.analysts),
       card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
-      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-15. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: ANALYSTS_URL,
     liveLabel: "Open the live Analysts ledger",
@@ -610,12 +617,20 @@ function fintwitBookView(sector: Sector): SectorBook {
   const latest = fintwitBook.cohorts.find((cohort) => cohort.isLatest) ?? fintwitBook.cohorts[fintwitBook.cohorts.length - 1];
   return {
     sector,
-    hero: {
-      kind: "tube",
-      fill: FINTWIT_LIVE_BOARD.fill,
-      card: FINTWIT_LIVE_BOARD.card,
-      hint: FINTWIT_LIVE_BOARD.hint,
-    },
+    hero:
+      FINTWIT_LIVE_BOARD.fill == null
+        ? {
+            kind: "count",
+            value: FINTWIT_LIVE_BOARD.value,
+            card: FINTWIT_LIVE_BOARD.card,
+            hint: FINTWIT_LIVE_BOARD.hint,
+          }
+        : {
+            kind: "tube",
+            fill: FINTWIT_LIVE_BOARD.fill,
+            card: FINTWIT_LIVE_BOARD.card,
+            hint: FINTWIT_LIVE_BOARD.hint,
+          },
     liveHref: FINTWIT_URL,
     liveLabel: "Open the live FinTwit ledger",
     sections: [
@@ -655,8 +670,8 @@ function gcbotBook(sector: Sector): SectorBook {
     hero: {
       kind: "count",
       value: String(GCBOT_LIVE_BOARD.posts),
-      card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives`,
-      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives on the live board, as of 18 Oct 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
+      card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives\u00a0· ${GCBOT_LIVE_BOARD.accounts}\u00a0accounts`,
+      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives and ${GCBOT_LIVE_BOARD.accounts} accounts on the live board, window Oct 4–Nov 15, 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
     liveHref: BOT_URL,
     liveLabel: "Open the live GCBot board",

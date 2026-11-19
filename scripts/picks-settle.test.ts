@@ -874,7 +874,7 @@ describe("ESPN settle", () => {
 
   it("does not newly flag any committed full-game rows", () => {
     const rows = parsePickCsv(readFileSync(PICKS_CSV_PATH, "utf8"));
-    assert.equal(rows.length, 894);
+    assert.equal(rows.length, 1088);
     const fullGame = new Set(["total", "spread", "moneyline", "run_line", "team_total"]);
     const flagged = rows.filter((pick) => fullGame.has(pick.market) && manualSettleReason(pick) != null);
     assert.deepEqual(

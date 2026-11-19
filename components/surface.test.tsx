@@ -277,9 +277,9 @@ describe("hub board cards", () => {
     const sportsHref = `href="${SPORTS_URL}"`;
     const sportsLink = home.slice(home.indexOf(sportsHref), home.indexOf(sportsHref) + 1500);
     assert.match(sportsLink, /<h2>Sports<\/h2>/);
-    assert.match(sportsLink, /492–401–1 · 2 void · 14 pending/);
+    assert.match(sportsLink, /548–461–1 · 2 void · 92 pending/);
     assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
-    const record = sports.indexOf("910 public picks · 492–401–1 · 2 void · 14 pending");
+    const record = sports.indexOf("1104 public picks · 548–461–1 · 2 void · 92 pending");
     const cappers = sports.indexOf(">Best<");
     const open = sports.indexOf("Open picks");
     assert.ok(record > -1 && record < cappers && cappers < open);
@@ -294,13 +294,14 @@ describe("hub board cards", () => {
     const homePlain = home.replace(/\u00a0/g, " ").replace(/\u2011/g, "-");
     assert.match(homePlain, /analysts · 48 banks · 319 calls/);
     assert.doesNotMatch(homePlain, /37 firms/);
-    assert.match(homePlain, /1 graded call · week of Nov 9, 2026 · 16-account watchlist/);
+    assert.match(homePlain, /1 call · week of Nov 16, 2026 · not graded · 16-account watchlist/);
     assert.doesNotMatch(homePlain, /week of Sep 21, 2026/);
-    assert.match(homePlain, />979</);
-    assert.match(homePlain, /posts · 6 narratives/);
-    assert.doesNotMatch(homePlain, /979 posts/);
+    assert.match(homePlain, />9536</);
+    assert.match(homePlain, /posts · 22 narratives · 2939 accounts/);
+    assert.doesNotMatch(homePlain, /9536 posts/);
     assert.doesNotMatch(homePlain, /fixture posts|synthetic corpus/);
-    assert.match(home, /gc-pct">78%</);
+    assert.match(home, /gc-pct">72%</);
+    assert.doesNotMatch(home, /gc-pct">78%/);
     assert.doesNotMatch(home, /gc-pct">32%/);
     assert.doesNotMatch(home, /gc-pct">33%/);
     assert.doesNotMatch(home, /gc-pct">9%</);
@@ -314,7 +315,7 @@ describe("hub sports ledger", () => {
   it("puts the total record and capper cards above the pick rows", () => {
     const book = sectorBook("sports");
     const html = renderToStaticMarkup(<SectorBoard book={book} />);
-    const record = html.indexOf("910 public picks · 492–401–1 · 2 void · 14 pending");
+    const record = html.indexOf("1104 public picks · 548–461–1 · 2 void · 92 pending");
     const best = html.indexOf(">Best<");
     const worst = html.indexOf(">Worst<");
     const middle = html.indexOf("Show the middle");
@@ -359,8 +360,8 @@ describe("hub sports ledger", () => {
     assert.doesNotMatch(html, new RegExp(`Jon Metler[\\s\\S]*?gc-pct">${Math.round(jon.fill)}%</`));
     assert.doesNotMatch(html, new RegExp(`Joe Osborne[\\s\\S]*?gc-pct">${Math.round(joe.fill)}%</`));
     const hero = html.slice(html.indexOf('class="gc-scale is-hero'), html.indexOf(">Best<"));
-    assert.match(hero, /gc-pct">55%</);
-    assert.doesNotMatch(hero, /gc-pct">55\.0%</);
+    assert.match(hero, /gc-pct">54%</);
+    assert.doesNotMatch(hero, /gc-pct">54\.0%</);
   });
 });
 
