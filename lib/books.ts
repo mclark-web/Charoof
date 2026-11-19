@@ -108,16 +108,14 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
 /**
  * Analysts hub card. This object is the only place those three figures are set.
- * Set 2026-11-15 from the bank_troof calls ledger after the 13 Nov refresh
- * (closes through 13 Nov 2026, 41 calls added from 11-13 Nov):
- * 134 analysts, 48 banks, 319 calls.
- * Rechecked 2026-11-19. The live board still shows 134 analysts and 48 banks,
- * and bank_troof main has no calls after 13 Nov, so the call count stays 319.
+ * Set 2026-11-19 from the live board after bank_troof PR #28, which closes
+ * through 19 Nov 2026: 144 analysts, 55 banks, 187 tickers, 431 calls.
+ * https://analysts.gradedcalls.com shows 144, 55, and 187 on the home counts.
  */
 const ANALYSTS_LIVE_BOARD = {
-  analysts: 134,
-  banks: 48,
-  calls: 319,
+  analysts: 144,
+  banks: 55,
+  calls: 431,
 } as const;
 
 /**
