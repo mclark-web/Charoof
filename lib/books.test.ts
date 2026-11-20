@@ -238,7 +238,7 @@ describe("sector books", () => {
     assert.equal(bot.sections[0]?.rows[0]?.title, "AI capex supercycle");
     assert.equal(bot.hero.kind, "count");
     if (bot.hero.kind === "count") {
-      assert.equal(bot.hero.value, "9536");
+      assert.equal(bot.hero.value, "13456");
       assert.equal(bot.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "posts · 22 narratives · 2939 accounts");
       assert.doesNotMatch(`${bot.hero.card} ${bot.hero.hint}`, /fixture|synthetic|seeded|demo/i);
     }

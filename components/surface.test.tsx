@@ -296,9 +296,9 @@ describe("hub board cards", () => {
     assert.doesNotMatch(homePlain, /37 firms/);
     assert.match(homePlain, /1 call · week of Nov 16, 2026 · not graded · 16-account watchlist/);
     assert.doesNotMatch(homePlain, /week of Sep 21, 2026/);
-    assert.match(homePlain, />9536</);
+    assert.match(homePlain, />13456</);
     assert.match(homePlain, /posts · 22 narratives · 2939 accounts/);
-    assert.doesNotMatch(homePlain, /9536 posts/);
+    assert.doesNotMatch(homePlain, /13456 posts/);
     assert.doesNotMatch(homePlain, /fixture posts|synthetic corpus/);
     assert.match(home, /gc-pct">72%</);
     assert.doesNotMatch(home, /gc-pct">78%/);

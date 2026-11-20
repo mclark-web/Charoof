@@ -181,13 +181,13 @@ const FINTWIT_LIVE_BOARD = {
 };
 
 /**
- * GCBot hub card, checked 2026-11-19 against https://bot.gradedcalls.com.
- * Source: mclark-web/charoofbot main after PR #15, the narrative board through
- * 15 Nov 2026. The live totals are 9,536 posts, 22 narratives, and 2,939 accounts.
- * Window Oct 4–Nov 15, 2026.
+ * GCBot hub card, checked 2026-11-20 against https://bot.gradedcalls.com.
+ * Source: mclark-web/charoofbot main after PR #16, the narrative board through
+ * 19 Nov 2026. The live totals are 13,456 posts, 22 narratives, and 2,939 accounts.
+ * Window Oct 4–Nov 19, 2026.
  */
 const GCBOT_LIVE_BOARD = {
-  posts: 9536,
+  posts: 13456,
   narratives: 22,
   accounts: 2939,
 } as const;
@@ -669,7 +669,7 @@ function gcbotBook(sector: Sector): SectorBook {
       kind: "count",
       value: String(GCBOT_LIVE_BOARD.posts),
       card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives\u00a0· ${GCBOT_LIVE_BOARD.accounts}\u00a0accounts`,
-      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives and ${GCBOT_LIVE_BOARD.accounts} accounts on the live board, window Oct 4–Nov 15, 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
+      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives and ${GCBOT_LIVE_BOARD.accounts} accounts on the live board, window Oct 4–Nov 19, 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
     liveHref: BOT_URL,
     liveLabel: "Open the live GCBot board",
