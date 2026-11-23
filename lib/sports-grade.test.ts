@@ -613,7 +613,17 @@ describe("open picks stay pending", () => {
   const open = picks.filter((pick) => pick.result === "pending");
 
   it("keeps games that are not final out of the win-loss record", () => {
-    assert.equal(open.length, 92);
+    assert.equal(open.length, 3);
+    assert.deepEqual(
+      open
+        .map((pick) => [pick.tipster, pick.market, pick.side, pick.number, pick.event, pick.game_date])
+        .sort(),
+      [
+        ["Chris Vasile (Covers)", "spread", "Cincinnati Bengals", -6.5, "Cincinnati Bengals @ Washington Commanders", "2026-11-23"],
+        ["Jason Logan (Covers)", "spread", "Cincinnati Bengals", -6.5, "Cincinnati Bengals @ Washington Commanders", "2026-11-23"],
+        ["Jason Logan (Covers)", "total", "Under", 52.5, "Cincinnati Bengals @ Washington Commanders", "2026-11-23"],
+      ],
+    );
     const tnf = picks.filter(
       (pick) => pick.event === "Jacksonville Jaguars @ Baltimore Ravens" && pick.game_date === "2026-11-05",
     );

@@ -277,9 +277,9 @@ describe("hub board cards", () => {
     const sportsHref = `href="${SPORTS_URL}"`;
     const sportsLink = home.slice(home.indexOf(sportsHref), home.indexOf(sportsHref) + 1500);
     assert.match(sportsLink, /<h2>Sports<\/h2>/);
-    assert.match(sportsLink, /548–461–1 · 2 void · 92 pending/);
+    assert.match(sportsLink, /598–500–1 · 2 void · 3 pending/);
     assert.doesNotMatch(home, /Public cappers|Total record|>Open picks</);
-    const record = sports.indexOf("1104 public picks · 548–461–1 · 2 void · 92 pending");
+    const record = sports.indexOf("1104 public picks · 598–500–1 · 2 void · 3 pending");
     const cappers = sports.indexOf(">Best<");
     const open = sports.indexOf("Open picks");
     assert.ok(record > -1 && record < cappers && cappers < open);
@@ -315,7 +315,7 @@ describe("hub sports ledger", () => {
   it("puts the total record and capper cards above the pick rows", () => {
     const book = sectorBook("sports");
     const html = renderToStaticMarkup(<SectorBoard book={book} />);
-    const record = html.indexOf("1104 public picks · 548–461–1 · 2 void · 92 pending");
+    const record = html.indexOf("1104 public picks · 598–500–1 · 2 void · 3 pending");
     const best = html.indexOf(">Best<");
     const worst = html.indexOf(">Worst<");
     const middle = html.indexOf("Show the middle");
