@@ -129,11 +129,11 @@ const ANALYSTS_LIVE_BOARD = {
  * (the 14-handle file plus Adam Mancini) plus two Substack writers.
  */
 const FINTWIT_WEEK_LABEL = "Nov 16, 2026";
-const FINTWIT_MONDAY_NOON_CALLS: ReadonlyArray<{ name: string; venue: string; score: number }> = [
+const FINTWIT_MONDAY_NOON_CALLS = [
   { name: "TraderJonesy", venue: "X", score: 13 },
   { name: "Adam Mancini", venue: "X", score: 9 },
-];
-const FINTWIT_CALLS_ON_THE_BOARD = FINTWIT_MONDAY_NOON_CALLS.length;
+] as ReadonlyArray<{ name: string; venue: string; score: number }>;
+const FINTWIT_CALLS_ON_THE_BOARD: number = 2;
 const FINTWIT_X_ACCOUNTS = 15;
 const FINTWIT_SUBSTACK_WRITERS = 2;
 const FINTWIT_MONDAY_NOON_SCORES = FINTWIT_MONDAY_NOON_CALLS.map((call) => call.score);
@@ -169,13 +169,15 @@ const fintwitCallPhrase =
 const fintwitCallNoun = FINTWIT_CALLS_ON_THE_BOARD === 1 ? "call" : "calls";
 const fintwitWeekCard = FINTWIT_WEEK_LABEL.replaceAll(" ", "\u00a0");
 
-const fintwitGradeLabel = fintwitFill == null ? "not\u00a0graded" : gradeForFill(fintwitFill).name;
-
 const FINTWIT_LIVE_BOARD = {
+  fill: fintwitFill,
   value: String(FINTWIT_CALLS_ON_THE_BOARD),
   // Non-breaking spaces keep each segment whole and hold the middot at the end of a line;
-  // U+2011 keeps "17-account" from splitting at the hyphen.
-  card: `${FINTWIT_CALLS_ON_THE_BOARD}\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitGradeLabel}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
+  // U+2011 keeps "16-account" from splitting at the hyphen.
+  card:
+    fintwitFill == null
+      ? `${FINTWIT_CALLS_ON_THE_BOARD}\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· not\u00a0graded\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`
+      : `${FINTWIT_MONDAY_NOON_CALLS.length}\u00a0graded\u00a0${fintwitCallNoun}\u00a0· week\u00a0of\u00a0${fintwitWeekCard}\u00a0· ${fintwitWatchlist}\u2011account\u00a0watchlist`,
   hint:
     fintwitFill == null
       ? `Week of ${FINTWIT_WEEK_LABEL}. ${fintwitCountWord(FINTWIT_CALLS_ON_THE_BOARD, true)} ${fintwitCallNoun} on the live board, not graded yet: ${fintwitCallPhrase}. ${fintwitCountWord(fintwitWatchlist, true)} accounts are on the watchlist: ${FINTWIT_X_ACCOUNTS} X accounts plus ${fintwitCountWord(FINTWIT_SUBSTACK_WRITERS, false)} Substack writers.`
@@ -618,12 +620,20 @@ function fintwitBookView(sector: Sector): SectorBook {
   const latest = fintwitBook.cohorts.find((cohort) => cohort.isLatest) ?? fintwitBook.cohorts[fintwitBook.cohorts.length - 1];
   return {
     sector,
-    hero: {
-      kind: "count",
-      value: FINTWIT_LIVE_BOARD.value,
-      card: FINTWIT_LIVE_BOARD.card,
-      hint: FINTWIT_LIVE_BOARD.hint,
-    },
+    hero:
+      FINTWIT_LIVE_BOARD.fill == null
+        ? {
+            kind: "count",
+            value: FINTWIT_LIVE_BOARD.value,
+            card: FINTWIT_LIVE_BOARD.card,
+            hint: FINTWIT_LIVE_BOARD.hint,
+          }
+        : {
+            kind: "tube",
+            fill: FINTWIT_LIVE_BOARD.fill,
+            card: FINTWIT_LIVE_BOARD.card,
+            hint: FINTWIT_LIVE_BOARD.hint,
+          },
     liveHref: FINTWIT_URL,
     liveLabel: "Open the live FinTwit ledger",
     sections: [

@@ -214,19 +214,20 @@ describe("sector books", () => {
     assert.equal(fintwit.liveHref, FINTWIT_URL);
     assert.equal(fintwitBook.liveUrl, "https://fintwit.gradedcalls.com");
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
-    assert.equal(fintwit.hero.kind, "count");
+    assert.equal(fintwit.hero.kind, "tube");
     assert.equal(fintwitShownFill(32.5), 32);
     assert.notEqual(fintwitShownFill(32.5), Math.round(32.5));
     assert.equal(displayFill(32.5), 33);
     assert.equal(gradeForFill(32.5).name, "WEAK");
-    if (fintwit.hero.kind === "count") {
-      assert.equal(fintwit.hero.value, "2");
+    if (fintwit.hero.kind === "tube") {
+      assert.equal(fintwit.hero.fill, 11);
+      assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
       assert.equal(
         fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"),
-        "2 calls · week of Nov 16, 2026 · WEAK · 17-account watchlist",
+        "2 graded calls · week of Nov 16, 2026 · 17-account watchlist",
       );
       assert.match(fintwit.hero.hint, /Week of Nov 16, 2026/);
-      assert.match(fintwit.hero.hint, /11% WEAK/);
+      assert.match(fintwit.hero.hint, /shown as 11% WEAK/);
       assert.match(fintwit.hero.hint, /15 X accounts plus two Substack writers/);
       assert.doesNotMatch(fintwit.hero.hint, /not graded yet/);
       assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);

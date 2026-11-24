@@ -295,7 +295,9 @@ describe("hub board cards", () => {
     assert.match(homePlain, /analysts · 55 banks · 444 calls/);
     assert.match(homePlain, />146</);
     assert.doesNotMatch(homePlain, /37 firms/);
-    assert.match(homePlain, /2 calls · week of Nov 16, 2026 · WEAK · 17-account watchlist/);
+    assert.match(homePlain, /2 graded calls · week of Nov 16, 2026 · 17-account watchlist/);
+    assert.match(home, /aria-label="GC Scale 11%, WEAK"/);
+    assert.match(home, /gc-pct">11%</);
     assert.doesNotMatch(homePlain, /week of Sep 21, 2026/);
     assert.match(homePlain, />15803</);
     assert.match(homePlain, /posts · 22 narratives · 2939 accounts/);
