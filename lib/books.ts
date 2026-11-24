@@ -108,29 +108,33 @@ const OUTCOMES = new Set<Outcome>(["win", "loss", "push", "void", "pending"]);
 
 /**
  * Analysts hub card. This object is the only place those three figures are set.
- * Set 2026-11-19 from the live board after bank_troof PR #28, which closes
- * through 19 Nov 2026: 144 analysts, 55 banks, 187 tickers, 431 calls.
- * https://analysts.gradedcalls.com shows 144, 55, and 187 on the home counts.
+ * Set 2026-11-23 from the live board after bank_troof PR #30 (6bc87c41), which
+ * closes through 20 Nov 2026: 146 analysts, 55 banks, 194 tickers, 444 calls.
+ * https://analysts.gradedcalls.com shows 146 and 55 on the home counts. That
+ * page does not print the call total; 444 is the ledger total from that merge.
  */
 const ANALYSTS_LIVE_BOARD = {
-  analysts: 144,
+  analysts: 146,
   banks: 55,
-  calls: 431,
+  calls: 444,
 } as const;
 
 /**
  * FinTwit hub card.
- * Checked 2026-11-19 against https://fintwit.gradedcalls.com, which is
- * fintwittruth main after PR #26. The home line is As of Nov 16, 2026 · 1 call.
- * That call is TraderJonesy on X, bullish SPY and also tagging QQQ, so the
- * live board leaves it ungraded. The week of Nov 9 finished at 78 and is no
- * longer the home line. The watchlist is unchanged: 14 X accounts plus two
- * Substack writers.
+ * Checked 2026-11-23 against https://fintwit.gradedcalls.com, which is
+ * fintwittruth main after PR #30. The home line is As of Nov 20, 2026 · 2 calls.
+ * Week of Nov 16, 2026 is the latest graded week: TraderJonesy 13 and Adam
+ * Mancini 9, board mean 11, shown as WEAK. Week of Nov 23 has closed and is
+ * not graded yet, so it is not this line. The watchlist is 15 X accounts
+ * (the 14-handle file plus Adam Mancini) plus two Substack writers.
  */
 const FINTWIT_WEEK_LABEL = "Nov 16, 2026";
-const FINTWIT_MONDAY_NOON_CALLS = [] as ReadonlyArray<{ name: string; venue: string; score: number }>;
-const FINTWIT_CALLS_ON_THE_BOARD = 1;
-const FINTWIT_X_ACCOUNTS = 14;
+const FINTWIT_MONDAY_NOON_CALLS = [
+  { name: "TraderJonesy", venue: "X", score: 13 },
+  { name: "Adam Mancini", venue: "X", score: 9 },
+] as ReadonlyArray<{ name: string; venue: string; score: number }>;
+const FINTWIT_CALLS_ON_THE_BOARD: number = 2;
+const FINTWIT_X_ACCOUNTS = 15;
 const FINTWIT_SUBSTACK_WRITERS = 2;
 const FINTWIT_MONDAY_NOON_SCORES = FINTWIT_MONDAY_NOON_CALLS.map((call) => call.score);
 
@@ -152,7 +156,7 @@ const fintwitFill = fintwitBoardMean == null ? null : fintwitShownFill(fintwitBo
 function fintwitCountWord(count: number, capital: boolean): string {
   const words = [
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
   ];
   const word = count < words.length ? words[count] : String(count);
   return capital ? word.charAt(0).toUpperCase() + word.slice(1) : word;
@@ -181,13 +185,14 @@ const FINTWIT_LIVE_BOARD = {
 };
 
 /**
- * GCBot hub card, checked 2026-11-20 against https://bot.gradedcalls.com.
- * Source: mclark-web/charoofbot main after PR #16, the narrative board through
- * 19 Nov 2026. The live totals are 13,456 posts, 22 narratives, and 2,939 accounts.
- * Window Oct 4–Nov 19, 2026.
+ * GCBot hub card, checked 2026-11-23 against https://bot.gradedcalls.com.
+ * Source: mclark-web/charoofbot main after PR #18 (c35985e6), the narrative
+ * board through 22 Nov 2026. The live totals are 15,803 posts, 22 narratives,
+ * and 2,939 accounts. Window Oct 4–Nov 22, 2026. The card prints those integers
+ * without thousands separators, the same way the live board does.
  */
 const GCBOT_LIVE_BOARD = {
-  posts: 13456,
+  posts: 15803,
   narratives: 22,
   accounts: 2939,
 } as const;
@@ -589,7 +594,7 @@ function analystsBook(sector: Sector): SectorBook {
       kind: "count",
       value: String(ANALYSTS_LIVE_BOARD.analysts),
       card: `analysts\u00a0· ${ANALYSTS_LIVE_BOARD.banks}\u00a0banks\u00a0· ${ANALYSTS_LIVE_BOARD.calls}\u00a0calls`,
-      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-19. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
+      hint: `${ANALYSTS_LIVE_BOARD.analysts} analysts, ${ANALYSTS_LIVE_BOARD.banks} banks, and ${ANALYSTS_LIVE_BOARD.calls} calls on the live ledger, checked 2026-11-23. Price grades stay on the live ledger, so this hub does not invent a hit rate.`,
     },
     liveHref: ANALYSTS_URL,
     liveLabel: "Open the live Analysts ledger",
@@ -669,7 +674,7 @@ function gcbotBook(sector: Sector): SectorBook {
       kind: "count",
       value: String(GCBOT_LIVE_BOARD.posts),
       card: `posts\u00a0· ${GCBOT_LIVE_BOARD.narratives}\u00a0narratives\u00a0· ${GCBOT_LIVE_BOARD.accounts}\u00a0accounts`,
-      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives and ${GCBOT_LIVE_BOARD.accounts} accounts on the live board, window Oct 4–Nov 19, 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
+      hint: `${GCBOT_LIVE_BOARD.posts} real public posts across ${GCBOT_LIVE_BOARD.narratives} narratives and ${GCBOT_LIVE_BOARD.accounts} accounts on the live board, window Oct 4–Nov 22, 2026. Clone speech and amplifier scores stay on the live GCBot board. This hub does not invent those scores.`,
     },
     liveHref: BOT_URL,
     liveLabel: "Open the live GCBot board",

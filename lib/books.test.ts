@@ -203,8 +203,8 @@ describe("sector books", () => {
     assert.match(analysts.liveLabel ?? "", /Analysts/);
     assert.equal(analysts.hero.kind, "count");
     if (analysts.hero.kind === "count") {
-      assert.equal(analysts.hero.value, "144");
-      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 55 banks · 431 calls");
+      assert.equal(analysts.hero.value, "146");
+      assert.equal(analysts.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "analysts · 55 banks · 444 calls");
       assert.doesNotMatch(`${analysts.hero.card} ${analysts.hero.hint}`, /seeded|demo/i);
     }
     assert.doesNotMatch(visibleText(analysts), BANNED);
@@ -214,19 +214,22 @@ describe("sector books", () => {
     assert.equal(fintwit.liveHref, FINTWIT_URL);
     assert.equal(fintwitBook.liveUrl, "https://fintwit.gradedcalls.com");
     assert.match(fintwit.sections[0]?.rows[0]?.detail ?? "", /Sunday settle holds/);
-    assert.equal(fintwit.hero.kind, "count");
+    assert.equal(fintwit.hero.kind, "tube");
     assert.equal(fintwitShownFill(32.5), 32);
     assert.notEqual(fintwitShownFill(32.5), Math.round(32.5));
     assert.equal(displayFill(32.5), 33);
     assert.equal(gradeForFill(32.5).name, "WEAK");
-    if (fintwit.hero.kind === "count") {
-      assert.equal(fintwit.hero.value, "1");
+    if (fintwit.hero.kind === "tube") {
+      assert.equal(fintwit.hero.fill, 11);
+      assert.equal(gradeForFill(fintwit.hero.fill).name, "WEAK");
       assert.equal(
         fintwit.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"),
-        "1 call · week of Nov 16, 2026 · not graded · 16-account watchlist",
+        "2 graded calls · week of Nov 16, 2026 · 17-account watchlist",
       );
       assert.match(fintwit.hero.hint, /Week of Nov 16, 2026/);
-      assert.match(fintwit.hero.hint, /not graded yet/);
+      assert.match(fintwit.hero.hint, /shown as 11% WEAK/);
+      assert.match(fintwit.hero.hint, /15 X accounts plus two Substack writers/);
+      assert.doesNotMatch(fintwit.hero.hint, /not graded yet/);
       assert.doesNotMatch(`${fintwit.hero.card} ${fintwit.hero.hint}`, /seeded|demo/i);
       assert.doesNotMatch(fintwit.hero.hint, /peer-rank/);
       assert.doesNotMatch(fintwit.hero.hint, /78% STRONG/);
@@ -238,8 +241,9 @@ describe("sector books", () => {
     assert.equal(bot.sections[0]?.rows[0]?.title, "AI capex supercycle");
     assert.equal(bot.hero.kind, "count");
     if (bot.hero.kind === "count") {
-      assert.equal(bot.hero.value, "13456");
+      assert.equal(bot.hero.value, "15803");
       assert.equal(bot.hero.card.replace(/\u00a0/g, " ").replace(/\u2011/g, "-"), "posts · 22 narratives · 2939 accounts");
+      assert.match(bot.hero.hint, /window Oct 4–Nov 22, 2026/);
       assert.doesNotMatch(`${bot.hero.card} ${bot.hero.hint}`, /fixture|synthetic|seeded|demo/i);
     }
     assert.equal(bot.liveLabel, "Open the live GCBot board");
